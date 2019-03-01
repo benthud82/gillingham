@@ -1,7 +1,5 @@
 <?php
-
 //creates table gillingham.nptsld
-
 $holidays = array();
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
@@ -35,7 +33,7 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idGill_Test
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
                                                                 WHERE
-                                                                    rank <= 61 AND PKTYPE IN ('101' , '111')");
+                                                                    rank <= 61 AND PKTYPE IN 'EA'");
 $sql_30day->execute();
 
 
@@ -54,20 +52,14 @@ $rawsql = $conn1->prepare("SELECT
                                                         gillingham.gill_raw_30day A
                                                             JOIN
                                                         gillingham.npfcpcsettings ON CPCITEM = ITEM
-                                                            LEFT JOIN
-                                                        gillingham.avg_inv V ON V.ITEM = A.ITEM
                                                     GROUP BY A.ITEM , A.PKGU , A.PKTYPE , A.PICKDATE
                                                     ORDER BY A.ITEM ASC , A.PICKDATE DESC");
 $rawsql->execute();
 $groupedarray = $rawsql->fetchAll(pdo::FETCH_ASSOC);
-
-
 $columns = 'GROUPED_ITEM, GROUPED_PKGU, GROUPED_PKTYPE, GROUPED_DATE, GROUPED_PICKS, GROUPED_UNITS, GROUPED_PREVSALE, GROUPED_DSLS, GROUPED_INVOH';
-
 $maxrange = 20000;
 $counter = 0;
 $rowcount = count($groupedarray);
-
 do {
     if ($maxrange > $rowcount) {  //prevent undefined offset
         $maxrange = $rowcount - 1;
