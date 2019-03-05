@@ -5,7 +5,7 @@
 $holidays = array();
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../connection/connection_details.php';
+include_once '../../globalincludes/google_connect.php';
 include_once 'globalfunctions.php';
 
 $sqldelete = "TRUNCATE gillingham.gill_grouped";
@@ -17,11 +17,11 @@ $querydelete2 = $conn1->prepare($sqldelete2);
 $querydelete2->execute();
 
 //create 30 day table
-$sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idGill_Test, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
+$sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
                                                                 SELECT 
                                                                     idGill_Test,
                                                                     ITEM,
-                                                                    PKGU,
+                                                                    1,
                                                                     PKTYPE,
                                                                     UNITS,
                                                                     PICKDATE,
@@ -34,8 +34,8 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idGill_Test
                                                                     FROM
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
-                                                                WHERE
-                                                                    rank <= 61 AND PKTYPE IN ('101' , '111')");
+                                                                WHERE PICKDATE >= '2017-01-01' and
+                                                                    rank <= 61");
 $sql_30day->execute();
 
 
@@ -43,20 +43,20 @@ $sql_30day->execute();
 //would only want to go back certain number of days
 $rawsql = $conn1->prepare("SELECT 
                                                         A.ITEM,
-                                                        A.PKGU,
+                                                        1,
                                                         A.PKTYPE,
                                                         A.PICKDATE,
                                                         COUNT(*) AS PICK_COUNT,
                                                         SUM(A.UNITS) AS UNITS_SUM,
-                                                        CONCAT(A.ITEM, A.PKGU, A.PKTYPE) AS KEYVAL,
+                                                        CONCAT(A.ITEM, 1, A.PKTYPE) AS KEYVAL,
                                                         ceil(AVG(V.AVG_OH)) AS INV_OH
                                                     FROM
                                                         gillingham.gill_raw_30day A
                                                             JOIN
-                                                        gillingham.npfcpcsettings ON CPCITEM = ITEM
+                                                        gillingham.item_master B ON B.ITEM = A.ITEM
                                                             LEFT JOIN
                                                         gillingham.avg_inv V ON V.ITEM = A.ITEM
-                                                    GROUP BY A.ITEM , A.PKGU , A.PKTYPE , A.PICKDATE
+                                                    GROUP BY A.ITEM , 1 , A.PKTYPE , A.PICKDATE
                                                     ORDER BY A.ITEM ASC , A.PICKDATE DESC");
 $rawsql->execute();
 $groupedarray = $rawsql->fetchAll(pdo::FETCH_ASSOC);
@@ -77,7 +77,8 @@ do {
     $values = array();
     while ($counter <= $maxrange) { //split into 10,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
         $ITEM = intval($groupedarray[$counter]['ITEM']);
-        $PKGU = intval($groupedarray[$counter]['PKGU']);
+        //$PKGU = intval($groupedarray[$counter]['PKGU']);
+        $PKGU = intval(1);
         $PKTYPE = $groupedarray[$counter]['PKTYPE'];
         $PICKDATE = date('Y-m-d', strtotime($groupedarray[$counter]['PICKDATE']));
         $PICK_COUNT = intval($groupedarray[$counter]['PICK_COUNT']);
@@ -115,34 +116,30 @@ $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
 //Create NPTSLD file from gill_grouped
-$sql2 = "INSERT IGNORE INTO gillingham.nptsld
+$sql2 = " INSERT IGNORE INTO gillingham.nptsld
                          SELECT 
-                                A.GROUPED_ITEM,
-                                A.GROUPED_PKGU,
-                                A.GROUPED_PKTYPE,
-                                COUNT(*),
-                                B.RECENTDSLS,
-                                AVG(A.GROUPED_DSLS),
-                                STDDEV(A.GROUPED_DSLS),
-                                AVG(A.GROUPED_PICKS),
-                                STDDEV(A.GROUPED_PICKS),
-                                AVG(A.GROUPED_UNITS),
-                                STDDEV(A.GROUPED_UNITS),
-                                CEIL(AVG(A.GROUPED_INVOH))
-                             FROM
-                                gillingham.gill_grouped A
-                                    INNER JOIN
-                                (SELECT 
-                                    GROUPED_ITEM,
-                                        GROUPED_PKGU,
-                                        GROUPED_PKTYPE,
-                                        GROUPED_DSLS AS RECENTDSLS
-                                FROM
-                                    gillingham.gill_grouped
-                                GROUP BY GROUPED_ITEM , GROUPED_PKGU , GROUPED_PKTYPE) B ON A.GROUPED_ITEM = B.GROUPED_ITEM
-                                    AND A.GROUPED_PKGU = B.GROUPED_PKGU
-                                    AND A.GROUPED_PKTYPE = B.GROUPED_PKTYPE
-                               WHERE A.GROUPED_DSLS <> 0
-                            GROUP BY A.GROUPED_ITEM , A.GROUPED_PKGU , A.GROUPED_PKTYPE";
+    A.GROUPED_ITEM,
+    1,
+    A.GROUPED_PKTYPE,
+    COUNT(A.GROUPED_ITEM),
+    (SELECT 
+            B.GROUPED_DSLS
+        FROM
+            gillingham.gill_grouped B
+        WHERE
+            A.GROUPED_ITEM = B.GROUPED_ITEM
+                AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)) AS RECENT_DSLS,
+    AVG(A.GROUPED_DSLS),
+    STDDEV(A.GROUPED_DSLS),
+    AVG(A.GROUPED_PICKS),
+    STDDEV(A.GROUPED_PICKS),
+    AVG(A.GROUPED_UNITS),
+    STDDEV(A.GROUPED_UNITS),
+    CEIL(AVG(A.GROUPED_INVOH))
+FROM
+    gillingham.gill_grouped A
+WHERE
+    A.GROUPED_DSLS <> 0
+GROUP BY A.GROUPED_ITEM , 1 , A.GROUPED_PKTYPE";
 $query2 = $conn1->prepare($sql2);
 $query2->execute();
