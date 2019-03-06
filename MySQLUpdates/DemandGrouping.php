@@ -116,14 +116,14 @@ $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
 //Create NPTSLD file from gill_grouped
-$sql2 = " INSERT IGNORE INTO gillingham.nptsld
+$sql2 = "INSERT IGNORE INTO gillingham.nptsld
                          SELECT 
     A.GROUPED_ITEM,
     1,
     A.GROUPED_PKTYPE,
     COUNT(A.GROUPED_ITEM),
     (SELECT 
-            B.GROUPED_DSLS
+            MIN(B.GROUPED_DSLS)
         FROM
             gillingham.gill_grouped B
         WHERE
@@ -135,11 +135,82 @@ $sql2 = " INSERT IGNORE INTO gillingham.nptsld
     STDDEV(A.GROUPED_PICKS),
     AVG(A.GROUPED_UNITS),
     STDDEV(A.GROUPED_UNITS),
-    CEIL(AVG(A.GROUPED_INVOH))
+    CEIL(AVG(A.GROUPED_INVOH)),
+    CASE
+        WHEN AVG(A.GROUPED_DSLS) >= 365 THEN 0
+        WHEN
+            (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)) >= 180
+        THEN
+            0
+        WHEN
+            AVG(A.GROUPED_DSLS) = 0
+                AND (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)) = 0
+        THEN
+            AVG(A.GROUPED_PICKS)
+        WHEN
+            AVG(A.GROUPED_DSLS) = 0
+        THEN
+            (AVG(A.GROUPED_PICKS) / (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)))
+        ELSE (AVG(A.GROUPED_PICKS) / AVG(A.GROUPED_DSLS))
+    END AS AVG_DAILY_PICK,
+    CASE
+        WHEN AVG(A.GROUPED_DSLS) >= 365 THEN 0
+        WHEN
+            (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)) >= 180
+        THEN
+            0
+        WHEN
+            AVG(A.GROUPED_DSLS) = 0
+                AND (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)) = 0
+        THEN
+            AVG(A.GROUPED_UNITS)
+        WHEN
+            AVG(A.GROUPED_DSLS) = 0
+        THEN
+            (AVG(A.GROUPED_UNITS) / (SELECT 
+                    MIN(B.GROUPED_DSLS)
+                FROM
+                    gillingham.gill_grouped B
+                WHERE
+                    A.GROUPED_ITEM = B.GROUPED_ITEM
+                        AND B.GROUPED_DATE = MAX(A.GROUPED_DATE)))
+        ELSE (AVG(A.GROUPED_UNITS) / AVG(A.GROUPED_DSLS))
+    END AS AVG_DAILY_UNIT
 FROM
     gillingham.gill_grouped A
 WHERE
     A.GROUPED_DSLS <> 0
+        AND A.GROUPED_UNITS > 0
 GROUP BY A.GROUPED_ITEM , 1 , A.GROUPED_PKTYPE";
 $query2 = $conn1->prepare($sql2);
 $query2->execute();
