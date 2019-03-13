@@ -404,9 +404,9 @@ function _truefitgrid2iterations($var_grid5, $var_gridheight, $var_griddepth, $v
 
 //calculate true fit with a given grid - first and second iteration
 function _truefitgrid2iterations_case($var_grid5, $var_gridheight, $var_griddepth, $var_gridwidth, $var_PCLIQU, $var_PCEHEIin, $var_PCELENin, $var_PCEWIDin, $var_caseqty) {
-if($var_caseqty === 0){
-    $var_caseqty = 1;
-}
+    if ($var_caseqty === 0) {
+        $var_caseqty = 1;
+    }
     switch ($var_PCLIQU) {
         case "  ":
 
