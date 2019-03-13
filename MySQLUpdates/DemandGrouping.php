@@ -1,4 +1,3 @@
-<a href="../globalfunctions/newitem.php"></a>
 <?php
 //creates table gillingham.nptsld
 
@@ -8,6 +7,7 @@ ini_set('memory_limit', '-1');
 include_once '../../globalincludes/google_connect.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
+include_once '../globalfunctions/slottingfunctions.php';
 
 //$sqldelete = "TRUNCATE gillingham.gill_grouped";
 //$querydelete = $conn1->prepare($sqldelete);
@@ -219,7 +219,15 @@ include_once '../globalfunctions/newitem.php';
 //this will be the starting point for moves per cubic inch
 //pull in all "normal" items
 $itemsql = $conn1->prepare("SELECT 
-                                M.ITEM, M.EA_DEPTH, M.EA_HEIGHT, M.EA_WIDTH, (M.EA_DEPTH * M.EA_HEIGHT * M.EA_WIDTH) / 1000 as ITEMCUBE
+                                M.ITEM,
+                                M.EA_DEPTH,
+                                M.EA_HEIGHT,
+                                M.EA_WIDTH,
+                                (M.EA_DEPTH * M.EA_HEIGHT * M.EA_WIDTH) / 1000 AS ITEMCUBE,
+                                AVG_DAILY_UNIT,
+                                AVG_INVOH,
+                                AVG_UNITS,
+                                ADBS
                             FROM
                                 gillingham.item_master M
                                     JOIN
@@ -276,6 +284,13 @@ foreach ($itemarray as $key => $value) {
 
         //test if true fit > 0
         if ($truefit_tworound > 0) {
+            //what is the implied daily moves at this TF
+            $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
+            $avginv = $itemarray[$key]['AVG_INVOH'];
+            $shipqtymn = $itemarray[$key]['AVG_UNITS'];
+            $adbs = $itemarray[$key]['ADBS'];
+            $min = _minloc($truefit_tworound, $shipqtymn, 1);
+            $implieddailymoves = _implied_daily_moves($truefit_tworound, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs);
             //break out of the grid loop to write to store in array
             break;
         }

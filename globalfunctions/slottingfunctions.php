@@ -17,14 +17,14 @@ function searchForExcl($id, $array) {
     return null;
 }
 
-function _searchForKey($id, $array, $searchkey) {
-    foreach ($array as $key => $val) {
-        if ($val[$searchkey] === $id) {
-            return $key;
-        }
-    }
-    return null;
-}
+//function _searchForKey($id, $array, $searchkey) {
+//    foreach ($array as $key => $val) {
+//        if ($val[$searchkey] === $id) {
+//            return $key;
+//        }
+//    }
+//    return null;
+//}
 
 function searchForMoves($id, $array) {
     foreach ($array as $key => $val) {
