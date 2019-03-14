@@ -239,7 +239,7 @@ $itemsql = $conn1->prepare("SELECT
                                     JOIN
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
                             WHERE
-                                LINE_TYPE IN ('ST' , 'SW')
+                                LINE_TYPE IN ('ST' , 'SW')\
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -314,6 +314,9 @@ foreach ($itemarray as $key => $value) {
     }
     $columns_itemtf = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_current, itemtf_rpc';
 //after looping through all items, write to smallest_grid table
+    if(count($array_itemtf) == 0){
+        $array_itemtf[] = "($item, 'NOFIT', '1','4512',1, '0' )";
+    }
     $values = implode(',', $array_itemtf);
     $sql = "INSERT IGNORE INTO gillingham.item_truefits ($columns_itemtf) VALUES $values";
     $query = $conn1->prepare($sql);
