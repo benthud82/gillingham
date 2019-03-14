@@ -19,5 +19,5 @@ $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 $capacity = $usevol_array[0]['cap_85'];
 
-//pull in top item
+//pull in top item based of next grid flag
 
