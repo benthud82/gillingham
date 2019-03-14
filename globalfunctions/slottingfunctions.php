@@ -1506,7 +1506,7 @@ function _minloc($max, $avgshipqty, $caseqty) {
     if (($avgshipqty * 2) <= ($max * .25)) {
         $minloc = ($avgshipqty * 2); //set min to 2 ship occurences if less
     } elseif (($avgshipqty * 2) >= ($max * .25)) {
-        $minloc = ceil($max * .25); //set min to 25% of max
+        $minloc = ceil($max); //set min to 25% of max
     }
 
     return $minloc;
@@ -1541,7 +1541,7 @@ function _slotqty_offsys($avgshipqty, $daystostock, $avginventory, $slowdownsize
     }
 }
 
-function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs) {
+function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs, $daily_pick_qty) {
     $loc_theoretical_max = min($max, $avginv);  //should never have more than this in location.
     if ($daily_ship_qty == 0) {
         $impliedmoves = 0;
@@ -1550,6 +1550,11 @@ function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, 
 
     if ($shipqtymn >= $max) { //prevent overstating moves because of large single shipments
         $impliedmoves = 1 / $adbs;
+        return $impliedmoves;
+    }
+
+    if ($max == $min) {
+        $impliedmoves = 1 / ($max / $daily_ship_qty);
         return $impliedmoves;
     }
 
@@ -1564,6 +1569,16 @@ function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, 
         $impliedmoves = 1 / $divisor;
     }
     return $impliedmoves;
+}
+
+function _implied_daily_moves_nomin($max, $daily_ship_qty, $avginv) {
+    $loc_theoretical_max = min($max, $avginv);  //should never have more than this in location.
+    if ($daily_ship_qty == 0) {
+        $impliedmoves = 0;
+        return $impliedmoves;
+    }
+    $impliedmoves = $daily_ship_qty / $loc_theoretical_max;
+      return $impliedmoves;
 }
 
 function _implied_daily_moves_withcurrentTF($max, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs, $var_CURTF) {
