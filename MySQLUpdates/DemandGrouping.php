@@ -239,7 +239,7 @@ $itemsql = $conn1->prepare("SELECT
                                     JOIN
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
                             WHERE
-                                LINE_TYPE IN ('ST' , 'SW')\
+                                LINE_TYPE IN ('ST' , 'SW')
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
