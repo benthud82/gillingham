@@ -4,8 +4,8 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-//include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+include_once '../../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -68,7 +68,7 @@ foreach ($itemarray as $key => $value) {
     $implieddailymoves = 999;
     $grid5 = 'NOFIT';
     $truefit_tworound = 0;
-    $nextgrid = 0;
+    $nextgrid = 1;
     $rpc = '0';
     $previousTF = 0;
     $item = $itemarray[$key]['ITEM'];
@@ -115,7 +115,7 @@ foreach ($itemarray as $key => $value) {
             //push to array
             $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '0')";
             if (count($array_itemtf) == 1) {
-                $nextgrid = 1;
+                $nextgrid = 2;
             } else {
                 $nextgrid = 0;
             }
