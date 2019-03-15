@@ -4,8 +4,8 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -39,25 +39,36 @@ $itemsql = $conn1->prepare("SELECT
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
                             WHERE
                                 LINE_TYPE IN ('ST' , 'SW')
-                                    AND CHAR_GROUP NOT IN ('D' , 'J', 'T')
-                                    LIMIT 1000");
+                                    AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
 
 
 //pull in all grid sizes
 $gridsql = $conn1->prepare("SELECT 
-                                slotmaster_dimgroup,
-                                slotmaster_usehigh,
-                                slotmaster_usedeep,
-                                slotmaster_usewide,
-                                slotmaster_usecube,
-                                COUNT(*)
-                            FROM
-                                gillingham.slotmaster
-                            GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube
-                            HAVING COUNT(*) >= 10
-                            ORDER BY slotmaster_usecube ASC");
+                                                    slotmaster_dimgroup,
+                                                    slotmaster_usehigh,
+                                                    slotmaster_usedeep,
+                                                    slotmaster_usewide,
+                                                    slotmaster_usecube,
+                                                    CASE
+                                                        WHEN slotmaster_dimgroup LIKE 'CL%' THEN 'FLOW'
+                                                        WHEN slotmaster_usedeep < 80 THEN 'BIN'
+                                                        ELSE 'PALL'
+                                                    END AS LOC_TYPE,
+                                                    COUNT(*)
+                                                FROM
+                                                    gillingham.slotmaster
+                                                        LEFT JOIN
+                                                    gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
+                                                WHERE
+                                                    exclude_grid IS NULL
+                                                GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , CASE
+                                                    WHEN slotmaster_dimgroup LIKE 'CL%' THEN 'FLOW'
+                                                    WHEN slotmaster_usedeep < 80 THEN 'BIN'
+                                                    ELSE 'PALL'
+                                                END
+                                                ORDER BY slotmaster_usecube ASC");
 $gridsql->execute();
 $gridarray = $gridsql->fetchAll(pdo::FETCH_ASSOC);
 
@@ -85,6 +96,7 @@ foreach ($itemarray as $key => $value) {
         $griddeep = $gridarray[$key2]['slotmaster_usedeep'];
         $gridwide = $gridarray[$key2]['slotmaster_usewide'];
         $gridcube = $gridarray[$key2]['slotmaster_usecube'];
+        $gridtype = $gridarray[$key2]['LOC_TYPE'];
 
         //if cube of one unit is greater than cube of grid, then continue
         if ($ea_cube > $gridcube) {
@@ -113,7 +125,7 @@ foreach ($itemarray as $key => $value) {
             $rpc = ($implieddailymoves / $gridcube) * 1000;
 
             //push to array
-            $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '0')";
+            $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype')";
             if (count($array_itemtf) == 1) {
                 $nextgrid = 2;
             } else {
@@ -125,10 +137,10 @@ foreach ($itemarray as $key => $value) {
             }
         }
     }
-    $columns_itemtf = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_rpcdecrease';
+    $columns_itemtf = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype';
 //after looping through all items, write to smallest_grid table
     if (count($array_itemtf) == 0) {
-        $array_itemtf[] = "($item, 'NOFIT', '1','4512',0, '0', '0' )";
+        $array_itemtf[] = "($item, 'NOFIT', '1','4512',0, '0', 'NOFIT' )";
     }
     $values = implode(',', $array_itemtf);
     $sql = "INSERT IGNORE INTO gillingham.item_truefits ($columns_itemtf) VALUES $values";
@@ -141,6 +153,7 @@ $sqlinsert = "INSERT INTO gillingham.rpc_reductions SELECT
                             TF.itemtf_grid,
                             TF.itemtf_nextgrid,
                             TF.itemtf_rpc,
+                            TF.itemtf_loctype,
                             IF(@lastitem = TF.itemtf_item,
                                 (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
                                 0000.00) AS decrease_rpc,

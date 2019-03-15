@@ -2,29 +2,40 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
-
+$bin_totalcube = $flow_totalcube = 0;
 //what is capacity?
 $usevol_sql = $conn1->prepare("SELECT 
-                                SUM(USE_CUBE) AS avail_cube,
-                                SUM(USE_CUBE) * .85 as cap_85
-                            FROM
-                                gillingham.location_master");
+                                                        SUM(CASE
+                                                            WHEN LOC_DIM LIKE 'CL%' THEN (USE_CUBE * .85)
+                                                            ELSE 0
+                                                        END) AS cap_flow,
+                                                        SUM(CASE
+                                                            WHEN USE_DEPTH < 80 THEN (USE_CUBE * .85)
+                                                            ELSE 0
+                                                        END) AS cap_bb
+                                                    FROM
+                                                        gillingham.location_master
+                                                            LEFT JOIN
+                                                        gillingham.grid_exclusions ON exclude_grid = LOC_DIM
+                                                    WHERE
+                                                        exclude_grid IS NULL");
 $usevol_sql->execute();
 $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 
-
-//*********WARNING, WILL HAVE TO SPLIT THIS OUT FOR BLUE BINS AND FLOW RACK *************
-$capacity = $usevol_array[0]['cap_85'] * .00500;
+//$cap_flow = $usevol_array[0]['cap_flow'];
+//$cap_bb = $usevol_array[0]['cap_bb'] * .0005;
+$cap_bb = 5000;
+$cap_flow = 5000;
 do {
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 
-                                        rpc_item, rpc_grid, rpc_nextgrid, rpc_rpcdecrease
+                                        rpc_item, rpc_grid, rpc_nextgrid, rpc_rpcdecrease, rpc_loctype
                                     FROM
                                         gillingham.rpc_reductions
                                     WHERE
@@ -46,6 +57,15 @@ do {
         if ($array_topitem[$key]['rpc_nextgrid'] <> 2) {
             continue;
         }
+
+        //determine if capacity has been met for either bin or flow and update rpc_nextgrid to 0 for current record
+        if (($bin_totalcube >= $cap_bb) && $array_topitem[$key]['rpc_loctype'] == 'BIN') {
+            //bin capacity is full, set next grid to 0 and key+ 1 to new 2 then continue.  This does NOT change anything in the table, just the array
+            $array_topitem[$key]['rpc_nextgrid'] = 0;
+            $array_topitem[$key + 1]['rpc_nextgrid'] = 2;
+            continue;
+        }
+
         //once nextgrid has been found, update the rpc_nextgrid to 1 to indicate now current grid
         //and next line update rpc_nextgrid to 2 for next line
         $item = intval($array_topitem[$key]['rpc_item']);
@@ -55,6 +75,12 @@ do {
         $item_prev = intval($array_topitem[$key - 1]['rpc_item']);
         $grid_prev = $array_topitem[$key - 1]['rpc_grid'];
 
+        
+        
+        //sql updates
+        $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item_prev";
+        $queryupdate3 = $conn1->prepare($sqlupdate3);
+        $queryupdate3->execute();
         //sql updates
         $sqlupdate1 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 1 WHERE rpc_item = $item and rpc_grid = '$grid'";
         $queryupdate1 = $conn1->prepare($sqlupdate1);
@@ -65,10 +91,6 @@ do {
         $queryupdate2 = $conn1->prepare($sqlupdate2);
         $queryupdate2->execute();
 
-        //sql updates
-        $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item_prev and rpc_grid = '$grid_prev'";
-        $queryupdate3 = $conn1->prepare($sqlupdate3);
-        $queryupdate3->execute();
 
         break;
     }
@@ -81,16 +103,24 @@ do {
 //how much capacity is now used
 //*********WARNING, WILL HAVE TO SPLIT THIS OUT FOR BLUE BINS AND FLOW RACK *************
     $sql_totalcap = $conn1->prepare("SELECT 
-                                    SUM(rpc_gridvol) as totalcube,
-                                    SUM(rpc_impmoves) as totalmoves
-                                FROM
-                                    gillingham.rpc_reductions
-                                WHERE
-                                    rpc_nextgrid = 1;");
+                                                                SUM(CASE 
+                                                                    WHEN rpc_loctype = 'BIN' THEN rpc_gridvol
+                                                                    ELSE 0
+                                                                END) AS bin_totalcube,
+                                                                SUM(CASE
+                                                                    WHEN rpc_loctype = 'FLOW' THEN rpc_gridvol
+                                                                    ELSE 0
+                                                                END) AS flow_totalcube,
+                                                                SUM(rpc_impmoves) AS totalmoves
+                                                            FROM
+                                                                gillingham.rpc_reductions
+                                                            WHERE
+                                                                rpc_nextgrid = 1");
     $sql_totalcap->execute();
     $array_totalcap = $sql_totalcap->fetchAll(pdo::FETCH_ASSOC);
-    $totalcube = $array_totalcap[0]['totalcube'];
+    $bin_totalcube = $array_totalcap[0]['bin_totalcube'];
+    $flow_totalcube = $array_totalcap[0]['flow_totalcube'];
     $totalmoves = $array_totalcap[0]['totalmoves'];
 
-    echo 'CUBE: ' . $totalcube . ' | MOVES: ' . $totalmoves . '<br>';
-} while ($totalcube < $capacity);
+    echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
+} while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
