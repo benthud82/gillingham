@@ -4,12 +4,13 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
+$maxdaysoh = 200;
 
 $sqldelete3 = "TRUNCATE gillingham.item_truefits";
 $querydelete3 = $conn1->prepare($sqldelete3);
@@ -44,7 +45,7 @@ $itemsql = $conn1->prepare("SELECT
                                     JOIN
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
                             WHERE
-                                LINE_TYPE IN ('ST' , 'SW')
+                                LINE_TYPE IN ('ST' , 'SW') and AVG_DAILY_UNIT > 0
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -88,6 +89,7 @@ foreach ($itemarray as $key => $value) {
     $nextgrid = 1;
     $rpc = '0';
     $previousTF = 0;
+    $daysohcount= 0;
     $item = $itemarray[$key]['ITEM'];
     $ea_depth = $itemarray[$key]['EA_DEPTH'];
     $ea_height = $itemarray[$key]['EA_HEIGHT'];
@@ -126,12 +128,17 @@ foreach ($itemarray as $key => $value) {
             //what is next grid size?
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
+            $daysoh = intval($truefit_tworound / $daily_ship_qty);
+            if($daysoh >= $maxdaysoh && $daysohcount > 1){
+                break;
+            }
+            $daysohcount += 1;
             $daily_pick_qty = $itemarray[$key]['AVG_DAILY_PICK'];
             $avginv = $itemarray[$key]['AVG_INVOH'];
 
 
             $min = _minloc($truefit_tworound, $shipqtymn, 1);
-            $implieddailymoves = number_format(_implied_daily_moves_nomin($truefit_tworound, $daily_ship_qty, $avginv), 2);
+            $implieddailymoves = number_format(_implied_daily_moves_nomin($truefit_tworound, $daily_ship_qty, $avginv), 4);
             $rpc = ($implieddailymoves / $gridcube) * 1000;
 
             //push to array
@@ -142,7 +149,7 @@ foreach ($itemarray as $key => $value) {
                 $nextgrid = 0;
             }
 
-            if ($implieddailymoves == '0.00') {
+            if ($implieddailymoves == '0.0000') {
                 break;
             }
         }
@@ -165,7 +172,8 @@ $sqlinsert = "INSERT INTO gillingham.rpc_reductions SELECT
                             TF.itemtf_rpc,
                             TF.itemtf_loctype,
                             IF(@lastitem = TF.itemtf_item,
-                                (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
+                             --   (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
+                                (@lastimpmove - TF.itemtf_impmoves),
                                 0000.00) AS decrease_rpc,
                             @lastitem:=TF.itemtf_item,
                             @lastimpmove:=TF.itemtf_impmoves,

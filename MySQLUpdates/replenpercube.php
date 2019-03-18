@@ -5,8 +5,8 @@ echo $date . '<br>';
 ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
 ini_set('max_allowed_packet', '104857600');
-include_once '../../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -69,19 +69,23 @@ do {
             continue;
         }
 
+        //determine if capacity has been met for either bin or flow and update rpc_nextgrid to 0 for current record
+        if (($flow_totalcube >= $cap_flow) && $array_topitem[$key]['rpc_loctype'] == 'FLOW') {
+            //flow capacity is full, set next grid to 0 and key+ 1 to new 2 then continue.  This does NOT change anything in the table, just the array
+            $array_topitem[$key]['rpc_nextgrid'] = 0;
+            //if there is a next grid set to "2" and continue, else break
+            if (isset($array_topitem[$key + 1])) {
+                $array_topitem[$key + 1]['rpc_nextgrid'] = 2;
+                continue;
+            } else {
+                break;
+            }
+        }
+
         //once nextgrid has been found, update the rpc_nextgrid to 1 to indicate now current grid
         //and next line update rpc_nextgrid to 2 for next line
         $item = intval($array_topitem[$key]['rpc_item']);
         $grid = $array_topitem[$key]['rpc_grid'];
-        if (isset($array_topitem[$key + 1]['rpc_grid'])) {
-            $grid_next = $array_topitem[$key + 1]['rpc_grid'];
-
-            //sql updates
-            $sqlupdate2 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 2 WHERE rpc_item = $item and rpc_grid = '$grid_next'";
-            $queryupdate2 = $conn1->prepare($sqlupdate2);
-            $queryupdate2->execute();
-        }
-
         //sql updates
         $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item";
         $queryupdate3 = $conn1->prepare($sqlupdate3);
@@ -90,6 +94,16 @@ do {
         $sqlupdate1 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 1 WHERE rpc_item = $item and rpc_grid = '$grid'";
         $queryupdate1 = $conn1->prepare($sqlupdate1);
         $queryupdate1->execute();
+        //sql updates
+        if (isset($array_topitem[$key + 1]['rpc_grid'])) {
+            $grid_next = $array_topitem[$key + 1]['rpc_grid'];
+            $sqlupdate2 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 2 WHERE rpc_item = $item and rpc_grid = '$grid_next'";
+            $queryupdate2 = $conn1->prepare($sqlupdate2);
+            $queryupdate2->execute();
+        }
+
+
+
 
         break;
     }
