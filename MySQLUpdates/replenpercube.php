@@ -1,9 +1,12 @@
 <?php
 
-ini_set('max_execution_time', 99999);
+$date = date('Y-m-d H:i:s');
+echo $date . '<br>';
+ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
-//include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+ini_set('max_allowed_packet', '104857600');
+include_once '../../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -28,10 +31,10 @@ $usevol_sql->execute();
 $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 
-//$cap_flow = $usevol_array[0]['cap_flow'];
-//$cap_bb = $usevol_array[0]['cap_bb'] * .0005;
-$cap_bb = 5000;
-$cap_flow = 5000;
+$cap_flow = $usevol_array[0]['cap_flow'];
+$cap_bb = $usevol_array[0]['cap_bb'];
+//$cap_bb = 5000;
+//$cap_flow = 5000;
 do {
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 
@@ -70,27 +73,23 @@ do {
         //and next line update rpc_nextgrid to 2 for next line
         $item = intval($array_topitem[$key]['rpc_item']);
         $grid = $array_topitem[$key]['rpc_grid'];
-        $item_next = intval($array_topitem[$key + 1]['rpc_item']);
-        $grid_next = $array_topitem[$key + 1]['rpc_grid'];
-        $item_prev = intval($array_topitem[$key - 1]['rpc_item']);
-        $grid_prev = $array_topitem[$key - 1]['rpc_grid'];
+        if (isset($array_topitem[$key + 1]['rpc_grid'])) {
+            $grid_next = $array_topitem[$key + 1]['rpc_grid'];
 
-        
-        
+            //sql updates
+            $sqlupdate2 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 2 WHERE rpc_item = $item and rpc_grid = '$grid_next'";
+            $queryupdate2 = $conn1->prepare($sqlupdate2);
+            $queryupdate2->execute();
+        }
+
         //sql updates
-        $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item_prev";
+        $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item";
         $queryupdate3 = $conn1->prepare($sqlupdate3);
         $queryupdate3->execute();
         //sql updates
         $sqlupdate1 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 1 WHERE rpc_item = $item and rpc_grid = '$grid'";
         $queryupdate1 = $conn1->prepare($sqlupdate1);
         $queryupdate1->execute();
-
-        //sql updates
-        $sqlupdate2 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 2 WHERE rpc_item = $item_next and rpc_grid = '$grid_next'";
-        $queryupdate2 = $conn1->prepare($sqlupdate2);
-        $queryupdate2->execute();
-
 
         break;
     }
@@ -124,3 +123,6 @@ do {
 
     echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
 } while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
+
+$date = date('Y-m-d H:i:s');
+echo $date . '<br>';

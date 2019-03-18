@@ -4,8 +4,8 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-//include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+include_once '../../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -32,7 +32,13 @@ $itemsql = $conn1->prepare("SELECT
                                 AVG_DAILY_PICK,
                                 AVG_INVOH,
                                 AVG_UNITS,
-                                ADBS
+                                ADBS,
+                                (SELECT 
+                                        MIN(adbs_days)
+                                    FROM
+                                        gillingham.adbs_mindays
+                                    WHERE
+                                        ADBS >= adbs_adbs) AS DAYS_TO_STORE
                             FROM
                                 gillingham.item_master M
                                     JOIN
@@ -60,7 +66,7 @@ $gridsql = $conn1->prepare("SELECT
                                                 FROM
                                                     gillingham.slotmaster
                                                         LEFT JOIN
-                                                    gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
+                                                        gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
                                                 WHERE
                                                     exclude_grid IS NULL
                                                 GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , CASE
@@ -87,7 +93,10 @@ foreach ($itemarray as $key => $value) {
     $ea_height = $itemarray[$key]['EA_HEIGHT'];
     $ea_width = $itemarray[$key]['EA_WIDTH'];
     $ea_cube = $itemarray[$key]['ITEMCUBE'];
-
+    $daystostore = $itemarray[$key]['DAYS_TO_STORE'];
+    $adbs = $itemarray[$key]['ADBS'];
+    $shipqtymn = $itemarray[$key]['AVG_UNITS'];
+    $var_EachSLOTQTY = intval($daystostore * $shipqtymn);
     //loop trhough grids in ascending to order
     foreach ($gridarray as $key2 => $value) {
         //currrent grid 5
@@ -105,23 +114,24 @@ foreach ($itemarray as $key => $value) {
 
         //what is true fit of selected grid
         $truefitarray = _truefitgrid2iterations($grid5, $gridhigh, $griddeep, $gridwide, ' ', $ea_height, $ea_depth, $ea_width);
+        //$truefitarray = _truefit($grid5, $gridhigh, $griddeep, $gridwide, ' ', $ea_height, $ea_depth, $ea_width, $var_EachSLOTQTY, 999);
         $truefit_tworound = $truefitarray[1];
         //if new tf is less than previous TF, continue
         if ($truefit_tworound <= $previousTF) {
             continue;
         }
         $previousTF = $truefit_tworound;
-        //test if true fit > 0
-        if ($truefit_tworound > 0) {
+        //test if true fit > slotquantity
+        if ($truefit_tworound > $var_EachSLOTQTY) {
             //what is next grid size?
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
             $daily_pick_qty = $itemarray[$key]['AVG_DAILY_PICK'];
             $avginv = $itemarray[$key]['AVG_INVOH'];
-            $shipqtymn = $itemarray[$key]['AVG_UNITS'];
-            $adbs = $itemarray[$key]['ADBS'];
+
+
             $min = _minloc($truefit_tworound, $shipqtymn, 1);
-            $implieddailymoves = number_format(_implied_daily_moves_nomin($truefit_tworound, $daily_ship_qty, $avginv), 4);
+            $implieddailymoves = number_format(_implied_daily_moves_nomin($truefit_tworound, $daily_ship_qty, $avginv), 2);
             $rpc = ($implieddailymoves / $gridcube) * 1000;
 
             //push to array
@@ -132,7 +142,7 @@ foreach ($itemarray as $key => $value) {
                 $nextgrid = 0;
             }
 
-            if ($implieddailymoves == '0.0000') {
+            if ($implieddailymoves == '0.00') {
                 break;
             }
         }
