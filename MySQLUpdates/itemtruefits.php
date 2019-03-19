@@ -4,8 +4,8 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -40,26 +40,27 @@ $itemsql = $conn1->prepare("SELECT
                                 M.EA_HEIGHT,
                                 M.EA_WIDTH,
                                 (M.EA_DEPTH * M.EA_HEIGHT * M.EA_WIDTH) / 1000 AS ITEMCUBE,
-                                AVG_DAILY_UNIT,
-                                AVG_DAILY_PICK,
-                                AVG_INVOH,
-                                AVG_UNITS,
-                                ADBS,
+                                D.AVG_DAILY_UNIT,
+                                D.AVG_DAILY_PICK,
+                                D.AVG_INVOH,
+                                D.AVG_UNITS,
+                                D.ADBS,
                                 (SELECT 
                                         MIN(adbs_days)
                                     FROM
                                         gillingham.adbs_mindays
                                     WHERE
-                                        ADBS >= adbs_adbs) AS DAYS_TO_STORE
+                                        D.ADBS >= adbs_adbs) AS DAYS_TO_STORE
                             FROM
                                 gillingham.item_master M
                                     JOIN
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
                                  LEFT JOIN
-                              gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
+                              gillingham.my_npfmvc F ON F.ITEM_NUMBER = M.ITEM
                             WHERE
-                                LINE_TYPE IN ('ST' , 'SW') and AVG_DAILY_UNIT > 0
+                                LINE_TYPE IN ('ST' , 'SW') and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
+                                and F.ITEM_NUMBER IS NULL
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);

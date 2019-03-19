@@ -5,8 +5,8 @@ echo $date . '<br>';
 ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
 ini_set('max_allowed_packet', '104857600');
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -36,10 +36,10 @@ $usevol_sql->execute();
 $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 
-$cap_flow = $usevol_array[0]['cap_flow'];
+//$cap_flow = $usevol_array[0]['cap_flow'];
 $cap_bb = $usevol_array[0]['cap_bb'];
 //$cap_bb = 5000;
-//$cap_flow = 5000;
+$cap_flow = 113681;
 do {
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 
