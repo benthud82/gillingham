@@ -10,6 +10,17 @@ include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
+$sqldelete2 = "TRUNCATE gillingham.inventory_restricted";
+$querydelete2 = $conn1->prepare($sqldelete2);
+$querydelete2->execute();
+
+$sqldelete5 = "TRUNCATE gillingham.my_npfmvc";
+$querydelete5 = $conn1->prepare($sqldelete5);
+$querydelete5->execute();
+
+//assign full pallet items
+include 'npfmvc_fullpallet.php';
+
 $maxdaysoh = 200;
 
 $sqldelete3 = "TRUNCATE gillingham.item_truefits";
@@ -44,8 +55,11 @@ $itemsql = $conn1->prepare("SELECT
                                 gillingham.item_master M
                                     JOIN
                                 gillingham.nptsld D ON D.ITEM = M.ITEM
+                                 LEFT JOIN
+                              gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
                             WHERE
                                 LINE_TYPE IN ('ST' , 'SW') and AVG_DAILY_UNIT > 0
+                                and PKTYPE = 'EA'
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -69,7 +83,7 @@ $gridsql = $conn1->prepare("SELECT
                                                         LEFT JOIN
                                                         gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
                                                 WHERE
-                                                    exclude_grid IS NULL
+                                                    exclude_grid IS NULL and slotmaster_pkgu = 'EA'
                                                 GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , CASE
                                                     WHEN slotmaster_dimgroup LIKE 'CL%' THEN 'FLOW'
                                                     WHEN slotmaster_usedeep < 80 THEN 'BIN'
@@ -89,7 +103,7 @@ foreach ($itemarray as $key => $value) {
     $nextgrid = 1;
     $rpc = '0';
     $previousTF = 0;
-    $daysohcount= 0;
+    $daysohcount = 0;
     $item = $itemarray[$key]['ITEM'];
     $ea_depth = $itemarray[$key]['EA_DEPTH'];
     $ea_height = $itemarray[$key]['EA_HEIGHT'];
@@ -129,7 +143,7 @@ foreach ($itemarray as $key => $value) {
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
             $daysoh = intval($truefit_tworound / $daily_ship_qty);
-            if($daysoh >= $maxdaysoh && $daysohcount > 1){
+            if ($daysoh >= $maxdaysoh && $daysohcount > 1) {
                 break;
             }
             $daysohcount += 1;

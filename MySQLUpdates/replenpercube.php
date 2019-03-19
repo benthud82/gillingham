@@ -10,7 +10,12 @@ include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
+
+
+
 $bin_totalcube = $flow_totalcube = 0;
+$totacubecounter = 0;
+$prevtotcube = 0;
 //what is capacity?
 $usevol_sql = $conn1->prepare("SELECT 
                                                         SUM(CASE
@@ -56,6 +61,7 @@ do {
 
 
     foreach ($array_topitem as $key => $value) {
+        $totacubecounter = 0;
         //loop until next grid = 2.  This is the next grid for this item to be upsized.
         if ($array_topitem[$key]['rpc_nextgrid'] <> 2) {
             continue;
@@ -101,20 +107,10 @@ do {
             $queryupdate2 = $conn1->prepare($sqlupdate2);
             $queryupdate2->execute();
         }
-
-
-
-
         break;
     }
 
-
-
-
-
-
 //how much capacity is now used
-//*********WARNING, WILL HAVE TO SPLIT THIS OUT FOR BLUE BINS AND FLOW RACK *************
     $sql_totalcap = $conn1->prepare("SELECT 
                                                                 SUM(CASE 
                                                                     WHEN rpc_loctype = 'BIN' THEN rpc_gridvol
@@ -134,7 +130,17 @@ do {
     $bin_totalcube = $array_totalcap[0]['bin_totalcube'];
     $flow_totalcube = $array_totalcap[0]['flow_totalcube'];
     $totalmoves = $array_totalcap[0]['totalmoves'];
-
+    $newcube = $bin_totalcube + $flow_totalcube;
+    //prevent infinite loop
+    if ($prevtotcube < $newcube) {
+        $prevtotcube = $newcube;
+        $totacubecounter = 0;
+    } else {
+        $totacubecounter += 1;
+    }
+    if ($totacubecounter >= 3) {
+        exit;
+    }
     echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
 } while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
 

@@ -1541,7 +1541,7 @@ function _slotqty_offsys($avgshipqty, $daystostock, $avginventory, $slowdownsize
     }
 }
 
-function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs, $daily_pick_qty) {
+function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, $adbs) {
     $loc_theoretical_max = min($max, $avginv);  //should never have more than this in location.
     if ($daily_ship_qty == 0) {
         $impliedmoves = 0;
