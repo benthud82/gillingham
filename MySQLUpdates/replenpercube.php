@@ -36,10 +36,10 @@ $usevol_sql->execute();
 $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 
-//$cap_flow = $usevol_array[0]['cap_flow'];
+$cap_flow = $usevol_array[0]['cap_flow'];
 $cap_bb = $usevol_array[0]['cap_bb'];
 //$cap_bb = 5000;
-$cap_flow = 113681;
+//$cap_flow = 113681;
 do {
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 

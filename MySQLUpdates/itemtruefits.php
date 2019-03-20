@@ -10,26 +10,17 @@ include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
-$sqldelete2 = "TRUNCATE gillingham.inventory_restricted";
-$querydelete2 = $conn1->prepare($sqldelete2);
-$querydelete2->execute();
+$truncatetables = array('inventory_restricted', 'my_npfmvc', 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid');
+foreach ($truncatetables as $value) {
+    $sqldelete2 = "TRUNCATE gillingham.$value";
+    $querydelete2 = $conn1->prepare($sqldelete2);
+    $querydelete2->execute();
+}
 
-$sqldelete5 = "TRUNCATE gillingham.my_npfmvc";
-$querydelete5 = $conn1->prepare($sqldelete5);
-$querydelete5->execute();
 
 //assign full pallet items
 include 'npfmvc_fullpallet.php';
-
 $maxdaysoh = 200;
-
-$sqldelete3 = "TRUNCATE gillingham.item_truefits";
-$querydelete3 = $conn1->prepare($sqldelete3);
-$querydelete3->execute();
-
-$sqldelete4 = "TRUNCATE gillingham.rpc_reductions";
-$querydelete4 = $conn1->prepare($sqldelete4);
-$querydelete4->execute();
 
 //smallest location to hold one unit of product
 //this will be the starting point for moves per cubic inch
@@ -201,3 +192,19 @@ $sqlinsert = "INSERT INTO gillingham.rpc_reductions SELECT
 $queryinsert = $conn1->prepare($sqlinsert);
 $queryinsert->execute();
 
+//update the currgrid and nextgrid tables
+$sqlinsert2 = "INSERT INTO gillingham.currgrid (currgrid_grid, currgrid_nextgrid, currgrid_rpc, currgrid_loctype, currgrid_rpcdecrease, currgrid_item, currgrid_impmoves, currgrid_gridvol)
+                            SELECT * FROM
+                                gillingham.rpc_reductions
+                            WHERE
+                                rpc_nextgrid = 1";
+$queryinsert2 = $conn1->prepare($sqlinsert2);
+$queryinsert2->execute();
+
+$sqlinsert3 = "INSERT INTO gillingham.nextgrid (nextgrid_grid, nextgrid_nextgrid, nextgrid_rpc, nextgrid_loctype, nextgrid_rpcdecrease, nextgrid_item, nextgrid_impmoves, nextgrid_gridvol)
+                            SELECT * FROM
+                                gillingham.rpc_reductions
+                            WHERE
+                                rpc_nextgrid = 2";
+$queryinsert3 = $conn1->prepare($sqlinsert3);
+$queryinsert3->execute();
