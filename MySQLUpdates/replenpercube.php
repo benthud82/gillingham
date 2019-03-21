@@ -5,8 +5,8 @@ echo $date . '<br>';
 ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
 ini_set('max_allowed_packet', '104857600');
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -41,6 +41,43 @@ $cap_bb = $usevol_array[0]['cap_bb'];
 //$cap_bb = 5000;
 //$cap_flow = 113681;
 do {
+
+    //if all flow capacity is used, delete from available rpc_reductions and reload next grid table.
+    if ($flow_totalcube > $cap_flow) {
+
+        //delete flow from next grid
+        $sqldelete3 = "DELETE FROM gillingham.nextgrid where nextgrid_loctype = 'FLOW'";
+        $querydelete3 = $conn1->prepare($sqldelete3);
+        $querydelete3->execute();
+
+        //Delete flow records and records already used from the item tf table reduction table
+        $sqldelete4 = "DELETE
+                                    item_truefits.*
+                                FROM
+                                    gillingham.item_truefits
+                                        LEFT JOIN
+                                    gillingham.rpc_reductions ON itemtf_item = rpc_item
+                                        AND itemtf_grid = rpc_grid
+                                        WHERE (rpc_item is null or itemtf_loctype = 'FLOW')";
+        $querydelete4 = $conn1->prepare($sqldelete4);
+        $querydelete4->execute();
+        
+        //set min grid vol from the itemtf table as next grid (value of 2).  Note that current grids are in current grid table, value of 1
+
+        //insert current grids record into the item tf table to determine replen reduction going to next grid
+        $sqlinsert4 = "insert ignore into gillingham.item_truefits SELECT currgrid_item, currgrid_grid, currgrid_impmoves, currgrid_gridvol, 1, currgrid_rpc, currgrid_loctype FROM gillingham.currgrid";
+        $queryinsert4 = $conn1->prepare($sqlinsert4);
+        $queryinsert4->execute();
+        
+        //run replen reduction on item tf table again
+        
+        //truncate next grid table
+        
+        //update next grid table 
+    }
+
+
+
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 
                                     nextgrid_grid,
@@ -62,7 +99,7 @@ do {
 
     //top item selected
     //update as current grid in currgrid table with top item
-    $queryupdate2 = $conn1->prepare("UPDATE gillingham.currgrid
+    $sqlinsert3 = "UPDATE gillingham.currgrid
                                                     JOIN
                                                 gillingham.nextgrid ON currgrid_item = nextgrid_item 
                                             SET 
@@ -73,8 +110,9 @@ do {
                                                 currgrid_impmoves = nextgrid_impmoves,
                                                 currgrid_gridvol = nextgrid_gridvol
                                             WHERE
-                                                currgrid_item = $topitem");
-    $queryupdate2->execute;
+                                                currgrid_item = $topitem";
+    $queryinsert3 = $conn1->prepare($sqlinsert3);
+    $queryinsert3->execute();
 
     //Pull in the next grid from the rpc_reductions table based off next smallest grid for target item
 
