@@ -12,8 +12,7 @@ include_once '../globalfunctions/slottingfunctions.php';
 
 $truncatetables = array('inventory_restricted', 'my_npfmvc', 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid');
 foreach ($truncatetables as $value) {
-    $sqldelete2 = "TRUNCATE gillingham.$value";
-    $querydelete2 = $conn1->prepare($sqldelete2);
+    $querydelete2 = $conn1->prepare("TRUNCATE gillingham.$value");
     $querydelete2->execute();
 }
 
@@ -208,3 +207,7 @@ $sqlinsert3 = "INSERT INTO gillingham.nextgrid (nextgrid_grid, nextgrid_nextgrid
                                 rpc_nextgrid = 2";
 $queryinsert3 = $conn1->prepare($sqlinsert3);
 $queryinsert3->execute();
+
+//delete any items ranked as 1 or 2 from rpc_reductions as these are in the currgrid or nextgrid table
+$querydelete2 = $conn1->prepare("DELETE FROM gillingham.rpc_reductions WHERE rpc_nextgrid in (1,2)");
+$querydelete2->execute();

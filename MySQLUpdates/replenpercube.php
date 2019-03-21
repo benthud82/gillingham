@@ -5,8 +5,8 @@ echo $date . '<br>';
 ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
 ini_set('max_allowed_packet', '104857600');
-//include_once '../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+include_once '../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -43,104 +43,124 @@ $cap_bb = $usevol_array[0]['cap_bb'];
 do {
 //pull in top item based of next grid flag
     $sql_topitem = $conn1->prepare("SELECT 
-                                        rpc_item, rpc_grid, rpc_nextgrid, rpc_rpcdecrease, rpc_loctype
-                                    FROM
-                                        gillingham.rpc_reductions
-                                    WHERE
-                                        rpc_item = (SELECT 
-                                                rpc_item
-                                            FROM
-                                                gillingham.rpc_reductions
-                                            WHERE
-                                                rpc_nextgrid = 2
-                                            ORDER BY rpc_rpcdecrease DESC
-                                            LIMIT 1)
-                                    ORDER BY rpc_gridvol ASC");
+                                    nextgrid_grid,
+                                    nextgrid_rpc,
+                                    nextgrid_loctype,
+                                    nextgrid_rpcdecrease,
+                                    nextgrid_item,
+                                    nextgrid_impmoves,
+                                    nextgrid_gridvol
+                                FROM
+                                    gillingham.nextgrid
+                                ORDER BY nextgrid_rpcdecrease DESC
+                                LIMIT 1");
     $sql_topitem->execute();
     $array_topitem = $sql_topitem->fetchAll(pdo::FETCH_ASSOC);
 
+    $topitem = $array_topitem[0]['nextgrid_item'];
 
-    foreach ($array_topitem as $key => $value) {
-        $totacubecounter = 0;
-        //loop until next grid = 2.  This is the next grid for this item to be upsized.
-        if ($array_topitem[$key]['rpc_nextgrid'] <> 2) {
-            continue;
-        }
 
-        //determine if capacity has been met for either bin or flow and update rpc_nextgrid to 0 for current record
-        if (($bin_totalcube >= $cap_bb) && $array_topitem[$key]['rpc_loctype'] == 'BIN') {
-            //bin capacity is full, set next grid to 0 and key+ 1 to new 2 then continue.  This does NOT change anything in the table, just the array
-            $array_topitem[$key]['rpc_nextgrid'] = 0;
-            $array_topitem[$key + 1]['rpc_nextgrid'] = 2;
-            continue;
-        }
+    //top item selected
+    //update as current grid in currgrid table with top item
+    $queryupdate2 = $conn1->prepare("UPDATE gillingham.currgrid
+                                                    JOIN
+                                                gillingham.nextgrid ON currgrid_item = nextgrid_item 
+                                            SET 
+                                                currgrid_grid = nextgrid_grid,
+                                                currgrid_rpc = nextgrid_rpc,
+                                                currgrid_loctype = nextgrid_loctype,
+                                                currgrid_rpcdecrease = nextgrid_rpcdecrease,
+                                                currgrid_impmoves = nextgrid_impmoves,
+                                                currgrid_gridvol = nextgrid_gridvol
+                                            WHERE
+                                                currgrid_item = $topitem");
+    $queryupdate2->execute;
 
-        //determine if capacity has been met for either bin or flow and update rpc_nextgrid to 0 for current record
-        if (($flow_totalcube >= $cap_flow) && $array_topitem[$key]['rpc_loctype'] == 'FLOW') {
-            //flow capacity is full, set next grid to 0 and key+ 1 to new 2 then continue.  This does NOT change anything in the table, just the array
-            $array_topitem[$key]['rpc_nextgrid'] = 0;
-            //if there is a next grid set to "2" and continue, else break
-            if (isset($array_topitem[$key + 1])) {
-                $array_topitem[$key + 1]['rpc_nextgrid'] = 2;
-                continue;
-            } else {
-                break;
-            }
-        }
+    //Pull in the next grid from the rpc_reductions table based off next smallest grid for target item
 
-        //once nextgrid has been found, update the rpc_nextgrid to 1 to indicate now current grid
-        //and next line update rpc_nextgrid to 2 for next line
-        $item = intval($array_topitem[$key]['rpc_item']);
-        $grid = $array_topitem[$key]['rpc_grid'];
-        //sql updates
-        $sqlupdate3 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 0 WHERE rpc_item = $item";
-        $queryupdate3 = $conn1->prepare($sqlupdate3);
-        $queryupdate3->execute();
-        //sql updates
-        $sqlupdate1 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 1 WHERE rpc_item = $item and rpc_grid = '$grid'";
-        $queryupdate1 = $conn1->prepare($sqlupdate1);
-        $queryupdate1->execute();
-        //sql updates
-        if (isset($array_topitem[$key + 1]['rpc_grid'])) {
-            $grid_next = $array_topitem[$key + 1]['rpc_grid'];
-            $sqlupdate2 = "UPDATE gillingham.rpc_reductions SET rpc_nextgrid = 2 WHERE rpc_item = $item and rpc_grid = '$grid_next'";
-            $queryupdate2 = $conn1->prepare($sqlupdate2);
-            $queryupdate2->execute();
-        }
-        break;
+    $sql_nextgrid = $conn1->prepare("SELECT 
+                                        rpc_grid,
+                                        2 as rpc_nextgrid,
+                                        rpc_rpc,
+                                        rpc_loctype,
+                                        rpc_rpcdecrease,
+                                        rpc_impmoves,
+                                        rpc_gridvol
+                                    FROM
+                                        gillingham.rpc_reductions
+                                    WHERE
+                                        rpc_item = $topitem
+                                    ORDER BY rpc_gridvol ASC
+                                    LIMIT 1");
+    $sql_nextgrid->execute();
+    $array_nextgrid = $sql_nextgrid->fetchAll(pdo::FETCH_ASSOC);
+
+
+
+
+    if (count($array_nextgrid) > 0) {
+        //if another grid is availble, delete record from nextgrid table
+        $querydelete2 = $conn1->prepare("DELETE FROM gillingham.nextgrid where nextgrid_item = $topitem");
+        $querydelete2->execute();
+
+        //insert into next record from rpc_reductions table
+        $queryinsert2 = $conn1->prepare("INSERT INTO gillingham.nextgrid SELECT 
+                                            rpc_grid,
+                                            2,
+                                            rpc_rpc,
+                                            rpc_loctype,
+                                            rpc_rpcdecrease,
+                                            rpc_item,
+                                            rpc_impmoves,
+                                            rpc_gridvol
+                                        FROM
+                                            gillingham.rpc_reductions
+                                        WHERE
+                                            rpc_item = 1000000
+                                        ORDER BY rpc_gridvol ASC
+                                        LIMIT 1");
+        $queryinsert2->execute();
+
+        //delete record from rpc_reductions table based of grid (min grid volume for item)
+        $querydelete1 = $conn1->prepare("DELETE FROM gillingham.rpc_reductions 
+                                        WHERE
+                                            rpc_item = $topitem ORDER BY rpc_gridvol ASC LIMIT 1");
+        $querydelete1->execute();
+    } else {
+        //else, delete item from nextgrid table
+        $querydelete2 = $conn1->prepare("DELETE FROM gillingham.nextgrid where nextgrid_item = $topitem");
+        $querydelete2->execute();
+
+        //delete record from rpc_reductions table based of grid (min grid volume for item)
+        $querydelete1 = $conn1->prepare("DELETE FROM gillingham.rpc_reductions 
+                                        WHERE
+                                            rpc_item = $topitem ORDER BY rpc_gridvol ASC LIMIT 1");
+        $querydelete1->execute();
     }
+
+
+
 
 //how much capacity is now used
     $sql_totalcap = $conn1->prepare("SELECT 
-                                                                SUM(CASE 
-                                                                    WHEN rpc_loctype = 'BIN' THEN rpc_gridvol
-                                                                    ELSE 0
-                                                                END) AS bin_totalcube,
-                                                                SUM(CASE
-                                                                    WHEN rpc_loctype = 'FLOW' THEN rpc_gridvol
-                                                                    ELSE 0
-                                                                END) AS flow_totalcube,
-                                                                SUM(rpc_impmoves) AS totalmoves
-                                                            FROM
-                                                                gillingham.rpc_reductions
-                                                            WHERE
-                                                                rpc_nextgrid = 1");
+                                        SUM(CASE
+                                            WHEN currgrid_loctype = 'BIN' THEN currgrid_gridvol
+                                            ELSE 0
+                                        END) AS bin_totalcube,
+                                        SUM(CASE
+                                            WHEN currgrid_loctype = 'FLOW' THEN currgrid_gridvol
+                                            ELSE 0
+                                        END) AS flow_totalcube,
+                                        SUM(currgrid_impmoves) AS totalmoves
+                                    FROM
+                                        gillingham.currgrid");
     $sql_totalcap->execute();
     $array_totalcap = $sql_totalcap->fetchAll(pdo::FETCH_ASSOC);
     $bin_totalcube = $array_totalcap[0]['bin_totalcube'];
     $flow_totalcube = $array_totalcap[0]['flow_totalcube'];
     $totalmoves = $array_totalcap[0]['totalmoves'];
     $newcube = $bin_totalcube + $flow_totalcube;
-    //prevent infinite loop
-    if ($prevtotcube < $newcube) {
-        $prevtotcube = $newcube;
-        $totacubecounter = 0;
-    } else {
-        $totacubecounter += 1;
-    }
-    if ($totacubecounter >= 3) {
-        exit;
-    }
+
     echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
 } while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
 
