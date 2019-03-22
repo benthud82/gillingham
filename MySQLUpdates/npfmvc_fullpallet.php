@@ -4,8 +4,8 @@ $daystostock = 15;
 $JAX_ENDCAP = 0;
 $slowdownsizecutoff = 99999;
 $whssel = 'GB00001';
-//include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+include_once '../../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1'");
