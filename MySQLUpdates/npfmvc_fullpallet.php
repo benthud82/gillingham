@@ -4,8 +4,8 @@ $daystostock = 15;
 $JAX_ENDCAP = 0;
 $slowdownsizecutoff = 99999;
 $whssel = 'GB00001';
-//include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+include_once '../../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1'");
@@ -19,13 +19,14 @@ $L01GridsSQL = $conn1->prepare("SELECT
                                                                         USE_HEIGHT AS LMHIGH,
                                                                         USE_DEPTH AS LMDEEP,
                                                                         USE_WIDTH AS LMWIDE,
+                                                                        USE_CUBE,
                                                                         SUM(USE_CUBE) AS LMVOL9,
                                                                         COUNT(*) AS GRIDCOUNT
                                                                     FROM
                                                                         gillingham.location_master
                                                                     WHERE
                                                                         ALLOW_PICK = 'Y' AND LOC_DIM = 'MSFP1'
-                                                                    GROUP BY LOC_DIM , USE_HEIGHT , USE_DEPTH , USE_WIDTH
+                                                                    GROUP BY LOC_DIM , USE_HEIGHT , USE_DEPTH , USE_WIDTH, USE_CUBE
                                                                     ORDER BY USE_CUBE DESC");
 $L01GridsSQL->execute();
 $L01GridsArray = $L01GridsSQL->fetchAll(pdo::FETCH_ASSOC);
