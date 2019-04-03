@@ -1506,7 +1506,12 @@ function _minloc($max, $avgshipqty, $caseqty) {
     if (($avgshipqty * 2) <= ($max * .25)) {
         $minloc = ($avgshipqty * 2); //set min to 2 ship occurences if less
     } elseif (($avgshipqty * 2) >= ($max * .25)) {
-        $minloc = ceil($max); //set min to 25% of max
+        //i changed to this at some point.  cant remember why.  Reverting back to .25 of max
+        //$minloc = ceil($max); //set min to 25% of max
+        $minloc = ceil($max * .25); //set min to 25% of max
+    }
+    if ($minloc == 0) {
+        $minloc = 1;
     }
 
     return $minloc;

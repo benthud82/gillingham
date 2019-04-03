@@ -4,13 +4,13 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
-$truncatetables = array('inventory_restricted', 'my_npfmvc', 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid');
+$truncatetables = array('inventory_restricted', 'my_npfmvc', 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid','item_truefits_ext');
 foreach ($truncatetables as $value) {
     $querydelete2 = $conn1->prepare("TRUNCATE gillingham.$value");
     $querydelete2->execute();
@@ -148,6 +148,7 @@ foreach ($itemarray as $key => $value) {
 
             //push to array
             $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype')";
+            $array_itemtf_ext[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype', '$griddeep', $truefit_tworound, $min, $truefit_tworound, '$gridcube', 1)";
             if (count($array_itemtf) == 1) {
                 $nextgrid = 2;
             } else {
@@ -160,6 +161,7 @@ foreach ($itemarray as $key => $value) {
         }
     }
     $columns_itemtf = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype';
+    $columns_itemtf_ext = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype, itemtf_griddep, itemtf_max, itemtf_min, itemtf_slotqty, itemtf_locvol, itemtf_daystostock';
 //after looping through all items, write to smallest_grid table
     if (count($array_itemtf) == 0) {
         $array_itemtf[] = "($item, 'NOFIT', '1','4512',0, '0', 'NOFIT' )";
@@ -168,6 +170,11 @@ foreach ($itemarray as $key => $value) {
     $sql = "INSERT IGNORE INTO gillingham.item_truefits ($columns_itemtf) VALUES $values";
     $query = $conn1->prepare($sql);
     $query->execute();
+
+    $values2 = implode(',', $array_itemtf_ext);
+    $sql2 = "INSERT IGNORE INTO gillingham.item_truefits_ext ($columns_itemtf_ext) VALUES $values2";
+    $query2 = $conn1->prepare($sql2);
+    $query2->execute();
 }
 
 //insert the replen reduction per increase in cube to table gillingham.rpc_reductions
