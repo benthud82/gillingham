@@ -149,7 +149,9 @@ foreach ($itemarray as $key => $value) {
             //push to array
             $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype')";
             $array_itemtf_ext[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype', '$griddeep', $truefit_tworound, $min, $truefit_tworound, '$gridcube', 1)";
-            if (count($array_itemtf) == 1) {
+           
+
+            if ($nextgrid == 1) {
                 $nextgrid = 2;
             } else {
                 $nextgrid = 0;
