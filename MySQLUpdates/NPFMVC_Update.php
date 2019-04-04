@@ -16,3 +16,86 @@ $columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DA
 //Assign items on hold
 //include_once 'itemsonhold.php'; 
 
+//still needs some work.  Two tasks on Monday's to update
+//replace static variables with actual columns in below SQL statement
+$L01GridsSQL = $conn1->prepare("SELECT DISTINCT
+    'GB00001' AS WAREHOUSE,
+    A.ITEM AS ITEM_NUMBER,
+    A.PKGU AS PACKAGE_UNIT,
+    A.PKTYPE AS PACKAGE_TYPE,
+    D.slotmaster_loc AS LMLOC,
+    A.DSLS AS DAYS_FRM_SLE,
+    A.ADBS AS AVGD_BTW_SLE,
+    A.AVG_INVOH AS AVG_INV_OH,
+    A.DAYCOUNT AS NBR_SHIP_OCC,
+    A.AVG_PICK AS PICK_QTY_MN,
+    A.PICK_STD AS PICK_QTY_SD,
+    A.AVG_UNITS AS SHIP_QTY_MN,
+    A.UNIT_STD AS SHIP_QTY_SD,
+    X.PKGU_EA AS CPCEPKU,
+    X.PKGU_CA AS CPCCPKU,
+    'Y' AS CPCFLOW,
+    'Y' AS CPCTOTE,
+    'Y' AS CPCSHLF,
+    'Y' AS CPCROTA,
+    0 AS CPCESTK,
+    ' ' AS CPCLIQU,
+    X.EA_DEPTH AS CPCELEN,
+    X.EA_HEIGHT AS CPCEHEI,
+    X.EA_WIDTH AS CPCEWID,
+    X.CA_DEPTH AS CPCCLEN,
+    X.CA_HEIGHT AS CPCCHEI,
+    X.CA_WIDTH AS CPCCWID,
+    0 AS CPCNEST,
+    D.slotmaster_chargroup,
+    D.slotmaster_pickzone,
+    D.slotmaster_usehigh AS LMHIGH,
+    D.slotmaster_usedeep AS LMDEEP,
+    D.slotmaster_usewide AS LMWIDE,
+    D.slotmaster_usecube AS LMVOL9,
+    D.slotmaster_tier AS LMTIER,
+    D.slotmaster_dimgroup AS LMGRD5,
+    D.slotmaster_normreplen + D.slotmaster_maxreplen AS CURMAX,
+    D.slotmaster_normreplen AS CURMIN,
+    CASE
+        WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
+        ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
+    END AS DLY_CUBE_VEL,
+    CASE
+        WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_PICK) * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH
+        ELSE (A.AVG_DAILY_PICK) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH
+    END AS DLY_PICK_VEL,
+    currgrid_loctype,
+    currgrid_grid,
+    itemtf_griddep,
+    itemtf_max,
+    itemtf_min,
+    itemtf_slotqty,
+    itemtf_impmoves,
+    0 AS CURRENT_IMPMOVES,
+    itemtf_locvol,
+    itemtf_daystostock,
+    'XXXX' AS VCBAY,
+    0 AS JAX_ENDCAP,
+    A.AVG_DAILY_PICK AS DAILYPICK,
+    A.AVG_DAILY_UNIT AS DAILYUNIT
+FROM
+    gillingham.nptsld A
+        JOIN
+    gillingham.item_master X ON X.ITEM = A.ITEM
+        JOIN
+    gillingham.slotmaster D ON D.slotmaster_item = A.ITEM
+        JOIN
+    gillingham.currgrid ON A.ITEM = currgrid_item
+        JOIN
+    gillingham.item_truefits_ext ON A.ITEM = itemtf_item
+        AND itemtf_grid = currgrid_grid
+        LEFT JOIN
+    gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
+WHERE
+    F.ITEM_NUMBER IS NULL
+        AND D.slotmaster_pkgu = 'EA'
+        AND A.PKTYPE = 'EA'");
+$L01GridsSQL->execute();
+$L01GridsArray = $L01GridsSQL->fetchAll(pdo::FETCH_ASSOC);
+
