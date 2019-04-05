@@ -3,6 +3,7 @@
 //need to add logic to scan FTP folder for new files and add if any are there
 
 include 'tableupdate_slotmaster.php';
+//add other update tables here
 
 include 'DemandGrouping.php';
 

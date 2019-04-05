@@ -1,7 +1,8 @@
 <?php
 
 //haven't started on this.  This is pulled from the US main update php file
-include_once '../connection/NYServer.php';
+//include_once '../connection/NYServer.php';
+include_once '../globalincludes/google_connect.php';
 include_once '../globalfunctions/slottingfunctions.php';
 include_once '../globalfunctions/newitem.php';
 ini_set('max_execution_time', 99999);
@@ -17,7 +18,7 @@ $columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DA
 //include_once 'itemsonhold.php'; 
 //still needs some work.  Two tasks on Monday's to update
 //replace static variables with actual columns in below SQL statement
-$mvcsql = $conn1->prepare("SELECT DISTINCT
+$sqlmerge2 = "insert into gillingham.my_npfmvc (SELECT DISTINCT
     'GB00001' AS WAREHOUSE,
     A.ITEM AS ITEM_NUMBER,
     A.PKGU AS PACKAGE_UNIT,
@@ -45,17 +46,12 @@ $mvcsql = $conn1->prepare("SELECT DISTINCT
     X.CA_DEPTH AS CPCCLEN,
     X.CA_HEIGHT AS CPCCHEI,
     X.CA_WIDTH AS CPCCWID,
-    0 AS CPCNEST,
-    D.slotmaster_chargroup,
-    D.slotmaster_pickzone,
     D.slotmaster_usehigh AS LMHIGH,
     D.slotmaster_usedeep AS LMDEEP,
     D.slotmaster_usewide AS LMWIDE,
     D.slotmaster_usecube AS LMVOL9,
     D.slotmaster_tier AS LMTIER,
     D.slotmaster_dimgroup AS LMGRD5,
-    D.slotmaster_normreplen + D.slotmaster_maxreplen AS CURMAX,
-    D.slotmaster_normreplen AS CURMIN,
     CASE
         WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
         ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
@@ -71,13 +67,14 @@ $mvcsql = $conn1->prepare("SELECT DISTINCT
     itemtf_min,
     itemtf_slotqty,
     itemtf_impmoves,
-    0 AS CURRENT_IMPMOVES,
+    slotmaster_impmoves AS CURRENT_IMPMOVES,
     itemtf_locvol,
     itemtf_daystostock,
+        A.AVG_DAILY_PICK AS DAILYPICK,
+    A.AVG_DAILY_UNIT AS DAILYUNIT,
     BAY AS VCBAY,
-    0 AS JAX_ENDCAP,
-    A.AVG_DAILY_PICK AS DAILYPICK,
-    A.AVG_DAILY_UNIT AS DAILYUNIT
+    0 AS JAX_ENDCAP
+
 FROM
     gillingham.nptsld A
         JOIN
@@ -95,7 +92,7 @@ FROM
 WHERE
     F.ITEM_NUMBER IS NULL
         AND D.slotmaster_pkgu = 'EA'
-        AND A.PKTYPE = 'EA'");
-$mvcsql->execute();
-$mvcarray = $mvcsql->fetchAll(pdo::FETCH_ASSOC);
+        AND A.PKTYPE = 'EA')";
+$querymerge2 = $conn1->prepare($sqlmerge2);
+$querymerge2->execute();
 
