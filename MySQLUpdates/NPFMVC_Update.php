@@ -15,10 +15,9 @@ $columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DA
 
 //Assign items on hold
 //include_once 'itemsonhold.php'; 
-
 //still needs some work.  Two tasks on Monday's to update
 //replace static variables with actual columns in below SQL statement
-$L01GridsSQL = $conn1->prepare("SELECT DISTINCT
+$mvcsql = $conn1->prepare("SELECT DISTINCT
     'GB00001' AS WAREHOUSE,
     A.ITEM AS ITEM_NUMBER,
     A.PKGU AS PACKAGE_UNIT,
@@ -75,7 +74,7 @@ $L01GridsSQL = $conn1->prepare("SELECT DISTINCT
     0 AS CURRENT_IMPMOVES,
     itemtf_locvol,
     itemtf_daystostock,
-    'XXXX' AS VCBAY,
+    BAY AS VCBAY,
     0 AS JAX_ENDCAP,
     A.AVG_DAILY_PICK AS DAILYPICK,
     A.AVG_DAILY_UNIT AS DAILYUNIT
@@ -92,10 +91,11 @@ FROM
         AND itemtf_grid = currgrid_grid
         LEFT JOIN
     gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
+    LEFT JOIN gillingham.bay_location on LOCATION = slotmaster_loc
 WHERE
     F.ITEM_NUMBER IS NULL
         AND D.slotmaster_pkgu = 'EA'
         AND A.PKTYPE = 'EA'");
-$L01GridsSQL->execute();
-$L01GridsArray = $L01GridsSQL->fetchAll(pdo::FETCH_ASSOC);
+$mvcsql->execute();
+$mvcarray = $mvcsql->fetchAll(pdo::FETCH_ASSOC);
 
