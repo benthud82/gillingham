@@ -1587,6 +1587,10 @@ function _implied_daily_moves_nomin($max, $daily_ship_qty, $avginv) {
         return $impliedmoves;
     }
 
+    if ($loc_theoretical_max == 0) {
+        $impliedmoves = 0;
+        return $impliedmoves;
+    }
     $impliedmoves = $daily_ship_qty / $loc_theoretical_max;
     return $impliedmoves;
 }

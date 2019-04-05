@@ -136,7 +136,7 @@ $sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT
     BAY
 FROM
     gillingham.slotmaster
-        LET JOIN
+        LEFT JOIN
     gillingham.bay_location ON LOCATION = slotmaster_loc)
                                     ON DUPLICATE KEY UPDATE 
                                     slotmaster_bay=VALUES(slotmaster_bay)";
