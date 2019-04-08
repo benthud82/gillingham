@@ -5,10 +5,10 @@ $whssel = 'GB0001';
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include '../connection/connection_details.php';
-//include_once '../globalincludes/newcanada_asys.php';
+include_once '../globalincludes/google_connect.php';
+//include_once '../connection/NYServer.php';
 include_once '../globalfunctions/slottingfunctions.php';
-include_once 'sql_dailypick.php';  //pulls in variable $sql_dailypick to calculate daily pick quantites
+//include_once 'sql_dailypick.php';  //pulls in variable $sql_dailypick to calculate daily pick quantites
 
 $OPT_BUILDING = intval(1);
 $sqldelete = "TRUNCATE  gillingham.optimalbay";
@@ -391,7 +391,7 @@ foreach ($ppcL01array as $key => $value) {
     $OPT_TOTIER = $ppcL01array[$key]['OPT_TOTIER'];
     $OPT_WHSE = intval($ppcL01array[$key]['OPT_WHSE']);
     $OPT_ITEM = intval($ppcL01array[$key]['OPT_ITEM']);
-    if($OPT_ITEM == 1007767){
+    if ($OPT_ITEM == 1007767) {
         echo 't';
     }
     $OPT_PKGU = intval($ppcL01array[$key]['OPT_PKGU']);
@@ -441,10 +441,10 @@ foreach ($ppcarray_jaxendcap as $key => $value) {
     $OPT_TOTIER = $ppcarray_jaxendcap[$key]['OPT_TOTIER'];
     $OPT_WHSE = intval($ppcarray_jaxendcap[$key]['OPT_WHSE']);
     $OPT_ITEM = intval($ppcarray_jaxendcap[$key]['OPT_ITEM']);
-    if($OPT_ITEM == 1160864){
+    if ($OPT_ITEM == 1160864) {
         echo 't';
     }
-    
+
     $OPT_PKGU = intval($ppcarray_jaxendcap[$key]['OPT_PKGU']);
     $OPT_LOC = $ppcarray_jaxendcap[$key]['OPT_LOC'];
     $OPT_ADBS = intval($ppcarray_jaxendcap[$key]['OPT_ADBS']);
@@ -538,7 +538,7 @@ do {
             //not L01, L02, or L05
             $OPT_WHSE = intval($ppcarray[$counter]['OPT_WHSE']);
             $OPT_ITEM = intval($ppcarray[$counter]['OPT_ITEM']);
-            if($OPT_ITEM == 1000833){
+            if ($OPT_ITEM == 1000833) {
                 echo 't';
             }
             $OPT_PKGU = intval($ppcarray[$counter]['OPT_PKGU']);
