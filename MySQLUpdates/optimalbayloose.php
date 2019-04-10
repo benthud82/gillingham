@@ -16,16 +16,17 @@ $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
 $baycube = $conn1->prepare("SELECT 
-                                                            WALKBAY AS BAY,
-                                                            SUM(slotmaster_grcube) * 1000 AS GRIDVOL,
-                                                            SUM(slotmaster_usecube) * 1000 AS USEVOL
-                                                        FROM
-                                                            gillingham.slotmaster
-                                                                JOIN
-                                                            gillingham.bay_location ON LOCATION = slotmaster_loc
-                                                        WHERE
-                                                            WALKBAY <> '00' and slotmaster_tier = 'L04'
-                                                        GROUP BY WALKBAY");
+                                WALKBAY AS BAY,
+                                SUM(slotmaster_grcube) * 1000 AS GRIDVOL,
+                                SUM(slotmaster_usecube) * 1000 AS USEVOL
+                            FROM
+                                gillingham.slotmaster
+                                    JOIN
+                                gillingham.bay_location ON LOCATION = slotmaster_loc
+                            WHERE
+                                slotmaster_tier = 'BIN'
+                                    AND WALKBAY NOT IN ('CC' , 'L0', 'R0', 'R1', 'R2')
+                            GROUP BY WALKBAY");
 $baycube->execute();
 $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
 
@@ -41,110 +42,15 @@ $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
 //$holdcube->execute();
 //$holdcubearray = $holdcube->fetchAll(pdo::FETCH_ASSOC);
 
-foreach ($holdcubearray as $key => $value) {
-    $bay = $holdcubearray[$key]['HOLDBAY'];
-    $baysubtractkey = array_search($bay, array_column($baycubearray, 'BAY'));
-    $baycubearray[$baysubtractkey]['BAYVOL'] = $baycubearray[$baysubtractkey]['BAYVOL'] - $holdcubearray[$key]['HOLDBAYVOL'];
-}
+//foreach ($holdcubearray as $key => $value) {
+//    $bay = $holdcubearray[$key]['HOLDBAY'];
+//    $baysubtractkey = array_search($bay, array_column($baycubearray, 'BAY'));
+//    $baycubearray[$baysubtractkey]['BAYVOL'] = $baycubearray[$baysubtractkey]['BAYVOL'] - $holdcubearray[$key]['HOLDBAYVOL'];
+//}
 
 
-//For Jax, 
-//Result set for PPC sorted by highest PPC for items currently in L04
-$ppc = $conn1->prepare("SELECT 
-    A.WAREHOUSE AS OPT_WHSE,
-    A.ITEM_NUMBER AS OPT_ITEM,
-    A.PACKAGE_UNIT AS OPT_PKGU,
-    A.CUR_LOCATION AS OPT_LOC,
-    A.AVGD_BTW_SLE AS OPT_ADBS,
-    A.PACKAGE_TYPE AS OPT_CSLS,
-    CASE
-        WHEN (X.CPCELEN * X.CPCEHEI * X.CPCEWID) > 0 THEN (X.CPCELEN * X.CPCEHEI * X.CPCEWID)
-        ELSE (X.CPCCLEN * X.CPCCHEI * X.CPCCWID)
-    END AS OPT_CUBE,
-    A.LMTIER AS OPT_CURTIER,
-    A.SUGGESTED_TIER AS OPT_TOTIER,
-    A.SUGGESTED_GRID5 AS OPT_NEWGRID,
-    A.SUGGESTED_DEPTH AS OPT_NDEP,
-    A.PICK_QTY_MN AS OPT_AVGPICK,
-    CASE
-        WHEN A.AVGD_BTW_SLE >= 365 THEN 0
-        WHEN A.DAYS_FRM_SLE >= 180 THEN 0
-        WHEN
-            A.AVG_DAILY_PICK > A.AVG_DAILY_UNIT
-        THEN
-            (A.AVG_DAILY_UNIT / (CASE
-                WHEN X.CPCCPKU > 0 THEN X.CPCCPKU
-                ELSE 1
-            END)) / A.AVGD_BTW_SLE
-        WHEN
-            A.AVGD_BTW_SLE = 0
-                AND A.DAYS_FRM_SLE = 0
-        THEN
-            A.AVG_DAILY_PICK
-        WHEN A.AVGD_BTW_SLE = 0 THEN (A.AVG_DAILY_PICK / A.DAYS_FRM_SLE)
-        ELSE (A.AVG_DAILY_PICK / A.AVGD_BTW_SLE)
-    END AS OPT_DAILYPICKS,
-    SUGGESTED_NEWLOCVOL AS OPT_NEWGRIDVOL,
-    (CASE
-        WHEN A.AVGD_BTW_SLE >= 365 THEN 0
-        WHEN A.DAYS_FRM_SLE >= 180 THEN 0
-        WHEN
-            A.AVG_DAILY_PICK > A.AVG_DAILY_UNIT
-        THEN
-            (A.AVG_DAILY_UNIT / (CASE
-                WHEN X.CPCCPKU > 0 THEN X.CPCCPKU
-                ELSE 1
-            END)) / A.AVGD_BTW_SLE
-        WHEN
-            A.AVGD_BTW_SLE = 0
-                AND A.DAYS_FRM_SLE = 0
-        THEN
-            A.AVG_DAILY_PICK
-        WHEN A.AVGD_BTW_SLE = 0 THEN (A.AVG_DAILY_PICK / A.DAYS_FRM_SLE)
-        ELSE (A.AVG_DAILY_PICK / A.AVGD_BTW_SLE)
-    END) / (SUGGESTED_NEWLOCVOL) * 1000 AS OPT_PPCCALC,
-    V.WALKFEET AS CURWALKFEET,
-    L.WALKBAY AS CURR_BAY,
-    HOLDTIER,
-    HOLDGRID,
-    HOLDLOCATION
-FROM
-    gillingham.my_npfmvc A
-        JOIN
-    gillingham.bay_location L ON LOCATION = CUR_LOCATION
-        JOIN
-    gillingham.npfcpcsettings X ON X.CPCITEM = A.ITEM_NUMBER
-        LEFT JOIN
-    gillingham.vectormap V ON VCBAY = V.BAY
-        LEFT JOIN
-    gillingham.item_settings S ON S.ITEM = A.ITEM_NUMBER
-        LEFT JOIN
-    gillingham.slotmaster M ON M.slotmaster_item = A.ITEM_NUMBER
-WHERE
-    JAX_ENDCAP = 1
-ORDER BY (CASE
-    WHEN A.AVGD_BTW_SLE >= 365 THEN 0
-    WHEN A.DAYS_FRM_SLE >= 180 THEN 0
-    WHEN
-        A.AVG_DAILY_PICK > A.AVG_DAILY_UNIT
-    THEN
-        (A.AVG_DAILY_UNIT / (CASE
-            WHEN X.CPCCPKU > 0 THEN X.CPCCPKU
-            ELSE 1
-        END)) / A.AVGD_BTW_SLE
-    WHEN
-        A.AVGD_BTW_SLE = 0
-            AND A.DAYS_FRM_SLE = 0
-    THEN
-        A.AVG_DAILY_PICK
-    WHEN A.AVGD_BTW_SLE = 0 THEN (A.AVG_DAILY_PICK / A.DAYS_FRM_SLE)
-    ELSE (A.AVG_DAILY_PICK / A.AVGD_BTW_SLE)
-END) / (SUGGESTED_NEWLOCVOL) DESC , A.SUGGESTED_NEWLOCVOL ASC");
-$ppc->execute();
-$ppcarray_jaxendcap = $ppc->fetchAll(pdo::FETCH_ASSOC);
 
-
-//Result set for PPC sorted by highest PPC for items currently in L04
+//Result set for PPC sorted by highest PPC for items currently in BIN
 $ppc = $conn1->prepare("SELECT 
     A.WAREHOUSE AS OPT_WHSE,
     A.ITEM_NUMBER AS OPT_ITEM,
