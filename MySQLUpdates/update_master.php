@@ -10,11 +10,8 @@ include 'DemandGrouping.php';
 //Should no sales update be placed here?
 
 include 'current_implied_moves';
-
 include 'itemtruefits.php';
-
 include 'replenpercube.php';
-
 include'NPFMVC_Update';
 
 //optimal bay update here?
