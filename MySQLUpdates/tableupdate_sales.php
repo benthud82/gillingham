@@ -1,12 +1,12 @@
 <?php
 
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 
 ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
 
-$fileglob = glob('../../ftproot/ftpuk/Sales*.csv');  //glob wildcard searches for any file
+$fileglob = glob('../../ftproot/ftpuk/sales*.csv');  //glob wildcard searches for any file
 
 if (count($fileglob) > 0) {
     $filename = $fileglob[0];
@@ -29,7 +29,7 @@ if (($headers = fgetcsv($fp, 0, ",")) !== FALSE) {
 fclose($fp);
 
 //insert into gill_raw table
-$columns = 'idGill_Test, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION';
+$columns = 'idGill_Test, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION, AVGINV';
 $maxrange = 999;
 $counter = 0;
 $rowcount = count($result);
@@ -46,14 +46,14 @@ do {
         $sales_pkgu = ($result[$counter]['Qty Level 1']);
         $sales_pktype = ($result[$counter]['UOM Level 1']);
         $sales_units = ($result[$counter]['Total Qty']);
-        $sales_date = $result[$counter]['Date Printed'];
+        $sales_date = date_create_from_format('d/m/y', $result[$counter]['Date Printed']);
+        $formattedate = $sales_date->format('Y-m-d');
         $sales_location = ($result[$counter]['Location']);
-        
+        $sales_avginv = ($result[$counter]['Average Qty']);
 
 
-        $data[] = "('$slotmaster_branch','$slotmaster_loc',$slotmaster_item,'$slotmaster_grhigh','$slotmaster_grdeep','$slotmaster_grwide','$slotmaster_grcube','$slotmaster_usehigh',"
-                . "'$slotmaster_usedeep','$slotmaster_usewide','$slotmaster_usecube','$slotmaster_pkgu','$slotmaster_chargroup','$slotmaster_pickzone','$slotmaster_dimgroup',"
-                . "$slotmaster_normreplen,$slotmaster_minreplen,$slotmaster_maxreplen,'$slotmaster_allowpick','$slotmaster_allowreplen','$slotmaster_tier','$slotmaster_bay','$slotmaster_impmoves')";
+
+        $data[] = "(0, $sales_item, $sales_pkgu, '$sales_pktype', $sales_units, '$formattedate', '$sales_location', $sales_avginv)";
         $counter += 1;
     }
 
@@ -63,47 +63,18 @@ do {
     if (empty($values)) {
         break;
     }
-    $sql = "INSERT INTO gillingham.slotmaster ($columns) VALUES $values";
+    $sql = "INSERT INTO gillingham.gill_raw ($columns) VALUES $values";
     $query = $conn1->prepare($sql);
     $query->execute();
     $maxrange += 1000;
 } while ($counter <= $rowcount); //end of item by whse loop
-//foreach ($fileglob as $deletefile) {
-//    unlink(realpath($deletefile));
-//}
 
 
+foreach ($fileglob as $deletefile) {
+    unlink(realpath($deletefile));
+}
 
-//Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
-$sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT 
-    slotmaster_branch,
-    slotmaster_loc,
-    slotmaster_item,
-    slotmaster_grhigh,
-    slotmaster_grdeep,
-    slotmaster_grwide,
-    slotmaster_grcube,
-    slotmaster_usehigh,
-    slotmaster_usedeep,
-    slotmaster_usewide,
-    slotmaster_usecube,
-    slotmaster_pkgu,
-    slotmaster_chargroup,
-    slotmaster_pickzone,
-    slotmaster_dimgroup,
-    slotmaster_normreplen,
-    slotmaster_minreplen,
-    slotmaster_maxreplen,
-    slotmaster_allowpick,
-    slotmaster_allowreplen,
-    slotmaster_tier,
-    BAY
-FROM
-    gillingham.slotmaster
-        LEFT JOIN
-    gillingham.bay_location ON LOCATION = slotmaster_loc)
-                                    ON DUPLICATE KEY UPDATE 
-                                    slotmaster_bay=VALUES(slotmaster_bay)";
+//update average inventory table
+$sqlmerge2 = "    INSERT into gillingham.avg_inv (BRANCH, ITEM, AVG_OH) SELECT 'GB0001', b.ITEM , b.AVGINV FROM gillingham.gill_raw b WHERE b.PICKDATE = '$formattedate' and ITEM = b.ITEM on duplicate key update AVG_OH=b.AVGINV";
 $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
-
