@@ -133,7 +133,8 @@ $sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT
     slotmaster_allowpick,
     slotmaster_allowreplen,
     slotmaster_tier,
-    BAY
+    BAY,
+    slotmaster_impmoves
 FROM
     gillingham.slotmaster
         LEFT JOIN
