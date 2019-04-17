@@ -9,7 +9,7 @@ include 'DemandGrouping.php';
 
 //Should no sales update be placed here?
 
-include 'current_implied_moves.php';
+include 'current_implied_moves.php';  //has to be called after tableupdate_slotmaster.php
 include 'itemtruefits.php';
 include 'replenpercube.php';
 include'NPFMVC_Update';
