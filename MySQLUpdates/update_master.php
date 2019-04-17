@@ -9,7 +9,7 @@ include 'DemandGrouping.php';
 
 //Should no sales update be placed here?
 
-include 'current_implied_moves';
+include 'current_implied_moves.php';
 include 'itemtruefits.php';
 include 'replenpercube.php';
 include'NPFMVC_Update';

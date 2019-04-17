@@ -6,7 +6,7 @@ include_once '../connection/NYServer.php';
 ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
 
-$fileglob = glob('../../ftproot/ftpuk/Slot*.csv');  //glob wildcard searches for any file
+$fileglob = glob('../../ftproot/ftpuk/slot*.csv');  //glob wildcard searches for any file
 
 if (count($fileglob) > 0) {
     $filename = $fileglob[0];
@@ -84,7 +84,7 @@ do {
             $slotmaster_tier = 'PALL';
         }
         $slotmaster_bay = 'x';
-        $slotmaster_impmoves = 0;
+        $slotmaster_impmoves = 0;  //this is later updated through current_implied_moves.php
 
 
         $data[] = "('$slotmaster_branch','$slotmaster_loc',$slotmaster_item,'$slotmaster_grhigh','$slotmaster_grdeep','$slotmaster_grwide','$slotmaster_grcube','$slotmaster_usehigh',"
@@ -104,11 +104,10 @@ do {
     $query->execute();
     $maxrange += 1000;
 } while ($counter <= $rowcount); //end of item by whse loop
-//foreach ($fileglob as $deletefile) {
-//    unlink(realpath($deletefile));
-//}
 
-
+foreach ($fileglob as $deletefile) {
+    unlink(realpath($deletefile));
+}
 
 //Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
 $sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT 
