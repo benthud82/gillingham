@@ -43,6 +43,10 @@ do {
     $values = array();
     while ($counter <= $maxrange) { //split into 5,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
         $sales_item = ($result[$counter]['Item']);
+        If ($sales_item == '') {
+            $counter += 1;
+            continue;
+        }
         $sales_pkgu = ($result[$counter]['Qty Level 1']);
         $sales_pktype = ($result[$counter]['UOM Level 1']);
         $sales_units = ($result[$counter]['Total Qty']);

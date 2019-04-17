@@ -47,7 +47,7 @@ do {
         $formattedate = $replen_date->format('Y-m-d');
 
         $replen_code = ($result[$counter]['Code']);
-        $replen_item = ($result[$counter]['Item']);
+        $replen_item = intval($result[$counter]['Item']);
         $replen_qty = ($result[$counter]['Total Quantity']);
         $replen_pkgu = ($result[$counter]['UOM']);
         $replen_fromloc = ($result[$counter]['From Location']);
