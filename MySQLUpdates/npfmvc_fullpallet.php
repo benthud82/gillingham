@@ -1,5 +1,7 @@
 <?php
-
+include_once 'globalfunctions.php';
+include_once '../globalfunctions/newitem.php';
+include_once '../globalfunctions/slottingfunctions.php';
 $daystostock = 15;
 $JAX_ENDCAP = 0;
 $slowdownsizecutoff = 99999;
@@ -12,7 +14,7 @@ $pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.
 $pallcount_sql->execute();
 $pallcount_array = $pallcount_sql->fetchAll(pdo::FETCH_ASSOC);
 $palletcount = $pallcount_array[0]['PALL_COUNT'];
-$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT, VCBAY, JAX_ENDCAP';
+$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT,  JAX_ENDCAP, PPC_CALC';
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $L01GridsSQL = $conn1->prepare("SELECT 
                                                                         LOC_DIM AS LMGRD5,
@@ -37,7 +39,7 @@ $onholdsql = $conn1->prepare("SELECT
                                                                     FROM
                                                                         gillingham.item_settings
                                                                     WHERE
-                                                                        HOLDTIER = 'L01'
+                                                                        HOLDTIER = 'PALL'
                                                                     GROUP BY HOLDGRID");
 $onholdsql->execute();
 $onholdsqlarray = $onholdsql->fetchAll(pdo::FETCH_ASSOC);
@@ -103,7 +105,7 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                                 ELSE (A.AVG_DAILY_PICK) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH
                                                             END AS DLY_PICK_VEL,
                                                             A.AVG_DAILY_PICK AS DAILYPICK,
-                                                            A.AVG_DAILY_UNIT AS DAILYUNIT
+                                                            A.AVG_DAILY_UNIT AS DAILYUNIT                                                            
                                                         FROM
                                                             gillingham.nptsld A
                                                                 JOIN
@@ -208,7 +210,7 @@ foreach ($L01array as $key => $value) {
     $SUGGESTED_MIN = intval(_minloc($SUGGESTED_MAX, $var_AVGSHIPQTY, $var_caseqty));
 
     //append data to array for writing to my_npfmvc table
-    $L01array[$key]['SUGGESTED_TIER'] = 'L01';
+    $L01array[$key]['SUGGESTED_TIER'] = 'PALL';
     $L01array[$key]['SUGGESTED_GRID5'] = $lastusedgrid5;
     $L01array[$key]['SUGGESTED_DEPTH'] = $var_griddepth;
     $L01array[$key]['SUGGESTED_MAX'] = $SUGGESTED_MAX;
@@ -243,7 +245,7 @@ do {
         $PACKAGE_TYPE = $L01array[$counter]['PACKAGE_TYPE'];
         $CUR_LOCATION = $L01array[$counter]['LMLOC'];
         $DAYS_FRM_SLE = intval($L01array[$counter]['DAYS_FRM_SLE']);
-        $AVGD_BTW_SLE = intval($L01array[$counter]['AVGD_BTW_SLE']);
+        $AVGD_BTW_SLE = ($L01array[$counter]['AVGD_BTW_SLE']);
         $AVG_INV_OH = intval($L01array[$counter]['AVG_INV_OH']);
         $NBR_SHIP_OCC = intval($L01array[$counter]['NBR_SHIP_OCC']);
         $PICK_QTY_MN = intval($L01array[$counter]['PICK_QTY_MN']);
@@ -285,16 +287,9 @@ do {
         $SUGGESTED_DAYSTOSTOCK = intval($L01array[$counter]['SUGGESTED_DAYSTOSTOCK']);
         $AVG_DAILY_PICK = $L01array[$counter]['DAILYPICK'];
         $AVG_DAILY_UNIT = $L01array[$counter]['DAILYUNIT'];
-        if ($LMTIER == 'L01') {
-            $VCBAY = $CUR_LOCATION;
-        } else if ($LMTIER == 'L05') {
-            $VCBAY = substr($CUR_LOCATION, 0, 3) . '01';
-        } else if (substr($LMGRD5, 0, 2) == 'MB') {
-            $VCBAY = substr($CUR_LOCATION, 0, 2) . '0' . substr($CUR_LOCATION, 2, 1);
-        } else {
-            $VCBAY = substr($CUR_LOCATION, 0, 4);
-        }
-        $data[] = "('$WAREHOUSE',$ITEM_NUMBER,$PACKAGE_UNIT,'$PACKAGE_TYPE','$CUR_LOCATION',$DAYS_FRM_SLE,$AVGD_BTW_SLE,$AVG_INV_OH,$NBR_SHIP_OCC,$PICK_QTY_MN,$PICK_QTY_SD,$SHIP_QTY_MN,$SHIP_QTY_SD,$CPCEPKU,$CPCCPKU,'$CPCFLOW','$CPCTOTE','$CPCSHLF','$CPCROTA',$CPCESTK,'$CPCLIQU',$CPCELEN,$CPCEHEI,$CPCEWID,$CPCCLEN,$CPCCHEI,$CPCCWID,'$LMHIGH','$LMDEEP','$LMWIDE','$LMVOL9','$LMTIER','$LMGRD5',$DLY_CUBE_VEL,$DLY_PICK_VEL,'$SUGGESTED_TIER','$SUGGESTED_GRID5','$SUGGESTED_DEPTH',$SUGGESTED_MAX,$SUGGESTED_MIN,$SUGGESTED_SLOTQTY,'$SUGGESTED_IMPMOVES','$CURRENT_IMPMOVES','$SUGGESTED_NEWLOCVOL',$SUGGESTED_DAYSTOSTOCK,'$AVG_DAILY_PICK','$AVG_DAILY_UNIT', '$VCBAY', $JAX_ENDCAP)";
+        $PPC_CALC = $AVG_DAILY_PICK / $SUGGESTED_NEWLOCVOL * 1000;
+
+        $data[] = "('$WAREHOUSE',$ITEM_NUMBER,$PACKAGE_UNIT,'$PACKAGE_TYPE','$CUR_LOCATION',$DAYS_FRM_SLE,'$AVGD_BTW_SLE',$AVG_INV_OH,$NBR_SHIP_OCC,$PICK_QTY_MN,$PICK_QTY_SD,$SHIP_QTY_MN,$SHIP_QTY_SD,$CPCEPKU,$CPCCPKU,'$CPCFLOW','$CPCTOTE','$CPCSHLF','$CPCROTA',$CPCESTK,'$CPCLIQU',$CPCELEN,$CPCEHEI,$CPCEWID,$CPCCLEN,$CPCCHEI,$CPCCWID,'$LMHIGH','$LMDEEP','$LMWIDE','$LMVOL9','$LMTIER','$LMGRD5',$DLY_CUBE_VEL,$DLY_PICK_VEL,'$SUGGESTED_TIER','$SUGGESTED_GRID5','$SUGGESTED_DEPTH',$SUGGESTED_MAX,$SUGGESTED_MIN,$SUGGESTED_SLOTQTY,'$SUGGESTED_IMPMOVES','$CURRENT_IMPMOVES','$SUGGESTED_NEWLOCVOL',$SUGGESTED_DAYSTOSTOCK,'$AVG_DAILY_PICK','$AVG_DAILY_UNIT', $JAX_ENDCAP, '$PPC_CALC')";
         $counter += 1;
     }
     $values = implode(',', $data);
