@@ -14,7 +14,7 @@ $pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.
 $pallcount_sql->execute();
 $pallcount_array = $pallcount_sql->fetchAll(pdo::FETCH_ASSOC);
 $palletcount = $pallcount_array[0]['PALL_COUNT'];
-$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT,  JAX_ENDCAP, PPC_CALC';
+$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_    LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT,  JAX_ENDCAP, PPC_CALC';
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $L01GridsSQL = $conn1->prepare("SELECT 
                                                                         LOC_DIM AS LMGRD5,
@@ -115,10 +115,12 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                                 LEFT JOIN
                                                             gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
                                                         WHERE
-                                                                 F.ITEM_NUMBER IS NULL
-                                                                 and A.AVG_DAILY_PICK > 5
-                                                                 and D.slotmaster_pkgu = 'EA'
-                                                                 and A.PKTYPE = 'EA'
+                                                            F.ITEM_NUMBER IS NULL
+                                                            AND A.AVG_DAILY_PICK > 5
+                                                            AND D.slotmaster_pkgu = 'EA'
+                                                            AND A.PKTYPE = 'EA'
+                                                            AND CHAR_GROUP not in ('D','J','T')
+                                                            and slotmaster_loc <= '69*'
                                                         ORDER BY DLY_CUBE_VEL DESC
                                                     LIMIT $palletcount");
 $L01sql->execute();
