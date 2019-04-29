@@ -16,17 +16,19 @@ $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
 $baycube = $conn1->prepare("SELECT 
-                                WALKBAY AS BAY,
-                                SUM(slotmaster_grcube) * 1000 AS GRIDVOL,
-                                SUM(slotmaster_usecube) * 1000 AS USEVOL
-                            FROM
-                                gillingham.slotmaster
-                                    JOIN
-                                gillingham.bay_location ON LOCATION = slotmaster_loc
-                            WHERE
-                                slotmaster_tier = 'BIN'
-                                    AND WALKBAY NOT IN ('CC' , 'L0', 'R0', 'R1', 'R2')
-                            GROUP BY WALKBAY");
+                                                            WALKBAY AS BAY,
+                                                            SUM(CUBE) AS GRIDVOL,
+                                                            SUM(USE_CUBE) AS USEVOL
+                                                        FROM
+                                                            gillingham.location_master A
+                                                                JOIN
+                                                            gillingham.bay_location B ON A.LOCATION = B.LOCATION
+                                                                JOIN
+                                                            gillingham.vectormap C ON C.BAY = B.BAY
+                                                        WHERE
+                                                            TIER = 'BIN'
+                                                                AND WALKBAY NOT IN ('CC' , 'L0', 'R0', 'R1', 'R2')
+                                                        GROUP BY WALKBAY");
 $baycube->execute();
 $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
 
@@ -47,7 +49,7 @@ $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
 //    $baycubearray[$baysubtractkey]['BAYVOL'] = $baycubearray[$baysubtractkey]['BAYVOL'] - $holdcubearray[$key]['HOLDBAYVOL'];
 //}
 //Result set for PPC sorted by highest PPC for items currently in BIN
-$ppc = $conn1->prepare("SELECT 
+$ppc = $conn1->prepare("SELECT DISTINCT
                                                     A.WAREHOUSE AS OPT_WHSE,
                                                     A.ITEM_NUMBER AS OPT_ITEM,
                                                     A.PACKAGE_UNIT AS OPT_PKGU,
@@ -58,6 +60,8 @@ $ppc = $conn1->prepare("SELECT
                                                     A.SUGGESTED_GRID5 as OPT_NEWGRID,
                                                     A.SUGGESTED_DEPTH as OPT_NDEP,
                                                     A.AVG_DAILY_PICK as OPT_DAILYPICKS,
+                                                    A.AVG_DAILY_PICK as OPT_DAILYPICKS,
+                                                    SUGGESTED_NEWLOCVOL as OPT_NEWGRIDVOL,
                                                     HOLDTIER,
                                                     HOLDGRID,
                                                     HOLDLOCATION,
@@ -196,48 +200,46 @@ if (!empty($valuesl01)) {
 
 
 //if gillingham, assign endcaps
-
-foreach ($ppcarray_jaxendcap as $key => $value) {
-
-
-    $OPT_TOTIER = $ppcarray_jaxendcap[$key]['OPT_TOTIER'];
-    $OPT_WHSE = intval($ppcarray_jaxendcap[$key]['OPT_WHSE']);
-    $OPT_ITEM = intval($ppcarray_jaxendcap[$key]['OPT_ITEM']);
-    $OPT_PKGU = intval($ppcarray_jaxendcap[$key]['OPT_PKGU']);
-    $OPT_LOC = $ppcarray_jaxendcap[$key]['OPT_LOC'];
-    $OPT_ADBS = intval($ppcarray_jaxendcap[$key]['OPT_ADBS']);
-    $OPT_CSLS = $ppcarray_jaxendcap[$key]['OPT_CSLS'];
-    $OPT_CUBE = intval($ppcarray_jaxendcap[$key]['OPT_CUBE']);
-    $OPT_CURTIER = $ppcarray_jaxendcap[$key]['OPT_CURTIER'];
-    $OPT_NEWGRID = $ppcarray_jaxendcap[$key]['OPT_NEWGRID'];
-    $OPT_NDEP = intval($ppcarray_jaxendcap[$key]['OPT_NDEP']);
-    $OPT_AVGPICK = intval($ppcarray_jaxendcap[$key]['OPT_AVGPICK']);
-    $OPT_DAILYPICKS = number_format($ppcarray_jaxendcap[$key]['OPT_DAILYPICKS'], 2);
-    $OPT_NEWGRIDVOL = intval($ppcarray_jaxendcap[$key]['OPT_NEWGRIDVOL']);
-    $OPT_PPCCALC = $ppcarray_jaxendcap[$key]['OPT_PPCCALC'];
-    $CURRFEET = $ppcarray_jaxendcap[$key]['CURWALKFEET'];
-    $OPT_CURRBAY = intval($ppcarray_jaxendcap[$key]['CURR_BAY']);
-    $OPT_OPTBAY = intval(0);
-    $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
-    $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
-    $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
-    $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
-    $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
-    $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
-    $OPT_LOCATION = '';
-    $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
-//    $counter += 1;
-}
-$values_jaxendcap = array();
-$values_jaxendcap = implode(',', $data);
-
-if (!empty($values_jaxendcap)) {
-
-    $sql = "INSERT IGNORE INTO gillingham.optimalbay ($columns) VALUES $values_jaxendcap";
-    $query = $conn1->prepare($sql);
-    $query->execute();
-}
-
+//foreach ($ppcarray_jaxendcap as $key => $value) {
+//
+//
+//    $OPT_TOTIER = $ppcarray_jaxendcap[$key]['OPT_TOTIER'];
+//    $OPT_WHSE = intval($ppcarray_jaxendcap[$key]['OPT_WHSE']);
+//    $OPT_ITEM = intval($ppcarray_jaxendcap[$key]['OPT_ITEM']);
+//    $OPT_PKGU = intval($ppcarray_jaxendcap[$key]['OPT_PKGU']);
+//    $OPT_LOC = $ppcarray_jaxendcap[$key]['OPT_LOC'];
+//    $OPT_ADBS = intval($ppcarray_jaxendcap[$key]['OPT_ADBS']);
+//    $OPT_CSLS = $ppcarray_jaxendcap[$key]['OPT_CSLS'];
+//    $OPT_CUBE = intval($ppcarray_jaxendcap[$key]['OPT_CUBE']);
+//    $OPT_CURTIER = $ppcarray_jaxendcap[$key]['OPT_CURTIER'];
+//    $OPT_NEWGRID = $ppcarray_jaxendcap[$key]['OPT_NEWGRID'];
+//    $OPT_NDEP = intval($ppcarray_jaxendcap[$key]['OPT_NDEP']);
+//    $OPT_AVGPICK = intval($ppcarray_jaxendcap[$key]['OPT_AVGPICK']);
+//    $OPT_DAILYPICKS = number_format($ppcarray_jaxendcap[$key]['OPT_DAILYPICKS'], 2);
+//    $OPT_NEWGRIDVOL = intval($ppcarray_jaxendcap[$key]['OPT_NEWGRIDVOL']);
+//    $OPT_PPCCALC = $ppcarray_jaxendcap[$key]['OPT_PPCCALC'];
+//    $CURRFEET = $ppcarray_jaxendcap[$key]['CURWALKFEET'];
+//    $OPT_CURRBAY = intval($ppcarray_jaxendcap[$key]['CURR_BAY']);
+//    $OPT_OPTBAY = intval(0);
+//    $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
+//    $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
+//    $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
+//    $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
+//    $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
+//    $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
+//    $OPT_LOCATION = '';
+//    $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
+////    $counter += 1;
+//}
+//$values_jaxendcap = array();
+//$values_jaxendcap = implode(',', $data);
+//
+//if (!empty($values_jaxendcap)) {
+//
+//    $sql = "INSERT IGNORE INTO gillingham.optimalbay ($columns) VALUES $values_jaxendcap";
+//    $query = $conn1->prepare($sql);
+//    $query->execute();
+//}
 //end of assigning jax endcaps
 
 
@@ -260,106 +262,44 @@ do {
     $data = array();
     $values = array();
     while ($counter <= $maxrange) {
-        $OPT_TOTIER = $ppcarray[$counter]['OPT_TOTIER'];
-        if ($OPT_TOTIER === 'L02' || $OPT_TOTIER == 'L05') {
-            $OPT_WHSE = intval($ppcarray[$counter]['OPT_WHSE']);
-            $OPT_ITEM = intval($ppcarray[$counter]['OPT_ITEM']);
-            $OPT_PKGU = intval($ppcarray[$counter]['OPT_PKGU']);
-            $OPT_LOC = $ppcarray[$counter]['OPT_LOC'];
-            $OPT_ADBS = intval($ppcarray[$counter]['OPT_ADBS']);
-            $OPT_CSLS = $ppcarray[$counter]['OPT_CSLS'];
-            $OPT_CUBE = intval($ppcarray[$counter]['OPT_CUBE']);
-            $OPT_CURTIER = $ppcarray[$counter]['OPT_CURTIER'];
-            $OPT_NEWGRID = $ppcarray[$counter]['OPT_NEWGRID'];
-            $OPT_NDEP = intval($ppcarray[$counter]['OPT_NDEP']);
-            $OPT_AVGPICK = intval($ppcarray[$counter]['OPT_AVGPICK']);
-            $OPT_DAILYPICKS = number_format($ppcarray[$counter]['OPT_DAILYPICKS'], 2);
-            $OPT_NEWGRIDVOL = intval($ppcarray[$counter]['OPT_NEWGRIDVOL']);
-            $OPT_PPCCALC = $ppcarray[$counter]['OPT_PPCCALC'];
-            $CURRFEET = $ppcarray[$counter]['CURWALKFEET'];
 
-            $OPT_CURRBAY = intval($ppcarray[$counter]['CURR_BAY']);
-            $OPT_OPTBAY = intval(0);
+        $OPT_WHSE = intval($ppcarray[$counter]['OPT_WHSE']);
+        $OPT_ITEM = intval($ppcarray[$counter]['OPT_ITEM']);
+        $OPT_PKGU = intval($ppcarray[$counter]['OPT_PKGU']);
+        $OPT_LOC = $ppcarray[$counter]['OPT_LOC'];
+        $OPT_CSLS = $ppcarray[$counter]['OPT_CSLS'];
+        $OPT_DAILYPICKS = number_format($ppcarray[$counter]['OPT_DAILYPICKS'], 2);
+        $OPT_NEWGRIDVOL = ($ppcarray[$counter]['OPT_NEWGRIDVOL']);
+        $OPT_PPCCALC = $ppcarray[$counter]['OPT_PPCCALC'];
+        $OPT_CURRBAY = intval($ppcarray[$counter]['CURR_BAY']);
+        $OPT_LOCATION = '';
+        $CURRFEET = $ppcarray[$counter]['CURWALKFEET'];
+        $HOLDLOC = $ppcarray[$counter]['HOLDLOCATION'];
+        if (!is_null($HOLDLOC)) { //if location is held, the volume is already subtracted out of the available volume by bay
+            $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
+            $OPT_OPTBAY = intval(substr($HOLDLOC, 3, 2));
+        } else { //no hold
+            if ($newgrid_runningvol <= $baytotalvolume) {  //can next item volume fit into current available room?
+                $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
+                $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
+            } else {
+                $baykey += 1; //add one to baykey to proceed to next bay
+                $newgrid_runningvol = 0; //reset vol
+                $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
+            }
+
             $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
-
             $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
             $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
             $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
             $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
             $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
-            $OPT_LOCATION = '';
-            $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
+            $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC',  '$OPT_CSLS',  $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
             $counter += 1;
-        } else {
-
-            //not L01, L02, or L05
-            $OPT_WHSE = intval($ppcarray[$counter]['OPT_WHSE']);
-            $OPT_ITEM = intval($ppcarray[$counter]['OPT_ITEM']);
-            if ($OPT_ITEM == 1000833) {
-                echo 't';
-            }
-            $OPT_PKGU = intval($ppcarray[$counter]['OPT_PKGU']);
-            $OPT_LOC = $ppcarray[$counter]['OPT_LOC'];
-            $OPT_ADBS = intval($ppcarray[$counter]['OPT_ADBS']);
-            $OPT_CSLS = $ppcarray[$counter]['OPT_CSLS'];
-            $OPT_CUBE = intval($ppcarray[$counter]['OPT_CUBE']);
-            $OPT_CURTIER = $ppcarray[$counter]['OPT_CURTIER'];
-            $OPT_NEWGRID = $ppcarray[$counter]['OPT_NEWGRID'];
-            $OPT_NDEP = intval($ppcarray[$counter]['OPT_NDEP']);
-            $OPT_AVGPICK = intval($ppcarray[$counter]['OPT_AVGPICK']);
-            $OPT_DAILYPICKS = number_format($ppcarray[$counter]['OPT_DAILYPICKS'], 2);
-            $OPT_NEWGRIDVOL = intval($ppcarray[$counter]['OPT_NEWGRIDVOL']);
-            $OPT_PPCCALC = $ppcarray[$counter]['OPT_PPCCALC'];
-            $OPT_CURRBAY = intval($ppcarray[$counter]['CURR_BAY']);
-            $OPT_LOCATION = '';
-            $CURRFEET = $ppcarray[$counter]['CURWALKFEET'];
-            $HOLDLOC = $ppcarray[$counter]['HOLDLOCATION'];
-            if (is_null($HOLDLOC)) { //if location is held, the volume is already subtracted out of the available volume by bay
-                $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
-            }
-
-            if ($newgrid_runningvol <= $baytotalvolume) {  //can next item volume fit into current available room?
-                if (is_null($HOLDLOC)) {
-                    $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
-                } else {
-                    $OPT_OPTBAY = intval(substr($HOLDLOC, 3, 2));
-                }
-
-
-
-
-                $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
-                $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
-                $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
-                $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
-                $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
-                $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
-                $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
-                $counter += 1;
-            } else { //item cannot fit.  Increase bay key and reset
-                if ($baykey < $maxbaykey) {
-                    $baykey += 1; //add one to baykey to proceed to next bay
-                }
-                $CURRFEET = $ppcarray[$counter]['CURWALKFEET'];
-                $newgrid_runningvol = $OPT_NEWGRIDVOL; //reset running total for new grid vol
-                $baytotalvolume = intval($baycubearray[$baykey]['GRIDVOL']); //reset available bay volume for next bay
-                if (is_null($HOLDLOC)) {
-                    $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
-                } else {
-                    $OPT_OPTBAY = intval(substr($HOLDLOC, 3, 2));
-                }
-
-                $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
-                $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
-                $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
-                $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
-                $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
-                $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
-                $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
-                $counter += 1;
-            }
+            
         }
     }
+
 
     $values = implode(',', $data);
 
