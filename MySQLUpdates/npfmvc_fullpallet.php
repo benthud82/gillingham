@@ -10,11 +10,11 @@ $whssel = 'GB00001';
 include_once '../connection/NYServer.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
-$pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1'");
+$pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1' and LOCATION <> 'PROF01'");
 $pallcount_sql->execute();
 $pallcount_array = $pallcount_sql->fetchAll(pdo::FETCH_ASSOC);
 $palletcount = $pallcount_array[0]['PALL_COUNT'];
-$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_    LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT,  JAX_ENDCAP, PPC_CALC';
+$columns = 'WAREHOUSE, ITEM_NUMBER, PACKAGE_UNIT, PACKAGE_TYPE, CUR_LOCATION, DAYS_FRM_SLE, AVGD_BTW_SLE, AVG_INV_OH, NBR_SHIP_OCC, PICK_QTY_MN, PICK_QTY_SD, SHIP_QTY_MN, SHIP_QTY_SD,CPCEPKU,CPCCPKU,CPCFLOW,CPCTOTE,CPCSHLF,CPCROTA,CPCESTK,CPCLIQU,CPCELEN,CPCEHEI,CPCEWID,CPCCLEN,CPCCHEI,CPCCWID,LMHIGH,LMDEEP,LMWIDE,LMVOL9,LMTIER,LMGRD5,DLY_CUBE_VEL,DLY_PICK_VEL,SUGGESTED_TIER,SUGGESTED_GRID5,SUGGESTED_DEPTH,SUGGESTED_MAX,SUGGESTED_MIN,SUGGESTED_SLOTQTY,SUGGESTED_IMPMOVES,CURRENT_IMPMOVES,SUGGESTED_NEWLOCVOL,SUGGESTED_DAYSTOSTOCK, AVG_DAILY_PICK, AVG_DAILY_UNIT,  JAX_ENDCAP, PPC_CALC';
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $L01GridsSQL = $conn1->prepare("SELECT 
                                                                         LOC_DIM AS LMGRD5,
@@ -27,7 +27,7 @@ $L01GridsSQL = $conn1->prepare("SELECT
                                                                     FROM
                                                                         gillingham.location_master
                                                                     WHERE
-                                                                        ALLOW_PICK = 'Y' AND LOC_DIM = 'MSFP1'
+                                                                        ALLOW_PICK = 'Y' AND LOC_DIM = 'MSFP1' and LOCATION <> 'PROF01'
                                                                     GROUP BY LOC_DIM , USE_HEIGHT , USE_DEPTH , USE_WIDTH, USE_CUBE
                                                                     ORDER BY USE_CUBE DESC");
 $L01GridsSQL->execute();

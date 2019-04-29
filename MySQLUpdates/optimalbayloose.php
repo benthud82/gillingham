@@ -48,86 +48,84 @@ $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
 //}
 //Result set for PPC sorted by highest PPC for items currently in BIN
 $ppc = $conn1->prepare("SELECT 
-    A.WAREHOUSE AS OPT_WHSE,
-    A.ITEM_NUMBER AS OPT_ITEM,
-    A.PACKAGE_UNIT AS OPT_PKGU,
-    A.CUR_LOCATION AS OPT_LOC,
-    A.PACKAGE_TYPE AS OPT_CSLS,
-    PPC_CALC AS OPT_PPCCALC,
-    V.WALKFEET AS CURWALKFEET,
-    HOLDTIER,
-    HOLDGRID,
-    HOLDLOCATION,
-    L.WALKBAY AS CURR_BAY
-FROM
-    gillingham.my_npfmvc A
-        JOIN
-    gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
-        JOIN
-    gillingham.item_master X ON X.ITEM = A.ITEM_NUMBER
-        LEFT JOIN
-    gillingham.vectormap V ON L.BAY = V.BAY
-        LEFT JOIN
-    gillingham.item_settings S ON S.ITEM = A.ITEM_NUMBER
-        LEFT JOIN
-    gillingham.slotmaster M ON M.slotmaster_item = A.ITEM_NUMBER
-WHERE
-    SUGGESTED_TIER = 'BIN'
-ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
+                                                    A.WAREHOUSE AS OPT_WHSE,
+                                                    A.ITEM_NUMBER AS OPT_ITEM,
+                                                    A.PACKAGE_UNIT AS OPT_PKGU,
+                                                    A.CUR_LOCATION AS OPT_LOC,
+                                                    A.PACKAGE_TYPE AS OPT_CSLS,
+                                                    PPC_CALC AS OPT_PPCCALC,
+                                                    V.WALKFEET AS CURWALKFEET,
+                                                    A.SUGGESTED_GRID5 as OPT_NEWGRID,
+                                                    A.SUGGESTED_DEPTH as OPT_NDEP,
+                                                    A.AVG_DAILY_PICK as OPT_DAILYPICKS,
+                                                    HOLDTIER,
+                                                    HOLDGRID,
+                                                    HOLDLOCATION,
+                                                    L.WALKBAY AS CURR_BAY
+                                                FROM
+                                                    gillingham.my_npfmvc A
+                                                        JOIN
+                                                    gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
+                                                        LEFT JOIN
+                                                    gillingham.vectormap V ON L.BAY = V.BAY
+                                                        LEFT JOIN
+                                                    gillingham.item_settings S ON S.ITEM = A.ITEM_NUMBER
+                                                WHERE
+                                                    SUGGESTED_TIER = 'BIN'
+                                                ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
 $ppc->execute();
 $ppcarray = $ppc->fetchAll(pdo::FETCH_ASSOC);
 
 
 //Result set for PPC sorted by highest PPC for items currently in L01
 $ppcL01 = $conn1->prepare("SELECT 
-                                                                A.WAREHOUSE AS OPT_WHSE,
-                                                                A.ITEM_NUMBER AS OPT_ITEM,
-                                                                A.PACKAGE_UNIT AS OPT_PKGU,
-                                                                A.CUR_LOCATION AS OPT_LOC,
-                                                                A.PACKAGE_TYPE AS OPT_CSLS,
-                                                                PPC_CALC AS OPT_PPCCALC,
-                                                                V.WALKFEET AS CURWALKFEET,
-                                                                HOLDTIER,
-                                                                HOLDGRID,
-                                                                HOLDLOCATION,
-                                                                L.WALKBAY AS CURR_BAY
-                                                            FROM
-                                                                gillingham.my_npfmvc A
-                                                                    JOIN
-                                                                gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
-                                                                    JOIN
-                                                                gillingham.item_master X ON X.ITEM = A.ITEM_NUMBER
-                                                                    LEFT JOIN
-                                                                gillingham.vectormap V ON L.BAY = V.BAY
-                                                                    LEFT JOIN
-                                                                gillingham.item_settings S ON S.ITEM = A.ITEM_NUMBER
-                                                                    LEFT JOIN
-                                                                gillingham.slotmaster M ON M.slotmaster_item = A.ITEM_NUMBER
-                                                            WHERE
-                                                                SUGGESTED_TIER = 'PALL'
-                                                            ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
+                                                            A.WAREHOUSE AS OPT_WHSE,
+                                                            A.ITEM_NUMBER AS OPT_ITEM,
+                                                            A.PACKAGE_UNIT AS OPT_PKGU,
+                                                            A.CUR_LOCATION AS OPT_LOC,
+                                                            A.PACKAGE_TYPE AS OPT_CSLS,
+                                                            PPC_CALC AS OPT_PPCCALC,
+                                                            V.WALKFEET AS CURWALKFEET,
+                                                            A.SUGGESTED_GRID5 as OPT_NEWGRID,
+                                                            A.SUGGESTED_DEPTH as OPT_NDEP,
+                                                            A.AVG_DAILY_PICK as OPT_DAILYPICKS,
+                                                            HOLDTIER,
+                                                            HOLDGRID,
+                                                            HOLDLOCATION,
+                                                            L.WALKBAY AS CURR_BAY
+                                                        FROM
+                                                            gillingham.my_npfmvc A
+                                                                JOIN
+                                                            gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
+                                                                LEFT JOIN
+                                                            gillingham.vectormap V ON L.BAY = V.BAY
+                                                                LEFT JOIN
+                                                            gillingham.item_settings S ON S.ITEM = A.ITEM_NUMBER
+                                                        WHERE
+                                                            SUGGESTED_TIER = 'PALL'
+                                                        ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
 $ppcL01->execute();
 $ppcL01array = $ppcL01->fetchAll(pdo::FETCH_ASSOC);
 
 //********ALL L01 locations are 0 walkfeet, do you need this?**************
 //L01 Locations in ascending walkfeet to match with highest picked L01 Recs
 $L01Locs = $conn1->prepare("SELECT 
-                                                                    M.LOCATION AS LMLOC,
-                                                                    V.WALKFEET,
-                                                                    M.LOC_DIM,
-                                                                    M.USE_DEPTH AS LMDEEP
+                                                            M.LOCATION AS LMLOC,
+                                                            V.WALKFEET,
+                                                            M.LOC_DIM as LMGRD5,
+                                                            M.USE_DEPTH AS LMDEEP
+                                                        FROM
+                                                            gillingham.location_master M
+                                                                JOIN
+                                                            gillingham.bay_location B ON B.LOCATION = M.LOCATION
+                                                                JOIN
+                                                            gillingham.vectormap V ON V.BAY = B.BAY
+                                                        WHERE
+                                                            V.TIER = 'PALL'
+                                                                AND M.LOCATION NOT IN (SELECT 
+                                                                    HOLDLOCATION
                                                                 FROM
-                                                                    gillingham.location_master M
-                                                                        JOIN
-                                                                    gillingham.bay_location B ON B.LOCATION = M.LOCATION
-                                                                        JOIN
-                                                                    gillingham.vectormap V ON V.BAY = B.BAY
-                                                                WHERE
-                                                                    V.TIER = 'PALL'
-                                                                        AND M.LOCATION NOT IN (SELECT 
-                                                                            HOLDLOCATION
-                                                                        FROM
-                                                                            gillingham.item_settings)");
+                                                                    gillingham.item_settings)");
 $L01Locs->execute();
 $L01Locsarray = $L01Locs->fetchAll(pdo::FETCH_ASSOC);
 //assign L01s to specific location
@@ -161,18 +159,12 @@ foreach ($ppcL01array as $key => $value) {
     }
 
 
-    $OPT_TOTIER = $ppcL01array[$key]['OPT_TOTIER'];
     $OPT_WHSE = intval($ppcL01array[$key]['OPT_WHSE']);
     $OPT_ITEM = intval($ppcL01array[$key]['OPT_ITEM']);
     $OPT_PKGU = intval($ppcL01array[$key]['OPT_PKGU']);
     $OPT_LOC = $ppcL01array[$key]['OPT_LOC'];
-    $OPT_ADBS = intval($ppcL01array[$key]['OPT_ADBS']);
     $OPT_CSLS = $ppcL01array[$key]['OPT_CSLS'];
-    $OPT_CUBE = intval($ppcL01array[$key]['OPT_CUBE']);
-    $OPT_CURTIER = $ppcL01array[$key]['OPT_CURTIER'];
-    $OPT_AVGPICK = intval($ppcL01array[$key]['OPT_AVGPICK']);
     $OPT_DAILYPICKS = number_format($ppcL01array[$key]['OPT_DAILYPICKS'], 2);
-    $OPT_NEWGRIDVOL = intval($ppcL01array[$key]['OPT_NEWGRIDVOL']);
     $OPT_PPCCALC = $ppcL01array[$key]['OPT_PPCCALC'];
     $currentfeetperpick = intval($ppcL01array[$key]['CURWALKFEET']);
     $OPT_CURRBAY = intval($ppcL01array[$key]['CURR_BAY']);
@@ -186,7 +178,7 @@ foreach ($ppcL01array as $key => $value) {
     $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
     $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
 
-    $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC', $OPT_ADBS, '$OPT_CSLS', $OPT_CUBE, '$OPT_CURTIER', '$OPT_TOTIER', '$OPT_NEWGRID', $OPT_NDEP, $OPT_AVGPICK, '$OPT_DAILYPICKS', $OPT_NEWGRIDVOL, $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
+    $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC',  '$OPT_CSLS',  $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
 }
 $columns = 'OPT_WHSE, OPT_ITEM, OPT_PKGU, OPT_LOC, OPT_CSLS, OPT_PPCCALC, OPT_OPTBAY, OPT_CURRBAY, OPT_CURRDAILYFT, OPT_SHLDDAILYFT, OPT_ADDTLFTPERPICK, OPT_ADDTLFTPERDAY, OPT_WALKCOST, OPT_LOCATION, OPT_BUILDING';
 $valuesl01 = array();
@@ -211,10 +203,6 @@ foreach ($ppcarray_jaxendcap as $key => $value) {
     $OPT_TOTIER = $ppcarray_jaxendcap[$key]['OPT_TOTIER'];
     $OPT_WHSE = intval($ppcarray_jaxendcap[$key]['OPT_WHSE']);
     $OPT_ITEM = intval($ppcarray_jaxendcap[$key]['OPT_ITEM']);
-    if ($OPT_ITEM == 1160864) {
-        echo 't';
-    }
-
     $OPT_PKGU = intval($ppcarray_jaxendcap[$key]['OPT_PKGU']);
     $OPT_LOC = $ppcarray_jaxendcap[$key]['OPT_LOC'];
     $OPT_ADBS = intval($ppcarray_jaxendcap[$key]['OPT_ADBS']);
