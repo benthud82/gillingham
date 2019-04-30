@@ -8,6 +8,7 @@ $slowdownsizecutoff = 99999;
 $whssel = 'GB00001';
 //include_once '../../globalincludes/google_connect.php';
 include_once '../connection/NYServer.php';
+//include_once '../../connections/conn_printvis.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
 $pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1' and LOCATION <> 'PROF01'");
@@ -121,7 +122,10 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                             AND A.PKTYPE = 'EA'
                                                             AND CHAR_GROUP not in ('D','J','T')
                                                             and slotmaster_loc <= '69*'
-                                                        ORDER BY DLY_CUBE_VEL DESC
+                                                        ORDER BY CASE
+                                                                WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
+                                                                ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
+                                                            END DESC
                                                     LIMIT $palletcount");
 $L01sql->execute();
 $L01array = $L01sql->fetchAll(pdo::FETCH_ASSOC);
@@ -160,6 +164,9 @@ foreach ($L01array as $key => $value) {
     $PKGU_PERC_Restriction = intval(1);
     $ITEM_NUMBER = intval($L01array[$key]['ITEM_NUMBER']);
 
+    if($ITEM_NUMBER == 1187140){
+        echo 't';
+    }
 
 
     //call slot quantity logic

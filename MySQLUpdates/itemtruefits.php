@@ -5,6 +5,7 @@
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
 //include_once '../globalincludes/google_connect.php';
+//include_once '../../connections/conn_printvis.php';
 include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
@@ -51,6 +52,7 @@ $itemsql = $conn1->prepare("SELECT
                                 LINE_TYPE IN ('ST' , 'SW') and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
+ --                               and M.ITEM = 1187140
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -124,7 +126,7 @@ foreach ($itemarray as $key => $value) {
         //$truefitarray = _truefit($grid5, $gridhigh, $griddeep, $gridwide, ' ', $ea_height, $ea_depth, $ea_width, $var_EachSLOTQTY, 999);
         $truefit_tworound = $truefitarray[1];
         //if new tf is less than previous TF, continue
-        if ($truefit_tworound <= $previousTF) {
+        if ($truefit_tworound <= ($previousTF * 1.1)) {
             continue;
         }
         $previousTF = $truefit_tworound;
@@ -149,7 +151,7 @@ foreach ($itemarray as $key => $value) {
             //push to array
             $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype')";
             $array_itemtf_ext[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype', '$griddeep', $truefit_tworound, $min, $truefit_tworound, '$gridcube', 1)";
-           
+
 
             if ($nextgrid == 1) {
                 $nextgrid = 2;
@@ -164,10 +166,6 @@ foreach ($itemarray as $key => $value) {
     }
     $columns_itemtf = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype';
     $columns_itemtf_ext = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype, itemtf_griddep, itemtf_max, itemtf_min, itemtf_slotqty, itemtf_locvol, itemtf_daystostock';
-//after looping through all items, write to smallest_grid table
-//    if (count($array_itemtf) == 0) {
-//        $array_itemtf[] = "($item, 'NOFIT', '1','4512',0, '0', 'NOFIT' )";
-//    }
 }
 
 $values = implode(',', $array_itemtf);
@@ -181,7 +179,7 @@ $query2 = $conn1->prepare($sql2);
 $query2->execute();
 
 //insert the replen reduction per increase in cube to table gillingham.rpc_reductions
-$sqlinsert = "INSERT INTO gillingham.rpc_reductions SELECT 
+$sqlinsert = "INSERT INTO gillingham.rpc_reductions (SELECT 
                             TF.itemtf_grid,
                             TF.itemtf_nextgrid,
                             TF.itemtf_rpc,
@@ -196,7 +194,7 @@ $sqlinsert = "INSERT INTO gillingham.rpc_reductions SELECT
                         FROM
                             gillingham.item_truefits TF,
                             (SELECT @lastitem:=0, @lastimpmove:=0, @lastgridvol:=0) SQLVars
-                        ORDER BY itemtf_item ASC , itemtf_gridvol ASC
+                        ORDER BY itemtf_item ASC , itemtf_gridvol ASC)
                         ";
 $queryinsert = $conn1->prepare($sqlinsert);
 $queryinsert->execute();

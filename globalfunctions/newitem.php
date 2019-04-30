@@ -224,7 +224,7 @@ function _truefitgrid2iterations($var_grid5, $var_gridheight, $var_griddepth, $v
     }
 
     switch ($var_PCLIQU) {
-        case '':
+        case ' ':
 
 
             $var_gridHprodL = intval($var_gridheight / $var_PCELENin);

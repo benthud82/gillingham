@@ -19,20 +19,22 @@ $totacubecounter = 0;
 $prevtotcube = 0;
 //what is capacity?
 $usevol_sql = $conn1->prepare("SELECT 
-                                                        SUM(CASE
-                                                            WHEN LOC_DIM LIKE 'CL%' THEN (USE_CUBE * .85)
-                                                            ELSE 0
-                                                        END) AS cap_flow,
-                                                        SUM(CASE
-                                                            WHEN USE_DEPTH < 80 THEN (USE_CUBE * .85)
-                                                            ELSE 0
-                                                        END) AS cap_bb
-                                                    FROM
-                                                        gillingham.location_master
-                                                            LEFT JOIN
-                                                        gillingham.grid_exclusions ON exclude_grid = LOC_DIM
-                                                    WHERE
-                                                        exclude_grid IS NULL");
+                                                                SUM(CASE
+                                                                    WHEN TIER = 'BIN' THEN USE_CUBE
+                                                                    ELSE 0
+                                                                END) * .85 AS cap_bb,
+                                                                SUM(CASE
+                                                                    WHEN TIER = 'FLOW' THEN USE_CUBE
+                                                                    ELSE 0
+                                                                END) * .95 AS cap_flow
+                                                            FROM
+                                                                gillingham.location_master A
+                                                                    JOIN
+                                                                gillingham.bay_location B ON A.LOCATION = B.LOCATION
+                                                                    JOIN
+                                                                gillingham.vectormap C ON C.BAY = B.BAY
+                                                            WHERE
+                                                                WALKBAY NOT IN ('CC' , 'L0', 'R0', 'R1', 'R2')");
 $usevol_sql->execute();
 $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
@@ -244,6 +246,9 @@ do {
     $array_topitem = $sql_topitem->fetchAll(pdo::FETCH_ASSOC);
 
     $topitem = $array_topitem[0]['nextgrid_item'];
+    if(!isset($topitem)){
+        break;
+    }
 
     //top item selected
     //update as current grid in currgrid table with top item
@@ -348,7 +353,7 @@ do {
     $totalmoves = $array_totalcap[0]['totalmoves'];
     $newcube = $bin_totalcube + $flow_totalcube;
 
-    echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
+    //echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
 } while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
 
 $date = date('Y-m-d H:i:s');
