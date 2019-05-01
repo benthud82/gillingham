@@ -137,7 +137,7 @@ do {
     }
 
     //if all bin capacity is used, delete from available rpc_reductions and reload next grid table.
-    if ($flow_totalcube > $cap_flow) {
+    if ($bin_totalcube > $cap_bb) {
 
         //delete flow from next grid
         $sqldelete3 = "DELETE FROM gillingham.nextgrid where nextgrid_loctype = 'BIN'";
