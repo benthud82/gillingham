@@ -11,7 +11,7 @@ include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
-
+$flowloop = $binloop = 0;
 
 
 $bin_totalcube = $flow_totalcube = 0;
@@ -40,14 +40,15 @@ $usevol_array = $usevol_sql->fetchAll(pdo::FETCH_ASSOC);
 
 
 $cap_flow = $usevol_array[0]['cap_flow'];
+//$cap_flow = 106955;
 $cap_bb = $usevol_array[0]['cap_bb'];
 //$cap_bb = 5000;
 //$cap_flow = 113491;
 do {
 
     //if all flow capacity is used, delete from available rpc_reductions and reload next grid table.
-    if ($flow_totalcube > $cap_flow) {
-
+    if ($flow_totalcube > $cap_flow && $flowloop == 0) {
+        $flowloop += 1;
         //delete flow from next grid
         $sqldelete3 = "DELETE FROM gillingham.nextgrid where nextgrid_loctype = 'FLOW'";
         $querydelete3 = $conn1->prepare($sqldelete3);
@@ -137,8 +138,8 @@ do {
     }
 
     //if all bin capacity is used, delete from available rpc_reductions and reload next grid table.
-    if ($bin_totalcube > $cap_bb) {
-
+    if ($bin_totalcube > $cap_bb && $binloop == 0) {
+        $binloop += 1;
         //delete flow from next grid
         $sqldelete3 = "DELETE FROM gillingham.nextgrid where nextgrid_loctype = 'BIN'";
         $querydelete3 = $conn1->prepare($sqldelete3);
@@ -245,8 +246,11 @@ do {
     $sql_topitem->execute();
     $array_topitem = $sql_topitem->fetchAll(pdo::FETCH_ASSOC);
 
+    $rpc_decrease = $array_topitem[0]['nextgrid_rpcdecrease'];
+    echo $rpc_decrease . "\n";
+
     $topitem = $array_topitem[0]['nextgrid_item'];
-    if(!isset($topitem)){
+    if (!isset($topitem)) {
         break;
     }
 

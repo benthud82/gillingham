@@ -138,7 +138,7 @@ function _okgrids($var_preditemMC, $var_whse) {
 function _truefitgrid($var_grid5, $var_gridheight, $var_griddepth, $var_gridwidth, $var_PCLIQU, $var_PCEHEIin, $var_PCELENin, $var_PCEWIDin) {
 
     switch ($var_PCLIQU) {
-        case "  ":
+        case " ":
 
             $var_gridHprodL = intval($var_gridheight / $var_PCELENin);
             $var_gridHprodW = intval($var_gridheight / $var_PCEWIDin);

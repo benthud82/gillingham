@@ -52,7 +52,7 @@ $itemsql = $conn1->prepare("SELECT
                                 LINE_TYPE IN ('ST' , 'SW') and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
- --                               and M.ITEM = 1187140
+  --                              and M.ITEM = 1039246
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -99,8 +99,17 @@ foreach ($itemarray as $key => $value) {
     $daysohcount = 0;
     $item = $itemarray[$key]['ITEM'];
     $ea_depth = $itemarray[$key]['EA_DEPTH'];
+    if($ea_depth == 0){
+        $ea_depth = 1;
+    }
     $ea_height = $itemarray[$key]['EA_HEIGHT'];
+        if($ea_height == 0){
+        $ea_height = 1;
+    }
     $ea_width = $itemarray[$key]['EA_WIDTH'];
+        if($ea_width == 0){
+        $ea_width = 1;
+    }
     $ea_cube = $itemarray[$key]['ITEMCUBE'];
     $daystostore = $itemarray[$key]['DAYS_TO_STORE'];
     $adbs = $itemarray[$key]['ADBS'];
@@ -131,7 +140,7 @@ foreach ($itemarray as $key => $value) {
         }
         $previousTF = $truefit_tworound;
         //test if true fit > slotquantity
-        if ($truefit_tworound > $var_EachSLOTQTY) {
+        if ($truefit_tworound >= $var_EachSLOTQTY) {
             //what is next grid size?
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
@@ -185,8 +194,8 @@ $sqlinsert = "INSERT INTO gillingham.rpc_reductions (SELECT
                             TF.itemtf_rpc,
                             TF.itemtf_loctype,
                             IF(@lastitem = TF.itemtf_item,
-                             --   (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
-                                (@lastimpmove - TF.itemtf_impmoves),
+                                (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
+                          --      (@lastimpmove - TF.itemtf_impmoves),
                                 0000.00) AS decrease_rpc,
                             @lastitem:=TF.itemtf_item,
                             @lastimpmove:=TF.itemtf_impmoves,
