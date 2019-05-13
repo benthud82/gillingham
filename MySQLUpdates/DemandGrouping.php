@@ -219,5 +219,23 @@ GROUP BY A.GROUPED_ITEM , 1 , A.GROUPED_PKTYPE";
 $query2 = $conn1->prepare($sql2);
 $query2->execute();
 
+//no sales update
+    $sql = "INSERT IGNORE into gillingham.nptsld
+                        SELECT 
+                            slotmaster_item, 1, 'EA', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
+                        FROM
+                            gillingham.slotmaster A
+                                JOIN
+                            gillingham.item_master X ON X.ITEM = A.slotmaster_item
+                                LEFT JOIN
+                            gillingham.nptsld B ON slotmaster_item = B.ITEM
+                                AND PKTYPE = slotmaster_pkgu
+                        WHERE
+                            B.ITEM IS NULL
+                                AND slotmaster_pkgu = 'EA'
+                                AND CHAR_GROUP NOT IN ('D' , 'J', 'T')
+                                AND slotmaster_loc <= '69*'";
+    $query = $conn1->prepare($sql);
+    $query->execute();
 
 

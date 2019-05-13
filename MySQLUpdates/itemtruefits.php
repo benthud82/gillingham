@@ -49,7 +49,8 @@ $itemsql = $conn1->prepare("SELECT
                                  LEFT JOIN
                               gillingham.my_npfmvc F ON F.ITEM_NUMBER = M.ITEM
                             WHERE
-                                LINE_TYPE IN ('ST' , 'SW') and D.AVG_DAILY_UNIT > 0
+                                LINE_TYPE IN ('ST' , 'SW') 
+                             --   and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
   --                              and M.ITEM = 1039246
@@ -99,15 +100,15 @@ foreach ($itemarray as $key => $value) {
     $daysohcount = 0;
     $item = $itemarray[$key]['ITEM'];
     $ea_depth = $itemarray[$key]['EA_DEPTH'];
-    if($ea_depth == 0){
+    if ($ea_depth == 0) {
         $ea_depth = 1;
     }
     $ea_height = $itemarray[$key]['EA_HEIGHT'];
-        if($ea_height == 0){
+    if ($ea_height == 0) {
         $ea_height = 1;
     }
     $ea_width = $itemarray[$key]['EA_WIDTH'];
-        if($ea_width == 0){
+    if ($ea_width == 0) {
         $ea_width = 1;
     }
     $ea_cube = $itemarray[$key]['ITEMCUBE'];
@@ -144,7 +145,12 @@ foreach ($itemarray as $key => $value) {
             //what is next grid size?
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
-            $daysoh = intval($truefit_tworound / $daily_ship_qty);
+            if ($daily_ship_qty == 0) {
+                $daysoh = 1;
+            } else {
+                $daysoh = intval($truefit_tworound / $daily_ship_qty);
+            }
+
             if ($daysoh >= $maxdaysoh && $daysohcount > 1) {
                 break;
             }

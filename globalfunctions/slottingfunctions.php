@@ -1163,7 +1163,7 @@ function _walkcost_GILL($currbay, $shouldbay, $dailypicks, $currfeet) {
 
     $walkcostarray = array();
     $walkcostarray['CURR_FT_PER_DAY'] = ($currwalkfeet * $dailypicks) / 1000;
-    $walkcostarray['SHOULD_FT_PER_DAY'] = $shldwalkfeet * $dailypicks;
+    $walkcostarray['SHOULD_FT_PER_DAY'] = ($shldwalkfeet * $dailypicks) / 1000;
     $walkcostarray['ADDTL_FT_PER_PICK'] = $addtl_feet_per_pick;
     $walkcostarray['ADDTL_FT_PER_DAY'] = $addtl_feet_per_day;
     $walkcostarray['ADDTL_COST_PER_YEAR'] = $addtl_cost_per_year;
@@ -1182,8 +1182,8 @@ function _walkcost_feet($currfeet, $shouldfeet, $dailypicks) {
     $addtl_cost_per_year = ((($addtl_feet_per_day * $days_year) / $walkrate_sec ) / 3600) * $hourlyrate;
 
     $walkcostarray = array();
-    $walkcostarray['CURR_FT_PER_DAY'] = $currfeet * $dailypicks;
-    $walkcostarray['SHOULD_FT_PER_DAY'] = $shouldfeet * $dailypicks;
+    $walkcostarray['CURR_FT_PER_DAY'] = ($currfeet * $dailypicks) / 1000;
+    $walkcostarray['SHOULD_FT_PER_DAY'] = ($shouldfeet * $dailypicks) / 1000;
     $walkcostarray['ADDTL_FT_PER_PICK'] = $addtl_feet_per_pick;
     $walkcostarray['ADDTL_FT_PER_DAY'] = $addtl_feet_per_day;
     $walkcostarray['ADDTL_COST_PER_YEAR'] = $addtl_cost_per_year;
