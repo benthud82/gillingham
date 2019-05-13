@@ -395,28 +395,28 @@ do {
 $sql_hist = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
                  SELECT 
     OPT_WHSE,
-    OPT_CURTIER,
+    LMTIER,
     CURDATE(),
-    L.WALKBAY AS BAY,
-    SUM(OPT_DAILYPICKS),
+    L.BAY AS BAY,
+    SUM(AVG_DAILY_PICK),
     AVG(ABS(OPT_WALKCOST)),
     COUNT(OPT_ITEM)
 FROM
     gillingham.optimalbay
         JOIN
     gillingham.my_npfmvc ON OPT_ITEM = ITEM_NUMBER
-                JOIN
+        AND OPT_PKGU = PACKAGE_UNIT
+        AND OPT_CSLS = PACKAGE_TYPE
+        JOIN
     gillingham.bay_location L ON LOCATION = CUR_LOCATION
-WHERE
-    OPT_CURTIER <> 'L01'
-GROUP BY OPT_WHSE , OPT_CURTIER , CURDATE() , L.BAY";
+GROUP BY OPT_WHSE , LMTIER , CURDATE() , L.BAY";
 $query_hist = $conn1->prepare($sql_hist);
 $query_hist->execute();
 
-$sql_hist2 = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
-                 SELECT OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC as BAY, sum(OPT_DAILYPICKS), avg(ABS(OPT_WALKCOST)), count(OPT_ITEM) FROM gillingham.optimalbay WHERE OPT_CURTIER = 'L01'  GROUP BY OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC;";
-$query_hist2 = $conn1->prepare($sql_hist2);
-$query_hist2->execute();
+//$sql_hist2 = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
+//                 SELECT OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC as BAY, sum(OPT_DAILYPICKS), avg(ABS(OPT_WALKCOST)), count(OPT_ITEM) FROM gillingham.optimalbay WHERE OPT_CURTIER = 'L01'  GROUP BY OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC;";
+//$query_hist2 = $conn1->prepare($sql_hist2);
+//$query_hist2->execute();
 
 //add all others that weren't calculated.  Since using insert igore, can pull in all locations
 //$sql_hist3 = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
