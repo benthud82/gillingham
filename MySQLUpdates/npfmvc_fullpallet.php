@@ -164,9 +164,6 @@ foreach ($L01array as $key => $value) {
     $PKGU_PERC_Restriction = intval(1);
     $ITEM_NUMBER = intval($L01array[$key]['ITEM_NUMBER']);
 
-    if($ITEM_NUMBER == 1187140){
-        echo 't';
-    }
 
 
     //call slot quantity logic

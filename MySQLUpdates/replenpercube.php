@@ -2,7 +2,6 @@
 <?php
 
 $date = date('Y-m-d H:i:s');
-echo $date . '<br>';
 ini_set('max_execution_time', 999999);
 ini_set('memory_limit', '-1');
 ini_set('max_allowed_packet', '104857600');
@@ -247,7 +246,7 @@ do {
     $array_topitem = $sql_topitem->fetchAll(pdo::FETCH_ASSOC);
 
     $rpc_decrease = $array_topitem[0]['nextgrid_rpcdecrease'];
-    echo $rpc_decrease . "\n";
+
 
     $topitem = $array_topitem[0]['nextgrid_item'];
     if (!isset($topitem)) {
@@ -357,8 +356,5 @@ do {
     $totalmoves = $array_totalcap[0]['totalmoves'];
     $newcube = $bin_totalcube + $flow_totalcube;
 
-    //echo 'BINCUBE: ' . $bin_totalcube . ' | FLOWCUBE: ' . $flow_totalcube . ' | MOVES: ' . $totalmoves . '<br>';
 } while (($bin_totalcube < $cap_bb) || ($flow_totalcube < $cap_flow));
 
-$date = date('Y-m-d H:i:s');
-echo $date . '<br>';
