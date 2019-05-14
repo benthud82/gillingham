@@ -13,7 +13,6 @@ if (count($fileglob) > 0) {
     $filename = $fileglob[0];
 }
 
-
 $result = array();
 $fp = fopen($filename, 'r');
 if (($headers = fgetcsv($fp, 0, ",")) !== FALSE) {
@@ -46,6 +45,15 @@ do {
         $replen_date = date_create_from_format('d/m/y', ($result[$counter]['Date Printed']));
         $formattedate = $replen_date->format('Y-m-d');
 
+        $dayofweek = date('w', strtotime($formattedate));
+        if ($dayofweek == 6) {
+            $date = date('Y-m-d', strtotime($formattedate . ' + 2 day'));
+        } elseif ($dayofweek == 0) {
+            $date = date('Y-m-d', strtotime($formattedate . ' + 1 day'));
+        } else {
+            $date = $formattedate;
+        }
+
         $replen_code = ($result[$counter]['Code']);
         $replen_item = intval($result[$counter]['Item']);
         $replen_qty = ($result[$counter]['Total Quantity']);
@@ -55,7 +63,7 @@ do {
         $replen_toloc = ($result[$counter]['To Location']);
         $replen_pickzone = ($result[$counter]['To Location Pick Zone']);
 
-        $data[] = "(0, '$formattedate', '$replen_code', $replen_item, $replen_qty, '$replen_pkgu', '$replen_fromloc', '$replen_zone', '$replen_toloc', '$replen_pickzone')";
+        $data[] = "(0, '$date', '$replen_code', $replen_item, $replen_qty, '$replen_pkgu', '$replen_fromloc', '$replen_zone', '$replen_toloc', '$replen_pickzone')";
         $counter += 1;
     }
 

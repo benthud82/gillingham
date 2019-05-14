@@ -79,6 +79,28 @@ foreach ($fileglob as $deletefile) {
 }
 
 //update average inventory table
-$sqlmerge2 = "    INSERT into gillingham.avg_inv (BRANCH, ITEM, AVG_OH) SELECT 'GB0001', b.ITEM , b.AVGINV FROM gillingham.gill_raw b WHERE b.PICKDATE = '$formattedate' and ITEM = b.ITEM on duplicate key update AVG_OH=b.AVGINV";
+$sqlmerge2 = "INSERT into gillingham.avg_inv (BRANCH, ITEM, AVG_OH) SELECT 'GB0001', b.ITEM , b.AVGINV FROM gillingham.gill_raw b WHERE b.PICKDATE = '$formattedate' and ITEM = b.ITEM on duplicate key update AVG_OH=b.AVGINV";
 $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
+
+//update lines shipped table
+ $startdate = date('Y-m-d', strtotime('-999 days'));
+ $sqlmerge3 = "INSERT INTO invlinesshipped
+                                    SELECT 
+                                        0,
+                                        PICKDATE,
+                                        COUNT(*) AS TOT_LINES,
+                                        CASE
+                                            WHEN PKTYPE = 'EA' AND LOCATION < '69*' THEN 'LSE'
+                                            ELSE 'CSE'
+                                        END AS TYPE
+                                    FROM
+                                        gillingham.gill_raw
+                                        WHERE PICKDATE >= '$startdate'
+                                    GROUP BY PICKDATE , CASE
+                                        WHEN PKTYPE = 'EA' AND LOCATION < '69*' THEN 'LSE'
+                                        ELSE 'CSE'
+                                    END
+                                    ON DUPLICATE KEY UPDATE INVLINES=values(INVLINES)";
+$querymerge3 = $conn1->prepare($sqlmerge3);
+$querymerge3->execute();
