@@ -344,7 +344,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_scores',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -428,7 +429,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replens',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -511,7 +513,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replens_actual',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -595,7 +598,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_fpp',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -677,7 +681,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replenstolines_actual',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -745,7 +750,6 @@
                     success: function (json) {
                         options5.xAxis.categories = json[0]['data'];
                         options5.series[0] = json[1];
-                        options5.series[1] = json[2];
 
 
                         chart = new Highcharts.Chart(options5);

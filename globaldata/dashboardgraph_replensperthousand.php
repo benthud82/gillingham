@@ -1,4 +1,5 @@
 <?php
+
 //NO REPLEN DATA!!
 ini_set('max_execution_time', 99999);
 include_once '../connection/NYServer.php';
@@ -16,16 +17,18 @@ $time = strtotime("-1 year", time());
 $date = date("Y-m-d", $time);
 
 $result1 = $conn1->prepare("SELECT 
-                                INVDATE,
-                                ASOCount / (INVLINES / 1000) as ASO,
-                                AUTOCount / (INVLINES / 1000) as AUTO
-                            FROM
-                                {$table}
-                                JOIN
-                                 {$table2} ON MoveDate = INVDATE
-                            LEFT JOIN slotting.excl_replenperthousand on replenexcl_whse = INVWHSE and replenexcl_date = INVDATE
-                            WHERE INVDATE >= '$date' and replenexcl_date is null
-                            GROUP BY INVDATE");
+                                                    replengroup_date, replengroup_count / (INVLINES / 1000) as TOT_REPLENS
+                                                FROM
+                                                    gillingham.replen_grouped
+                                                        JOIN
+                                                    gillingham.invlinesshipped ON INVDATE = replengroup_date
+                                                        AND INVCSLS = replengroup_type
+                                                           LEFT JOIN
+                                                    gillingham.excl_replenperthousand ON replengroup_date = replenexcl_date
+                                                WHERE
+                                                    replengroup_type = 'LSE'
+                                                    AND replenexcl_date IS NULL
+                                                        AND replengroup_date >= '$date'");
 $result1->execute();
 
 
@@ -33,23 +36,19 @@ $result1->execute();
 $rows = array();
 $rows['name'] = 'Date';
 $rows1 = array();
-$rows1['name'] = 'ASOs';
-$rows2 = array();
-$rows2['name'] = 'AUTOs';
+$rows1['name'] = 'Replens';
+
 
 
 foreach ($result1 as $row) {
-    $rows['data'][] = $row['INVDATE'];
-    $rows1['data'][] = ($row['ASO']) * 1.0;
-    $rows2['data'][] = ($row['AUTO']) * 1.0;
-
+    $rows['data'][] = $row['replengroup_date'];
+    $rows1['data'][] = ($row['TOT_REPLENS']) * 1.0;
 }
 
 
 $result = array();
 array_push($result, $rows);
 array_push($result, $rows1);
-array_push($result, $rows2);
 
 
 print json_encode($result);
