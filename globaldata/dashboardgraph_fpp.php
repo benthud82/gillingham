@@ -1,6 +1,6 @@
 <?php
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $time = strtotime("-1 year", time());
 $date = date("Y-m-d", $time);
 

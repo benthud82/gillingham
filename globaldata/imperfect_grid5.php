@@ -3,7 +3,7 @@
 //*********    The logic never recommends an imperfect grid5????  ********
 
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $displayarray[$topcostkey]['MOVES_AFTER_IMP_GRID'] = '-';
 $displayarray[$topcostkey]['MOVESCORE_AFTER_IMP_GRID'] = '-';
 $displayarray[$topcostkey]['WALKSCORE_AFTER_IMP_GRID'] = '-';

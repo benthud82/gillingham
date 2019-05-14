@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
     ?>
     <head>
         <title>OSS - Dashboard</title>
@@ -17,22 +17,14 @@
         <?php include_once 'horizontalnav.php'; ?>
         <!--include vert nav php file-->
         <?php
-        include_once 'connection/connection_details.php';
         include_once 'verticalnav.php';
         include_once 'globaldata/dashboard_scores_case.php';
         include_once 'globaldata/dashboard_scores_loose.php';
-        include_once 'globaldata/l04capacity.php';
         ?>
 
         <section id="content"> 
             <section class="main padder"> 
                 <div class="row" style="padding-top: 75px;">
-                    <!--Is L04 capacity out of tolerance?-->
-                    <?php if ($l04capacity >= .98 || $l04capacity <= .85) { ?>
-                        <div class="col-sm-12">
-                            <div class="alert alert-danger " style="font-size: 100%;"> <button type="button" class="close" data-dismiss="alert"><i class="fa fa-times"></i></button> <i class="fa fa-exclamation-triangle fa-lg"></i><span> The capacity for you standard blue bin location (tier L04) is at risk.  <strong>Please email Bentley Hudson immediately!</strong></span></div>
-                        </div>
-                    <?php } ?>
 
                     <!--Loose Stats-->
                     <div class="col-lg-6"> 
@@ -280,24 +272,6 @@
                                     </div>
                                 </div>
                                 <div id="container_fpp" class="dashboardstyle printrotate"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!--Capacity gauges-->
-                <section class="panel hidewrapper" id="graph_capacity" style="margin-bottom: 50px; margin-top: 20px;"> 
-                    <header class="panel-heading bg bg-inverse h2">Capacity Gauges<i class="fa fa-close pull-right closehidden" style="cursor: pointer;" id="close_fpp"></i><i class="fa fa-chevron-up pull-right clicktotoggle-chevron" style="cursor: pointer;"></i></header>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-4 col-sm-4">
-                                <div class="metric infogauge" data-ratio="<?php echo $l04capacity ?>">
-                                    <svg viewBox="0 0 1000 500">
-                                    <path d="M 950 500 A 450 450 0 0 0 50 500"></path>
-                                    <text class='percentage' text-anchor="middle" alignment-baseline="middle" x="500" y="300" font-size="140" font-weight="bold">0%</text>
-                                    <text class='title' text-anchor="middle" alignment-baseline="middle" x="500" y="450" font-size="90" font-weight="normal">L04 Capacity</text>
-                                    </svg>
-                                </div>
                             </div>
                         </div>
                     </div>

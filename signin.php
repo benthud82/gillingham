@@ -4,7 +4,7 @@
     <head>
         <title>Sign In</title>
         <?php include_once 'headerincludes.php'; ?>
-        <?php include_once 'connection/connection_details.php'; ?>
+        <?php  include_once 'connection/NYServer.php';?>
     </head>
 
     <body style="">

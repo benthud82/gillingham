@@ -1,5 +1,5 @@
 <?php
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $var_userid = $_POST['userid'];
 $var_whse = 'GB0001';
 $tiersel = $_POST['tiersel'];

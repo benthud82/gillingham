@@ -3,7 +3,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
     include_once '../globalfunctions/slottingfunctions.php';
 
     $var_whse = 'GB0001';

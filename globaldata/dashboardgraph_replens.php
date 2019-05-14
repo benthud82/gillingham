@@ -1,6 +1,6 @@
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $result1 = $conn1->prepare("SELECT 
                                                         *

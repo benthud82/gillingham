@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
     include_once 'globalfunctions/slottingfunctions.php';
     $var_userid = $_SESSION['MYUSER'];
     $whssql = $conn1->prepare("SELECT slottingDB_users_PRIMDC from gillingham.slottingdb_users WHERE idslottingDB_users_ID = '$var_userid'");

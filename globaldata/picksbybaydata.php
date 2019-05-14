@@ -2,7 +2,7 @@
 <?php
 
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $var_whse = 'GB0001';
 $var_date = date('Y-m-d',  strtotime($_GET['datesel']));

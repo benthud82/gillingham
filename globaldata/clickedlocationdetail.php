@@ -1,5 +1,5 @@
 <?php
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $var_userid = 'BHUD01';
 $BAYCODE = $_POST['baycode'];

@@ -1,7 +1,7 @@
 
 <?php
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $sqlfilter = 0;
 
 $var_item = intval($_POST['itemnum']);  //pulled from itemquery.php

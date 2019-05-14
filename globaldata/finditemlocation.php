@@ -3,7 +3,7 @@
 //find assocatiated location and item for input at item query
 
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $var_itemnum = intval($_POST['itemnum']);
 $var_location = ($_POST['location']);

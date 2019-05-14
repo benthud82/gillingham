@@ -1,6 +1,6 @@
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $replenred_loose = $conn1->prepare("SELECT 
                                 SUM(CURRENT_IMPMOVES) - 

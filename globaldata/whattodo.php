@@ -3,7 +3,7 @@
 ini_set('max_execution_time', 99999);
 set_time_limit(99999);
 ini_set('memory_limit', '-1');
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 include_once '../globalfunctions/slottingfunctions.php';
 include_once '../globalfunctions/newitem.php';
 

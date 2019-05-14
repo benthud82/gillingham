@@ -1,7 +1,7 @@
 
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $displayarray[$topcostkey]['AFTER_IMPERFECT_MC_SLOT_MOVES'] = '-';
 $displayarray[$topcostkey]['MOVESCORE_AFTER_IMPERFECT_MC'] = '-';
 $displayarray[$topcostkey]['WALKSCORE_AFTER_IMPERFECT_MC'] = '-';

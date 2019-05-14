@@ -1,6 +1,6 @@
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $var_userid = strtoupper($_GET['userid']);
 $var_itemnum = strtoupper($_GET['itemnum']);
 

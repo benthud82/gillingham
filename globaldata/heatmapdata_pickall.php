@@ -1,6 +1,6 @@
 
 <?php
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $var_userid = $_POST['userid'];
 $whssql = $conn1->prepare("SELECT slottingDB_users_PRIMDC from gillingham.slottingdb_users WHERE idslottingDB_users_ID = '$var_userid'");
 $whssql->execute();

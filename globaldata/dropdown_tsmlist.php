@@ -1,6 +1,6 @@
 <?php
 if (!isset($conn1)){
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
 }
 
 
