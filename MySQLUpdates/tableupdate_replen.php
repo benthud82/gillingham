@@ -83,3 +83,35 @@ do {
 foreach ($fileglob as $deletefile) {
     unlink(realpath($deletefile));
 }
+
+
+//update replen grouped table
+ $startdate = date('Y-m-d', strtotime('-10 days'));
+ $sqlmerge3 = "INSERT INTO gillingham.replen_grouped
+                                SELECT 
+                                    replen_date,
+                                        CASE
+                                        WHEN
+                                            replen_pkgu = 'EA'
+                                                AND replen_toloc < '69*'
+                                        THEN
+                                            'LSE'
+                                        ELSE 'CSE'
+                                    END AS TYPE,
+                                    COUNT(*) AS replen_count
+                                FROM
+                                    gillingham.replen
+                                WHERE
+                                    replen_date >= '$startdate'
+                                GROUP BY replen_date , CASE
+                                    WHEN
+                                        replen_pkgu = 'EA'
+                                            AND replen_toloc < '69*'
+                                    THEN
+                                        'LSE'
+                                    ELSE 'CSE'
+                                END
+                                ON DUPLICATE KEY UPDATE replengroup_count=values(replengroup_count)
+";
+$querymerge3 = $conn1->prepare($sqlmerge3);
+$querymerge3->execute();

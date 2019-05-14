@@ -84,8 +84,8 @@ $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
 
 //update lines shipped table
- $startdate = date('Y-m-d', strtotime('-999 days'));
- $sqlmerge3 = "INSERT INTO invlinesshipped
+ $startdate = date('Y-m-d', strtotime('-10 days'));
+ $sqlmerge3 = "INSERT INTO gillingham.invlinesshipped
                                     SELECT 
                                         0,
                                         PICKDATE,
