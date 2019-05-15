@@ -244,3 +244,80 @@ $result5 = $conn1->prepare("INSERT IGNORE INTO gillingham.vectormaperrors (maper
                                                                 slotmaster_allowpick = 'Y'
                                                                     AND WALKFEET IS NULL");
 $result5->execute();
+
+
+//update the bottom100
+foreach ($whsearray as $whse) {
+    $sql = "UPDATE gillingham.slottingscore dest,
+                                (SELECT 
+                                    *
+                                FROM
+                                    gillingham.slottingscore
+                                WHERE
+                                    SCORE_ZONE IN ('EA')
+                                ORDER BY SCORE_TOTALSCORE , SCORE_REPLENSCORE , SCORE_WALKSCORE
+                                LIMIT 100) src 
+                            SET 
+                                dest.SCORE_BOTTOM100 = 1
+                            WHERE
+                               dest.SCORE_ITEM = src.SCORE_ITEM
+                                    AND dest.SCORE_ZONE = src.SCORE_ZONE;";
+    $query = $conn1->prepare($sql);
+    $query->execute();
+}
+
+//update the bottom1000
+foreach ($whsearray as $whse) {
+    $sql = "UPDATE gillingham.slottingscore dest,
+                                    (SELECT 
+                                        *
+                                    FROM
+                                        gillingham.slottingscore
+                                    WHERE
+                                        SCORE_ZONE IN ('EA')
+                                    ORDER BY SCORE_TOTALSCORE , SCORE_REPLENSCORE , SCORE_WALKSCORE
+                                    LIMIT 1000) src 
+                                SET 
+                                    dest.SCORE_BOTTOM1000 = 1
+                                WHERE
+                                   dest.SCORE_ITEM = src.SCORE_ITEM
+                                        AND dest.SCORE_ZONE = src.SCORE_ZONE;";
+    $query = $conn1->prepare($sql);
+    $query->execute();
+}
+
+//update slotting historical scores by item.
+
+$result6 = $conn1->prepare("INSERT IGNORE into gillingham.slottingscore_hist_item
+                                                        SELECT 
+                                                            WAREHOUSE,
+                                                            ITEM_NUMBER,
+                                                            PACKAGE_UNIT,
+                                                            CUR_LOCATION,
+                                                            LMTIER,
+                                                            SUGGESTED_TIER,
+                                                            LMGRD5,
+                                                            SUGGESTED_GRID5,
+                                                            SUGGESTED_DEPTH,
+                                                            SUGGESTED_SLOTQTY,
+                                                            SUGGESTED_MAX,
+                                                            CURRENT_IMPMOVES,
+                                                            SUGGESTED_IMPMOVES,
+                                                            AVG_DAILY_PICK,
+                                                            AVG_DAILY_UNIT,
+                                                            SCORE_TOTALSCORE,
+                                                            SCORE_TOTALSCORE_OPT,
+                                                            SCORE_REPLENSCORE,
+                                                            SCORE_REPLENSCORE_OPT,
+                                                            SCORE_WALKSCORE,
+                                                            SCORE_WALKSCORE_OPT,
+                                                            SCORE_BOTTOM100,
+                                                            SCORE_BOTTOM1000,
+                                                            CURDATE()
+                                                        FROM
+                                                            gillingham.slottingscore
+                                                                JOIN
+                                                            gillingham.my_npfmvc ON 
+                                                                SCORE_ITEM = ITEM_NUMBER
+                                                                AND SCORE_ZONE = PACKAGE_TYPE");
+$result6->execute();
