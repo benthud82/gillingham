@@ -125,8 +125,6 @@
 
             }
 
-
-
             function gettable(itemnumpost) {
                 debugger;
                 $('#tasktablecontainer').addClass('hidden');
@@ -243,7 +241,7 @@
                 $('#addactionmodal').modal('toggle');
             });
 
-//show move audit modal
+            //show move audit modal
             $(document).on("click touchstart", ".moveauditclick", function (e) {
                 $('#actualmovemodal').modal('toggle');
                 $('#itemdetailcontainerloading').toggleClass('hidden');
@@ -266,7 +264,7 @@
                 });
             });
 
-//show pick audit modal
+            //show pick audit modal
             $(document).on("click touchstart", ".pickauditclick", function (e) {
                 $('#actualpickmodal').modal('toggle');
                 $('#itemdetailcontainerloading_pick').toggleClass('hidden');
