@@ -13,13 +13,10 @@ switch ($mapsel) {
                                 (CURRENT_IMPMOVES - SUGGESTED_IMPMOVES) * 253.00 as ADDTLREPLENS
                             FROM
                                 gillingham.my_npfmvc
-                                    JOIN
-                                gillingham.slottingscore ON WAREHOUSE = SCORE_WHSE
-                                    and ITEM_NUMBER = SCORE_ITEM
-                                    and SCORE_PKGU = PACKAGE_UNIT
+                                       JOIN
+                                gillingham.bay_location ON LOCATION = CUR_LOCATION
                             WHERE
-                                CASE WHEN LMTIER = 'L01' then CUR_LOCATION = '$BAYCODE' WHEN LMTIER = 'L05' then CONCAT(SUBSTR(CUR_LOCATION, 1, 3),'01')  = '$BAYCODE' else
-                                        SUBSTR(CUR_LOCATION, 1, 5) = '$BAYCODE' end
+                                   BAY = '$BAYCODE'
                        
                             ORDER BY CURRENT_IMPMOVES - SUGGESTED_IMPMOVES DESC");  //$orderby pulled from: include 'slopecat_switch_orderby.php';
         $result2->execute();
@@ -80,7 +77,8 @@ switch ($mapsel) {
                                                                 CUR_LOCATION,
                                                                 SCORE_WALKSCORE,
                                                                 SCORE_REPLENSCORE,
-                                                                SCORE_TOTALSCORE
+                                                                SCORE_TOTALSCORE,
+                                                                AVG_DAILY_PICK
                                                             FROM
                                                                 gillingham.my_npfmvc
                                                                     JOIN
@@ -90,7 +88,8 @@ switch ($mapsel) {
                                                                     JOIN
                                                                 gillingham.bay_location L ON L.LOCATION = slotmaster_loc
                                                             WHERE
-                                                                L.BAY = '$BAYCODE'");  //$orderby pulled from: include 'slopecat_switch_orderby.php';
+                                                                L.BAY = '$BAYCODE'
+                                                            ORDER BY SCORE_WALKSCORE ASC");  //$orderby pulled from: include 'slopecat_switch_orderby.php';
         $result2->execute();
         $itemscorearray = $result2->fetchAll(pdo::FETCH_ASSOC);
 
@@ -133,9 +132,11 @@ switch ($mapsel) {
                 <!-- List group -->
                 <div class="list-group">
                     <div class="list-group-item"> 
+			
+						
                         <a href="itemquery.php?itemnum=<?php echo $itemscorearray[$key]['ITEM_NUMBER'] . '&userid=' . $var_userid; ?>" target="_blank"> <span class=""><?php echo $itemscorearray[$key]['ITEM_NUMBER'] . ' | ' . $itemscorearray[$key]['CUR_LOCATION'] ?></span> </a>
-                        <span class="pull-right"><strong><?php echo number_format($itemscorearray[$key]['SCORE_WALKSCORE'] * 100, 2) . '%' ?></strong></span> 
-
+                        <span class="pull-right"><strong><?php echo number_format($itemscorearray[$key]['SCORE_WALKSCORE'] * 100, 1) . '% | APD: ' . number_format($itemscorearray[$key]['AVG_DAILY_PICK'],1 ); ?></strong></span> 
+				
                     </div>
                 </div>
 
