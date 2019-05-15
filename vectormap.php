@@ -33,7 +33,7 @@
                 <section class="panel hidewrapper col-lg-9" id="tbl_historicalscores" style="margin-bottom: 50px; margin-top: 20px;"> 
                     <header class="panel-heading bg bg-inverse h2">Table - Vector Map</header>
                     <div id="tbl_historicalscores" class="panel-body">
-                        <div id="vectormapcontainer" class="col-lg-9">
+                        <div id="vectormapcontainer" class="">
                             <table id="vectormaptable" class="table table-bordered" cellspacing="0" style="font-size: 11px; font-family: Calibri; cursor: pointer;">
                                 <thead>
                                     <tr>

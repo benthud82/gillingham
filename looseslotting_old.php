@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/NYServer.php';
+        include_once 'connection/NYServer.php';
     ?>
     <head>
         <title>OSS - Loose Slottting</title>
@@ -27,8 +27,6 @@
                             <option value=10>10</option>
                             <option value=25>25</option>
                             <option value=50>50</option>
-                            <option value=75>75</option>
-                            <option value=100>100</option>
                         </select>
                     </div>
                     <div class="pull-left" style="margin-left: 15px" >
@@ -60,7 +58,7 @@
 
                             <div class="modal-body" id="" style="margin: 25px;">
                                 <h4 style="font-family: calibri">The loose slotting algorithm analyzes lowest scoring items and determines most advantageous course of action to increase the total item score.  The hierarchy is as follows: </h4>
-
+                                
                                 <ul style="font-family: calibri">
                                     <li><strong>Perfect Slot</strong> - Empty location found in optimal bay and optimal grid5.</li>
                                     <li><strong>Level 1 Swap</strong> - By moving an item out of current location (to optimal bay and optimal grid5), a perfect slot will be emptied for target item.</li>
@@ -77,78 +75,12 @@
 
 
 
-                <!-- Add Action Modal -->
-                <div id="addactionmodal" class="modal fade " role="dialog">
-                    <div class="modal-dialog modal-lg">
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Add Item Action</h4>
-                            </div>
-                            <form class="form-horizontal" id="postitemaction">
-                                <div class="modal-body">
-                                    <div class="form-group hidden">
-                                        <div class="col-md-9" id="itemnummodal" tabindex="100"></div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-md-3 control-label">Assign Task To: </label>
-                                        <div class="col-md-9" id="tsmiddropdownajax" tabindex="100"> <?php include_once 'globaldata/dropdown_tsmlist.php'; ?></div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-md-3 control-label">Enter Detailed Comment: </label>
-                                        <div class="col-md-9">
-                                            <textarea rows="3" placeholder="" class="form-control" id="actioncommentmodal" name="actioncommentmodal" tabindex="101"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary btn-lg pull-left" name="additemaction" id="additemaction" tabindex="102">Add Item Action</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-
             </section>
         </section>
 
 
         <script>
             $("body").tooltip({selector: '[data-toggle="tooltip"]'});
-
-
-            //add item task to mysql table
-            $(document).on("click", "#additemaction", function (event) {
-                event.preventDefault();
-                debugger;
-                var itemmodal = $('#itemnummodal').val();
-                var commentmodal = $('#actioncommentmodal').val();
-                var assignedtsm = $('#tsmlist').val();
-                var formData = 'itemmodal=' + itemmodal + '&commentmodal=' + commentmodal + '&assignedtsm=' + assignedtsm;
-                $.ajax({
-                    url: 'formpost/itemactionadd.php',
-                    type: 'POST',
-                    data: formData,
-                    success: function (result) {
-                        $('#addactionmodal').modal('hide');
-                        gettable(itemmodal);
-                    }
-                });
-            });
-
-            //show modal to add action for item
-            $(document).on("click", ".addaction", function (e) {
-                debugger;
-                var itemnum = this.id;
-                $('#itemnummodal').val(itemnum);
-                $('#addactionmodal').modal('toggle');
-            });
-
-
 
             function showhelpmodal() {  //show help modal
                 $('#container_helpmodal').modal('toggle');
@@ -202,7 +134,7 @@
                 window.history.replaceState({}, document.title, clean_uri);
             }
 
-            $(document).on("click", ".clicktotoggle-chevron-test", function (e) {
+            $(document).on("click", ".clicktotoggle-chevron", function (e) {
                 $(this).toggleClass('fa-chevron-circle-down fa-chevron-circle-up');
                 $(this).closest('.media').next('.hiddencostdetail').slideToggle();
             });
@@ -214,7 +146,6 @@
                 var itemnum = passedid.substring(0, 7); //itemcode
                 var currtier = passedid.substring(7, 10); //current tier
                 var pkgu = passedid.substring(10); //package unit
-                var whsesel = $('#whsesel').val();
 
                 $.ajax({
                     url: '../globaldata/maxtotfdata.php',
@@ -267,18 +198,7 @@
                         $("#caseeachcontainer" + passedid).html(ajaxresult);
                     }
                 });
-            });
-
-
-
-            //On close of action modal, clear all fields and toggle hidden
-            $('.modal').on('hidden.bs.modal', function () {
-                $(this).find('form')[0].reset();
-            });
-
-
-
-        </script>
+            });</script>
 
 
 

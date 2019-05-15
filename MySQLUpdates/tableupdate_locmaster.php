@@ -3,6 +3,7 @@
 //updates gillingham.location_master table
 //include_once '../globalincludes/google_connect.php';
 include_once '../connection/NYServer.php';
+$tier = 'BLANK';
 
 ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
@@ -35,7 +36,7 @@ if (($headers = fgetcsv($fp, 0, ",")) !== FALSE) {
 fclose($fp);
 
 //insert into item_master table
-$columns = 'BRANCH,LOCATION,HEIGHT,DEPTH,WIDTH,CUBE,USE_HEIGHT,USE_DEPTH,USE_WIDTH,USE_CUBE,LOC_CHAR,PICK_ZONE,AISLE,LOC_DIM,ALLOW_PICK,ALLOW_REPLEN,ALLOW_PUT';
+$columns = 'BRANCH,LOCATION,HEIGHT,DEPTH,WIDTH,CUBE,USE_HEIGHT,USE_DEPTH,USE_WIDTH,USE_CUBE,LOC_CHAR,PICK_ZONE,AISLE,LOC_DIM,ALLOW_PICK,ALLOW_REPLEN,ALLOW_PUT, TIER';
 $maxrange = 999;
 $counter = 0;
 $rowcount = count($result);
@@ -68,7 +69,7 @@ do {
 
 
         $data[] = "('$store_branch', '$store_loc', '$store_hei', '$store_dep', '$store_wid', '$store_cube', '$store_usehei', '$store_usedep', '$store_usewid', '$store_usecube', '$store_locchar', '$store_zone',"
-                . "'$store_aisle', '$store_dimgroup', '$store_pick', '$store_replen', '$store_put')";
+                . "'$store_aisle', '$store_dimgroup', '$store_pick', '$store_replen', '$store_put', '$tier')";
         $counter += 1;
     }
 
@@ -88,3 +89,16 @@ do {
 foreach ($fileglob as $deletefile) {
     unlink(realpath($deletefile));
 }
+
+
+//update tier column
+//Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
+$sqlupdate2 = "UPDATE gillingham.location_master set TIER = CASE
+                                WHEN LOCATION >= '69*' THEN 'CASE'
+                                WHEN SUBSTRING(LOC_DIM, 1, 2) = 'CL' THEN 'FLOW'
+                                WHEN USE_DEPTH < 80 THEN 'BIN'
+                                WHEN LOC_DIM = 'MSFP1' THEN 'PALL'
+                                ELSE 'OTHER'
+                            END;";
+$queryupdate2 = $conn1->prepare($sqlupdate2);
+$queryupdate2->execute();
