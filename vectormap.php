@@ -30,33 +30,37 @@
                 </div>
 
                 <!--Vector map table-->
-                <div id="vectormapcontainer" class="">
-                    <table id="vectormaptable" class="table table-bordered" cellspacing="0" style="font-size: 11px; font-family: Calibri; cursor: pointer;">
-                        <thead>
-                            <tr>
-                                <th>Modify</th>
-                                <th>ID</th>
-                                <th>Whse</th>
-                                <th>Bay</th>
-                                <th>Y-Position</th>
-                                <th>X-Position</th>
-                                <th>Bay Height</th>
-                                <th>Bay Width</th>
-                                <th>Walk MM</th>
-                                <th>Case/Loose</th>
-                                <th>Tier</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-
+                <section class="panel hidewrapper col-lg-9" id="tbl_historicalscores" style="margin-bottom: 50px; margin-top: 20px;"> 
+                    <header class="panel-heading bg bg-inverse h2">Table - Vector Map</header>
+                    <div id="tbl_historicalscores" class="panel-body">
+                        <div id="vectormapcontainer" class="col-lg-9">
+                            <table id="vectormaptable" class="table table-bordered" cellspacing="0" style="font-size: 11px; font-family: Calibri; cursor: pointer;">
+                                <thead>
+                                    <tr>
+                                        <th>Modify</th>
+                                        <th>ID</th>
+                                        <th>Whse</th>
+                                        <th>Bay</th>
+                                        <th>Y-Position</th>
+                                        <th>X-Position</th>
+                                        <th>Bay Height</th>
+                                        <th>Bay Width</th>
+                                        <th>Walk MM</th>
+                                        <th>Case/Loose</th>
+                                        <th>Tier</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </section>
             </section>
         </section>
 
 
         <script>
             $("body").tooltip({selector: '[data-toggle="tooltip"]'});
-            
+
             $("#modules").addClass('active');
 
             oTable2 = $('#vectormaptable').DataTable({
@@ -166,7 +170,7 @@
                     }
                 });
             });
-            
+
             $('.modal').on('hidden.bs.modal', function () {
                 $(this).find('form')[0].reset();
             });

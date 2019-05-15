@@ -19,6 +19,7 @@ $bayreport = $conn1->prepare("SELECT
                                     gillingham.vectormap ON BAY = picksbybay_BAY
                                 WHERE
                                     picksbybay_DATE = '$var_date'
+                                        and picksbybay_BAY <= '69*'
                                 ORDER BY picksbybay_PICKS * WALKFEET desc ;");
 $bayreport->execute();
 $bayreportarray = $bayreport->fetchAll(pdo::FETCH_ASSOC);
