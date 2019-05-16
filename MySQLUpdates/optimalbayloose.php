@@ -26,7 +26,7 @@ $baycube = $conn1->prepare("SELECT
                                                                 JOIN
                                                             gillingham.vectormap C ON C.BAY = B.BAY
                                                         WHERE
-                                                            TIER = 'BIN'
+                                                            A.TIER = 'BIN'
                                                                 AND WALKBAY NOT IN ('CC' , 'L0', 'R0', 'R1', 'R2')
                                                         GROUP BY WALKBAY");
 $baycube->execute();

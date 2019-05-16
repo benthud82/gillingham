@@ -12,7 +12,7 @@ $sqldelete = "TRUNCATE TABLE gillingham.slottingscore";
 $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
-$columns = 'SCORE_WHSE, SCORE_ITEM, SCORE_PKGU, SCORE_ZONE, SCORE_TOTALSCORE, SCORE_REPLENSCORE, SCORE_WALKSCORE, SCORE_TOTALSCORE_OPT, SCORE_REPLENSCORE_OPT, SCORE_WALKSCORE_OPT';
+$columns = 'SCORE_WHSE, SCORE_ITEM, SCORE_PKGU, SCORE_ZONE, SCORE_TOTALSCORE, SCORE_REPLENSCORE, SCORE_WALKSCORE, SCORE_TOTALSCORE_OPT, SCORE_REPLENSCORE_OPT, SCORE_WALKSCORE_OPT, SCORE_BOTTOM100, SCORE_BOTTOM1000';
 
 $scoresql = $conn1->prepare("INSERT INTO gillingham.slottingscore
     SELECT 
@@ -49,7 +49,9 @@ $scoresql = $conn1->prepare("INSERT INTO gillingham.slottingscore
     CASE
         WHEN 1 - (((abs(0) / 1.4) / .052632)) < 0 THEN 0
         ELSE 1 - (((abs(0) / 1.4) / .052632))
-    end as SCORE_WALKSCORE_OPT
+    end as SCORE_WALKSCORE_OPT, 
+    0,
+    0
 FROM
     gillingham.my_npfmvc A
         join
@@ -247,7 +249,7 @@ $result5->execute();
 
 
 //update the bottom100
-foreach ($whsearray as $whse) {
+
     $sql = "UPDATE gillingham.slottingscore dest,
                                 (SELECT 
                                     *
@@ -264,10 +266,10 @@ foreach ($whsearray as $whse) {
                                     AND dest.SCORE_ZONE = src.SCORE_ZONE;";
     $query = $conn1->prepare($sql);
     $query->execute();
-}
+
 
 //update the bottom1000
-foreach ($whsearray as $whse) {
+
     $sql = "UPDATE gillingham.slottingscore dest,
                                     (SELECT 
                                         *
@@ -284,7 +286,6 @@ foreach ($whsearray as $whse) {
                                         AND dest.SCORE_ZONE = src.SCORE_ZONE;";
     $query = $conn1->prepare($sql);
     $query->execute();
-}
 
 //update slotting historical scores by item.
 
