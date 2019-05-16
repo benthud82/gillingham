@@ -19,11 +19,11 @@ $prevtotcube = 0;
 //what is capacity?
 $usevol_sql = $conn1->prepare("SELECT 
                                                                 SUM(CASE
-                                                                    WHEN TIER = 'BIN' THEN USE_CUBE
+                                                                    WHEN A.TIER = 'BIN' THEN USE_CUBE
                                                                     ELSE 0
                                                                 END) * .85 AS cap_bb,
                                                                 SUM(CASE
-                                                                    WHEN TIER = 'FLOW' THEN USE_CUBE
+                                                                    WHEN A.TIER = 'FLOW' THEN USE_CUBE
                                                                     ELSE 0
                                                                 END) * .95 AS cap_flow
                                                             FROM
