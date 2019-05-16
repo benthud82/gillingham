@@ -75,14 +75,8 @@ do {
         $slotmaster_maxreplen = $result[$counter]['Max Replen Point'];
         $slotmaster_allowpick = $result[$counter]['Allow Pick'];
         $slotmaster_allowreplen = $result[$counter]['Allow Replenishment'];
+        $slotmaster_tier = 'XXXX'; //will overwrite at end based of value from location master 
 
-        if (substr($slotmaster_dimgroup, 0, 2) == 'CL') {
-            $slotmaster_tier = 'FLOW';
-        } elseif ($slotmaster_usedeep < 80) {
-            $slotmaster_tier = 'BIN';
-        } else {
-            $slotmaster_tier = 'PALL';
-        }
         $slotmaster_bay = 'x';
         $slotmaster_impmoves = 0;  //this is later updated through current_implied_moves.php
 
@@ -144,3 +138,11 @@ $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
 
 
+//update the tier in the slotmaster table with the calculated tier from the location master
+$sqlmerge3 = "UPDATE gillingham.slotmaster
+                                    INNER JOIN
+                                gillingham.location_master ON slotmaster_loc = LOCATION 
+                            SET 
+                                slotmaster_tier = TIER";
+$querymerge3 = $conn1->prepare($sqlmerge3);
+$querymerge3->execute();

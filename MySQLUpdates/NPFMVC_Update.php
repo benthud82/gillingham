@@ -92,7 +92,7 @@ WHERE
          AND D.slotmaster_pkgu = 'EA'
         AND A.PKTYPE = 'EA'
         AND CHAR_GROUP not in ('D','J','T')
-        and slotmaster_loc <= '69*')";
+        and slotmaster_tier <> 'CASE' ";
 $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
 

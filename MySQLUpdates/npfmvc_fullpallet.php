@@ -11,7 +11,7 @@ include_once '../connection/NYServer.php';
 //include_once '../../connections/conn_printvis.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********
-$pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE LOC_DIM = 'MSFP1' and LOCATION <> 'PROF01'");
+$pallcount_sql = $conn1->prepare("SELECT count(*) as PALL_COUNT FROM gillingham.location_master WHERE TIER = 'PALL' and LOCATION <> 'PROF01'");
 $pallcount_sql->execute();
 $pallcount_array = $pallcount_sql->fetchAll(pdo::FETCH_ASSOC);
 $palletcount = $pallcount_array[0]['PALL_COUNT'];
@@ -28,7 +28,7 @@ $L01GridsSQL = $conn1->prepare("SELECT
                                                                     FROM
                                                                         gillingham.location_master
                                                                     WHERE
-                                                                        ALLOW_PICK = 'Y' AND LOC_DIM = 'MSFP1' and LOCATION <> 'PROF01'
+                                                                        ALLOW_PICK = 'Y' AND  TIER = 'PALL' and LOCATION <> 'PROF01'
                                                                     GROUP BY LOC_DIM , USE_HEIGHT , USE_DEPTH , USE_WIDTH, USE_CUBE
                                                                     ORDER BY USE_CUBE DESC");
 $L01GridsSQL->execute();
@@ -121,7 +121,7 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                             AND D.slotmaster_pkgu = 'EA'
                                                             AND A.PKTYPE = 'EA'
                                                             AND CHAR_GROUP not in ('D','J','T')
-                                                            and slotmaster_loc <= '69*'
+                                                            and slotmaster_tier <> 'CASE'
                                                         ORDER BY CASE
                                                                 WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
                                                                 ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA

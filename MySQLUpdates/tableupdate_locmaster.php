@@ -96,7 +96,7 @@ foreach ($fileglob as $deletefile) {
 $sqlupdate2 = "UPDATE gillingham.location_master 
                             SET 
                                 TIER = CASE
-                                            WHEN LOCATION like '01%' then 'DEAD'
+                                    WHEN LOCATION like '01%' then 'DEAD'
                                     WHEN LOCATION like '67%' then 'DEAD' 
                                     WHEN LOCATION >= '69*' THEN 'CASE'
                                     WHEN SUBSTRING(LOC_DIM, 1, 2) = 'CL' THEN 'FLOW'
