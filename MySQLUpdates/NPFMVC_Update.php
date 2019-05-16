@@ -1,8 +1,8 @@
 <?php
 
 //haven't started on this.  This is pulled from the US main update php file
-//include_once '../connection/NYServer.php';
-include_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
+//include_once '../globalincludes/google_connect.php';
 include_once '../globalfunctions/slottingfunctions.php';
 include_once '../globalfunctions/newitem.php';
 ini_set('max_execution_time', 99999);
@@ -92,7 +92,7 @@ WHERE
          AND D.slotmaster_pkgu = 'EA'
         AND A.PKTYPE = 'EA'
         AND CHAR_GROUP not in ('D','J','T')
-        and slotmaster_tier <> 'CASE' ";
+        and slotmaster_tier <> 'CASE' )";
 $querymerge2 = $conn1->prepare($sqlmerge2);
 $querymerge2->execute();
 
