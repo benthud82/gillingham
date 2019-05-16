@@ -66,11 +66,7 @@ $gridsql = $conn1->prepare("SELECT
                                                     slotmaster_usedeep,
                                                     slotmaster_usewide,
                                                     slotmaster_usecube,
-                                                    CASE
-                                                        WHEN slotmaster_dimgroup LIKE 'CL%' THEN 'FLOW'
-                                                        WHEN slotmaster_usedeep < 80 THEN 'BIN'
-                                                        ELSE 'PALL'
-                                                    END AS LOC_TYPE,
+                                                    slotmaster_tier AS LOC_TYPE,
                                                     COUNT(*)
                                                 FROM
                                                     gillingham.slotmaster
@@ -78,11 +74,7 @@ $gridsql = $conn1->prepare("SELECT
                                                         gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
                                                 WHERE
                                                     exclude_grid IS NULL and slotmaster_pkgu = 'EA'
-                                                GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , CASE
-                                                    WHEN slotmaster_dimgroup LIKE 'CL%' THEN 'FLOW'
-                                                    WHEN slotmaster_usedeep < 80 THEN 'BIN'
-                                                    ELSE 'PALL'
-                                                END
+                                                GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , slotmaster_tier
                                                 ORDER BY slotmaster_usecube ASC");
 $gridsql->execute();
 $gridarray = $gridsql->fetchAll(pdo::FETCH_ASSOC);

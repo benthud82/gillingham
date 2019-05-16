@@ -38,8 +38,9 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, IT
                                                                     FROM
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
-                                                                WHERE PICKDATE >= '2017-01-01' and
-                                                                    rank <= 61");
+                                                                WHERE PICKDATE >= '2017-01-01'  
+                                                                and PKTYPE = 'EA'
+                                                                  and  rank <= 61");
 $sql_30day->execute();
 
 
@@ -234,7 +235,7 @@ $query2->execute();
                             B.ITEM IS NULL
                                 AND slotmaster_pkgu = 'EA'
                                 AND CHAR_GROUP NOT IN ('D' , 'J', 'T')
-                                AND slotmaster_loc <= '69*'";
+                                AND slotmaster_tier <> 'CASE'";
     $query = $conn1->prepare($sql);
     $query->execute();
 
