@@ -3,7 +3,7 @@
 ini_set('max_execution_time', 99999);
 set_time_limit(99999);
 ini_set('memory_limit', '-1');
- include_once '../connection/NYServer.php';
+include_once '../connection/NYServer.php';
 include_once '../../globalfunctions/slottingfunctions.php';
 include_once '../../globalfunctions/newitem.php';
 
@@ -85,6 +85,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
 
 
     $OPT_OPTBAY = $TOP_REPLEN_COST_array[$topcostkey]['OPT_OPTBAY'];
+    $OPT_OPTWALKFEET= $TOP_REPLEN_COST_array[$topcostkey]['SUGG_WALKFEET'];
     $OPT_CURRBAY = $TOP_REPLEN_COST_array[$topcostkey]['OPT_CURRBAY'];
     $OPT_CURRDAILYFT = $TOP_REPLEN_COST_array[$topcostkey]['OPT_CURRDAILYFT'];
     $OPT_SHLDDAILYFT = $TOP_REPLEN_COST_array[$topcostkey]['OPT_SHLDDAILYFT'];
@@ -121,7 +122,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     $LOMINC = $TOP_REPLEN_COST_array[$topcostkey]['CURMIN'];
     $LMDEEP = $TOP_REPLEN_COST_array[$topcostkey]['LMDEEP'];
 
-    $PCIPKU = $TOP_REPLEN_COST_array[$topcostkey]['CPCIPKU'];
+    //$PCIPKU = $TOP_REPLEN_COST_array[$topcostkey]['CPCIPKU'];
     $PCCPKU = $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU'];
     $PCEPKU = $TOP_REPLEN_COST_array[$topcostkey]['CPCEPKU'];
     $PCFLOR = $TOP_REPLEN_COST_array[$topcostkey]['CPCFLOW'];
@@ -132,12 +133,12 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     $PCLIQU = $TOP_REPLEN_COST_array[$topcostkey]['CPCLIQU'];
     $PCPFRC = $TOP_REPLEN_COST_array[$topcostkey]['CPCPFRC'];
     $PCPFRA = $TOP_REPLEN_COST_array[$topcostkey]['CPCPFRA'];
-    $PCELEN = $TOP_REPLEN_COST_array[$topcostkey]['CPCELEN'] * .393701;
-    $PCEHEI = $TOP_REPLEN_COST_array[$topcostkey]['CPCEHEI'] * .393701;
-    $PCEWID = $TOP_REPLEN_COST_array[$topcostkey]['CPCEWID'] * .393701;
-    $PCCLEN = $TOP_REPLEN_COST_array[$topcostkey]['CPCCLEN'] * .393701;
-    $PCCHEI = $TOP_REPLEN_COST_array[$topcostkey]['CPCCHEI'] * .393701;
-    $PCCWID = $TOP_REPLEN_COST_array[$topcostkey]['CPCCWID'] * .393701;
+    $PCELEN = $TOP_REPLEN_COST_array[$topcostkey]['CPCELEN'];
+    $PCEHEI = $TOP_REPLEN_COST_array[$topcostkey]['CPCEHEI'];
+    $PCEWID = $TOP_REPLEN_COST_array[$topcostkey]['CPCEWID'];
+    $PCCLEN = $TOP_REPLEN_COST_array[$topcostkey]['CPCCLEN'];
+    $PCCHEI = $TOP_REPLEN_COST_array[$topcostkey]['CPCCHEI'];
+    $PCCWID = $TOP_REPLEN_COST_array[$topcostkey]['CPCCWID'];
 
 
 //include file to NPFMVC needed data points. Also include current depth, max, and min from NPFLOC file. Put into array $NPFMVC_array for all 5 whse.  Will have to parse out based on primary warehouse
@@ -151,9 +152,9 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
 //    $replen_cost_return_array = _slotting_replen_cost($LOMAXC, $VCCTRF, $displayarray[$topcostkey]['Curr_Min'], $SHIP_QTY_MN, $AVGD_BTW_SLE);
 //    $walk_cost_return_array = _walkcost($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS);
 //Max to True Fit Test.  Call function _maxtoTFtest to determine if opportunity to upsize max exists
-
-
-    $MAX_Increase = _maxtoTFtest($displayarray[$topcostkey]['CURMAX'], $displayarray[$topcostkey]['VCCTRF'], $displayarray[$topcostkey]['SUGGESTED_SLOTQTY']);
+//do not have a current true fit??
+    //$MAX_Increase = _maxtoTFtest($displayarray[$topcostkey]['CURMAX'], $displayarray[$topcostkey]['VCCTRF'], $displayarray[$topcostkey]['SUGGESTED_SLOTQTY']);
+    $MAX_Increase = 0;
     if ($MAX_Increase > 0) {
         $upsizemax_newmin = _minloc($TOP_REPLEN_COST_array[$topcostkey]['VCCTRF'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
         $impmoves_after_max_increase = _implied_daily_moves($displayarray[$topcostkey]['VCCTRF'], $upsizemax_newmin, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['AVGD_BTW_SLE']);
@@ -174,7 +175,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     }
 
 //STEP 1: Is there a perfect grid, perfect MC empty location available
-    $PERFGRID = substr($TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_TIER'], 0, 3) . $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_GRID5'] . $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_DEPTH'] . $OPT_OPTBAY;
+    $PERFGRID = $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_TIER'] . $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_GRID5'] . $OPT_OPTWALKFEET;
     $perfect_match_key = array_search($PERFGRID, array_column($EMPTYLOC_array, 'KEYVAL'));
 
     if ($perfect_match_key !== FALSE) { //a perfect grid match has been found.  Set as new location
@@ -288,16 +289,16 @@ Need to add right borders to main info to include other pertinent info-->
     <div class="col-sm-12" style="padding-bottom: 5px;">
         <section class="panel">
             <header class="panel-heading bg bg-inverse h2"> Total Average Score Increase: <?php echo number_format($avg_score_inc * 100, 2) . '%' ?> </header>
-            <?php foreach ($displayarray as $key2 => $value2) {   
+            <?php
+            foreach ($displayarray as $key2 => $value2) {
                 //what is assigned task class?
-                 if (!is_null($displayarray[$key2]['ASSNTSM'])) {
-                     $assnclass =  ' recentcomment';
-                 } else{
-                     $assnclass =  '';
-                 }
-                
+                if (!is_null($displayarray[$key2]['ASSNTSM'])) {
+                    $assnclass = ' recentcomment';
+                } else {
+                    $assnclass = '';
+                }
                 ?> 
-            <div style="border-bottom: 3px solid #ccc;" class="<?php echo $assnclass ?>">
+                <div style="border-bottom: 3px solid #ccc;" class="<?php echo $assnclass ?>">
                     <div class="media" > 
                         <div class="row">
                             <div class="col-sm-3  text-center" style="padding-bottom: 5px;">
@@ -305,10 +306,10 @@ Need to add right borders to main info to include other pertinent info-->
                                     <a href="itemquery.php?itemnum=<?php echo $displayarray[$key2]['ITEM_NUMBER'] . '&userid=' . $var_userid; ?>" target="_blank"><?php echo $displayarray[$key2]['ITEM_NUMBER'] ?></a>
                                     <?php
                                     if (!is_null($displayarray[$key2]['ASSNTSM'])) {
-                                        echo  '<div class="h4">Assigned to: ' . strtoupper($displayarray[$key2]['ASSNTSM']) . '</div>';
+                                        echo '<div class="h4">Assigned to: ' . strtoupper($displayarray[$key2]['ASSNTSM']) . '</div>';
                                     } else {
                                         ?>
-                                    <i  id="<?php echo $displayarray[$key2]['ITEM_NUMBER']; ?>" class="fa fa-tasks addaction" style="cursor: pointer;margin-left: 5px;"data-toggle='tooltip' data-title='Assign Task' data-placement='top' data-container='body' ></i> 
+                                        <i  id="<?php echo $displayarray[$key2]['ITEM_NUMBER']; ?>" class="fa fa-tasks addaction" style="cursor: pointer;margin-left: 5px;"data-toggle='tooltip' data-title='Assign Task' data-placement='top' data-container='body' ></i> 
                                     <?php } ?>
                                 </div> 
                                 <div class="col-sm-12 text-muted h5" style="padding-bottom: 0px;">Item Code</div>
@@ -343,11 +344,11 @@ Need to add right borders to main info to include other pertinent info-->
                                     <div class="row">
                                         <div class="col-sm-4 bordered">
                                             <!--SECTION 1-->
-                                            <?php include 'reslotdetailbynumber.php'; // include file to determine detail how to obtain cost savings based on returned number from $finalrecommendation array from the _reslotrecommendation in the slottingfunctions.php file                 ?>
+                                            <?php include 'reslotdetailbynumber.php'; // include file to determine detail how to obtain cost savings based on returned number from $finalrecommendation array from the _reslotrecommendation in the slottingfunctions.php file                  ?>
                                         </div>
                                         <div class="col-sm-4 bordered">
                                             <!--SECTION 2--> 
-                                            <?php include 'costsavingsdetailbynumber.php'; // include file to determine detail how to obtain cost savings based on returned number from $finalrecommendation array from the _reslotrecommendation in the slottingfunctions.php file                 ?>
+                                            <?php include 'costsavingsdetailbynumber.php'; // include file to determine detail how to obtain cost savings based on returned number from $finalrecommendation array from the _reslotrecommendation in the slottingfunctions.php file                  ?>
                                         </div>
                                         <div class="col-sm-4 bordered"> 
                                             <!--SECTION 3-->

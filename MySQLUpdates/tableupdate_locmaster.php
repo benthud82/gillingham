@@ -93,12 +93,16 @@ foreach ($fileglob as $deletefile) {
 
 //update tier column
 //Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
-$sqlupdate2 = "UPDATE gillingham.location_master set TIER = CASE
-                                WHEN LOCATION >= '69*' THEN 'CASE'
-                                WHEN SUBSTRING(LOC_DIM, 1, 2) = 'CL' THEN 'FLOW'
-                                WHEN USE_DEPTH < 80 THEN 'BIN'
-                                WHEN LOC_DIM = 'MSFP1' THEN 'PALL'
-                                ELSE 'OTHER'
-                            END;";
+$sqlupdate2 = "UPDATE gillingham.location_master 
+                            SET 
+                                TIER = CASE
+                                            WHEN LOCATION like '01%' then 'DEAD'
+                                    WHEN LOCATION like '67%' then 'DEAD' 
+                                    WHEN LOCATION >= '69*' THEN 'CASE'
+                                    WHEN SUBSTRING(LOC_DIM, 1, 2) = 'CL' THEN 'FLOW'
+                                    WHEN USE_DEPTH < 80 THEN 'BIN'
+                                    WHEN LOC_DIM = 'MSFP1' THEN 'PALL'
+                                    ELSE 'OTHER'
+                                END;";
 $queryupdate2 = $conn1->prepare($sqlupdate2);
 $queryupdate2->execute();

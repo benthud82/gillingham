@@ -1,7 +1,7 @@
 <?php
 
 $EMPTYLOC_result = $conn1->prepare("SELECT 
-                                                                            CONCAT(M.TIER, LOC_DIM, WALKFEET * 1) AS KEYVAL,
+                                                                            CONCAT(M.TIER, LOC_DIM, V.WALKFEET * 1) AS KEYVAL,
                                                                             CONCAT(M.TIER, LOC_DIM, WALKBAY * 1) AS KEYVAL2,
                                                                             M.LOCATION,
                                                                             M.USE_DEPTH,
@@ -10,7 +10,7 @@ $EMPTYLOC_result = $conn1->prepare("SELECT
                                                                             M.USE_CUBE,
                                                                             M.TIER,
                                                                             M.LOC_DIM,
-                                                                            WALKFEET,
+                                                                            V.WALKFEET,
                                                                             WALKBAY
                                                                         FROM
                                                                             gillingham.location_master M
