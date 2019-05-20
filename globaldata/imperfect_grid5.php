@@ -43,10 +43,10 @@ foreach ($EMPTYGRID_array as $key3 => $value3) {
     $IMPERFECT_GRID5_key = array_search($lookupkey_l3, array_column($EMPTYLOC_array, 'KEYVAL'));
     if ($IMPERFECT_GRID5_key <> FALSE) {
 
-        $NEW_LOC = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['slotmaster_loc'];
+        $NEW_LOC = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['LOCATION'];
         $NEW_loc_bay = intval($EMPTYLOC_array[$IMPERFECT_GRID5_key]['WALKBAY']);
         $displayarray[$topcostkey]['IMPERFECT_GRID5_SLOT_LOC'] = $NEW_LOC;
-        $NEW_GRD5 = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['slotmaster_dimgroup'];
+        $NEW_GRD5 = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['LOC_DIM'];
         $displayarray[$topcostkey]['AssgnGrid5'] = $NEW_GRD5; //Add new grid5 to display array
 
         $Newmin = _minloc($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);

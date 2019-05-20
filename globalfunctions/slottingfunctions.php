@@ -380,8 +380,7 @@ function _class_plus_minus($MCCLASS) {
 function _AcceptBayFunction($startbay) {
     switch ($startbay) {
         case 0:
-            $BAY_array = array(0, 1);
-
+            $BAY_array = array(0, 1, 2);
             break;
         case 1:
             $BAY_array = array($startbay, 0, 2, 3);

@@ -47,6 +47,7 @@ $TOP_SCORE = $conn1->prepare("SELECT
                                                                         gillingham.slottingdb_itemactions ON openactions_item = SCORE_ITEM
                                                                     WHERE
                                                                         A.SUGGESTED_TIER <> ('PALL')
+                                                       --                 and ITEM_NUMBER = 1187295
                                                                     ORDER BY E.SCORE_TOTALSCORE ASC , E.SCORE_REPLENSCORE , E.SCORE_WALKSCORE
                                                                     LIMIT $returncount");
 $TOP_SCORE->execute();

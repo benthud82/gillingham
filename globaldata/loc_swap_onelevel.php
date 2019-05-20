@@ -20,9 +20,8 @@ $displayarray[$topcostkey]['WALKSCORE_AFTER_LEVEL1_SWAP'] = '-';
 $displayarray[$topcostkey]['TOTSCORE_AFTER_LEVEL1_SWAP'] = '-';
 //currently limited to only swap items that want to downsize
 //this will prevent scenario where you might upsize a swap item to a highly desirable location with a less desirable item
-$SLOT_COST_ONELEVEL = $conn1->prepare("SELECT DISTINCT
+$SLOT_COST_ONELEVEL = $conn1->prepare("SELECT 
                                                                                 A.*,
-                                                                                B.OPT_NEWGRIDVOL,
                                                                                 B.OPT_PPCCALC,
                                                                                 B.OPT_OPTBAY,
                                                                                 B.OPT_CURRBAY,
@@ -34,32 +33,44 @@ $SLOT_COST_ONELEVEL = $conn1->prepare("SELECT DISTINCT
                                                                                 C.slotmaster_normreplen + slotmaster_maxreplen AS CURMAX,
                                                                                 C.slotmaster_normreplen AS CURMIN,
                                                                                 C.slotmaster_normreplen + slotmaster_maxreplen AS VCCTRF,
-                                                                                C.slotmaster_usehigh AS LMHIGH,
-                                                                                C.slotmaster_usedeep AS LMDEEP,
-                                                                                C.slotmaster_usewide AS LMWIDE,
                                                                                 E.SCORE_TOTALSCORE,
                                                                                 E.SCORE_REPLENSCORE,
                                                                                 E.SCORE_WALKSCORE,
                                                                                 E.SCORE_TOTALSCORE_OPT,
                                                                                 E.SCORE_REPLENSCORE_OPT,
                                                                                 E.SCORE_WALKSCORE_OPT,
-                                                                                V.WALKFEET
+                                                                                V.WALKFEET,
+                                                                                'Y' AS CPCPFRC,
+                                                                                'Y' AS CPCPFRA,
+                                                                                (SELECT 
+                                                                                        walkfeet_feet
+                                                                                    FROM
+                                                                                        gillingham.walkfeet_standard
+                                                                                    WHERE
+                                                                                        walkfeet_bay = B.OPT_OPTBAY) AS SUGG_WALKFEET,
+                                                                                openactions_assignedto,
+                                                                                openactions_comment
                                                                             FROM
                                                                                 gillingham.my_npfmvc A
                                                                                     JOIN
                                                                                 gillingham.optimalbay B ON A.ITEM_NUMBER = B.OPT_ITEM
+                                                                                    AND OPT_CSLS = PACKAGE_TYPE
                                                                                     JOIN
                                                                                 gillingham.slotmaster C ON C.slotmaster_item = A.ITEM_NUMBER
+                                                                                    AND slotmaster_pkgu = PACKAGE_TYPE
                                                                                     JOIN
                                                                                 gillingham.slottingscore E ON E.SCORE_ITEM = A.ITEM_NUMBER
+                                                                                    AND SCORE_ZONE = PACKAGE_TYPE
                                                                                     JOIN
-                                                                                gillingham.npfcpcsettings F ON F.CPCITEM = A.ITEM_NUMBER
+                                                                                gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
                                                                                     JOIN
-                                                                                gillingham.vectormap V ON V.BAY = C.slotmaster_bay
+                                                                                gillingham.vectormap V ON V.BAY = L.BAY
+                                                                                    LEFT JOIN
+                                                                                gillingham.slottingdb_itemactions ON openactions_item = SCORE_ITEM
                                                                             WHERE
                                                                                 A.SUGGESTED_NEWLOCVOL / 1000 < A.LMVOL9
                                                                                     AND A.LMGRD5 = '$VCNGD5'
-                                                                                    AND WALKFEET = $OPT_OPTBAYWALKFEET
+                                                                                    AND WALKFEET = $OPT_OPTWALKFEET
                                                                             ORDER BY E.SCORE_TOTALSCORE DESC , (A.LMVOL9 - A.SUGGESTED_NEWLOCVOL) DESC");
 $SLOT_COST_ONELEVEL->execute();
 $SLOT_COST_ONELEVEL_array = $SLOT_COST_ONELEVEL->fetchAll(pdo::FETCH_ASSOC);
@@ -107,8 +118,8 @@ foreach ($SLOT_COST_ONELEVEL_array as $key => $value) {
             $LEVEL_ONE_SWAP_NEW_GRD5 = 'C_PFR';
             $displayarray[$topcostkey]['AssgnGrid5'] = $LEVEL_ONE_SWAP_NEW_GRD5; //Add new grid5 to display array
         } else {
-            $LEVEL_ONE_SWAP_NEW_LOC = $EMPTYLOC_array[$LEVEL_ONE_match_key]['slotmaster_loc'];
-            $LEVEL_ONE_SWAP_NEW_GRD5 = $EMPTYLOC_array[$LEVEL_ONE_match_key]['slotmaster_dimgroup'];
+            $LEVEL_ONE_SWAP_NEW_LOC = $EMPTYLOC_array[$LEVEL_ONE_match_key]['LOCATION'];
+            $LEVEL_ONE_SWAP_NEW_GRD5 = $EMPTYLOC_array[$LEVEL_ONE_match_key]['LOC_DIM'];
             $displayarray[$topcostkey]['AssgnGrid5'] = $LEVEL_ONE_SWAP_NEW_GRD5; //Add new grid5 to display array
         }
 

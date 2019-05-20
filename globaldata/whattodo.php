@@ -179,9 +179,9 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     $perfect_match_key = array_search($PERFGRID, array_column($EMPTYLOC_array, 'KEYVAL'));
 
     if ($perfect_match_key !== FALSE) { //a perfect grid match has been found.  Set as new location
-        $NEW_LOC = $EMPTYLOC_array[$perfect_match_key]['LMLOC#'];
+        $NEW_LOC = $EMPTYLOC_array[$perfect_match_key]['LOCATION'];
         $displayarray[$topcostkey]['PERF_SLOT_LOC'] = $NEW_LOC;
-        $NEW_GRD5 = $EMPTYLOC_array[$perfect_match_key]['LMGRD5'];
+        $NEW_GRD5 = $EMPTYLOC_array[$perfect_match_key]['LOC_DIM'];
         $displayarray[$topcostkey]['AssgnGrid5'] = $NEW_GRD5; //Add new grid5 to display array
         $NEW_LOC_TRUEFIT_round2 = $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_MAX'];
         $Newmin = _minloc($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
@@ -230,7 +230,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
 //******END OF STEP 3*******
 //STEP 4: Is there an imperfect grid5 in perfect MC
     if ($perfect_match_key === FALSE && $LEVEL_ONE_match_key === FALSE && $IMPERFECT_MC_key === FALSE) {
-        include 'imperfect_grid5.php'; //call logic to find perfect swap location
+       include 'imperfect_grid5.php'; //call logic to find perfect swap location
     } else {
         $displayarray[$topcostkey]['MOVES_AFTER_IMP_GRID'] = '-';
         $displayarray[$topcostkey]['MOVESCORE_AFTER_IMP_GRID'] = '-';
