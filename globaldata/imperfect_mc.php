@@ -12,13 +12,13 @@ $IMPERF_MC_GRID5 = $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_GRID5'];
 $IMPERF_MC_DEEP = $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_DEPTH'];
 
 
-$acceptablebays = _AcceptBayFunction($OPT_OPTBAY); //No longer MC but based of Jeromy's bay structure
+$acceptablebays = _AcceptBayFunction_gill($OPT_OPTBAY); //No longer MC but based of Jeromy's bay structure
 
 
 foreach ($acceptablebays as $value_l2) {
 
     $IMPERFMC = $IMPERF_MC_TIER . $IMPERF_MC_GRID5 . $value_l2;
-    $IMPERFECT_MC_key = array_search($IMPERFMC, array_column($EMPTYLOC_array, 'KEYVAL2'));
+    $IMPERFECT_MC_key = array_search($IMPERFMC, array_column($EMPTYLOC_array, 'KEYVAL'));
 
     if ($IMPERFECT_MC_key <> FALSE) { //a perfect grid match has been found.  Set as new location
         $IMPERFECT_MC_NEW_LOC = $EMPTYLOC_array[$IMPERFECT_MC_key]['LOCATION'];

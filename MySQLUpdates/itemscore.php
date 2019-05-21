@@ -227,24 +227,38 @@ $result4 = $conn1->prepare(" INSERT INTO gillingham.feetperpick_summary (fpp_whs
 $result4->execute();
 
 
-//map errors for locations in slot master not mapped
+//map errors for locations in locmaster not mapped
+$sqldelete2 = "TRUNCATE TABLE gillingham.bayloc_errors";
+$querydelete2 = $conn1->prepare($sqldelete2);
+$querydelete2->execute();
+
+$result5 = $conn1->prepare("INSERT INTO gillingham.bayloc_errors
+                                                            SELECT DISTINCT
+                                                                M.LOCATION AS LOCATION, M.TIER
+                                                            FROM
+                                                                gillingham.location_master M
+                                                                    LEFT JOIN
+                                                                gillingham.bay_location L ON L.LOCATION = M.LOCATION
+                                                            WHERE
+                                                                L.LOCATION IS NULL AND TIER <> 'CASE'
+                                                                    AND M.LOCATION <> ' '");
+$result5->execute();
+
+
+//map errors for locations in bayloc but not in vectormap
 $sqldelete2 = "TRUNCATE TABLE gillingham.vectormaperrors";
 $querydelete2 = $conn1->prepare($sqldelete2);
 $querydelete2->execute();
 
-$result5 = $conn1->prepare("INSERT IGNORE INTO gillingham.vectormaperrors (maperror_bay, maperror_tier)
-                                                        SELECT DISTINCT
-                                                                L.BAY AS SLOTBAY,
-                                                                slotmaster_tier
+$result5 = $conn1->prepare("INSERT INTO gillingham.vectormaperrors
+                                                            SELECT DISTINCT
+                                                                L.BAY AS LOCATION, 'NA'
                                                             FROM
-                                                                gillingham.slotmaster
-                                                                    JOIN
-                                                                gillingham.bay_location L ON L.LOCATION = slotmaster_loc
+                                                                gillingham.bay_location L
                                                                     LEFT JOIN
-                                                                gillingham.vectormap V ON V.BAY = L.BAY
+                                                                gillingham.vectormap V ON L.BAY = V.BAY
                                                             WHERE
-                                                                slotmaster_allowpick = 'Y'
-                                                                    AND WALKFEET IS NULL");
+                                                                V.BAY IS NULL");
 $result5->execute();
 
 
