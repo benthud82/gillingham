@@ -6,14 +6,14 @@ ini_set('max_execution_time', 99999);
 include_once '../connection/NYServer.php';
 
 $vectormapdata = $conn1->prepare("SELECT 
-                                                                        ' ', vectormaperrors.*
-                                                                    FROM
-                                                                        gillingham.vectormaperrors
-                                                                            LEFT JOIN
-                                                                        gillingham.vectormap ON BAY = maperror_bay
-                                                                    WHERE
-                                                                        BAY IS NULL
-                                                                    ORDER BY maperror_bay ASC");
+                                                                            ' ', A.*
+                                                                        FROM
+                                                                            gillingham.vectormaperrors A
+                                                                                LEFT JOIN
+                                                                            gillingham.vectormap B ON maperror_bay = BAY
+                                                                        WHERE
+                                                                            BAY IS NULL
+                                                                        ORDER BY maperror_bay ASC");
 $vectormapdata->execute();
 $vectormapdataarray = $vectormapdata->fetchAll(pdo::FETCH_ASSOC);
 
