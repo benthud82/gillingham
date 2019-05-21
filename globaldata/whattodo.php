@@ -153,7 +153,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
 //    $walk_cost_return_array = _walkcost($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS);
 //Max to True Fit Test.  Call function _maxtoTFtest to determine if opportunity to upsize max exists
 //do not have a current true fit??
-    //$MAX_Increase = _maxtoTFtest($displayarray[$topcostkey]['CURMAX'], $displayarray[$topcostkey]['VCCTRF'], $displayarray[$topcostkey]['SUGGESTED_SLOTQTY']);
+    $MAX_Increase = _maxtoTFtest($displayarray[$topcostkey]['CURMAX'], $displayarray[$topcostkey]['VCCTRF'], $displayarray[$topcostkey]['SUGGESTED_SLOTQTY']);
     $MAX_Increase = 0;
     if ($MAX_Increase > 0) {
         $upsizemax_newmin = _minloc($TOP_REPLEN_COST_array[$topcostkey]['VCCTRF'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);

@@ -74,6 +74,7 @@ $gridsql = $conn1->prepare("SELECT
                                                         gillingham.grid_exclusions ON exclude_grid = slotmaster_dimgroup
                                                 WHERE
                                                     exclude_grid IS NULL and slotmaster_pkgu = 'EA'
+                                                    and slotmaster_tier <> 'CASE'
                                                 GROUP BY slotmaster_dimgroup , slotmaster_usehigh , slotmaster_usedeep , slotmaster_usewide , slotmaster_usecube , slotmaster_tier
                                                 ORDER BY slotmaster_usecube ASC");
 $gridsql->execute();
