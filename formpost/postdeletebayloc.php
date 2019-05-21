@@ -2,23 +2,12 @@
 <?php
 include_once '../connection/NYServer.php';
 
+$location = ($_POST['locid']);
 
-$locmodal_bayloc = $_POST['locmodal_bayloc'];
-$dimgroupmodal_bayloc = ($_POST['dimgroupmodal_bayloc']);
-$baymodal_bayloc = ($_POST['baymodal_bayloc']);
-$waklbaymodal_bayloc = intval($_POST['waklbaymodal_bayloc']);
-if ($waklbaymodal_bayloc < 10) {
-    $waklbaymodal_insert = '0' . $waklbaymodal_bayloc;
-} else {
-    $waklbaymodal_insert = $waklbaymodal_bayloc;
-}
-$whse = 'GB0001';
-
-$sql = "INSERT INTO gillingham.bay_location (WHSE, LOCATION, DIMGROUP, BAY, WALKBAY) VALUES ('$whse', '$locmodal_bayloc', '$dimgroupmodal_bayloc', '$baymodal_bayloc', '$waklbaymodal_insert') 
-                ON DUPLICATE KEY UPDATE DIMGROUP=VALUES(DIMGROUP), BAY=VALUES(BAY), WALKBAY=VALUES(WALKBAY)";
-$query = $conn1->prepare($sql);
-$query->execute();
-$masterinsertsuccess = 1;
+    $sql = "DELETE FROM gillingham.bay_location WHERE LOCATION = '$location'";
+    $query = $conn1->prepare($sql);
+    $query->execute();
+    $masterinsertsuccess = 1;
 
 
 
