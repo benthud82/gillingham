@@ -1,7 +1,7 @@
 <?php
 
-include_once '../globalincludes/google_connect.php';
-//include_once '../connection/NYServer.php';
+//nclude_once '../globalincludes/google_connect.php';
+include_once '../connection/NYServer.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
 ini_set('memory_limit', '-1'); //max size 32m
