@@ -106,7 +106,8 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                                 ELSE (A.AVG_DAILY_PICK) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH
                                                             END AS DLY_PICK_VEL,
                                                             A.AVG_DAILY_PICK AS DAILYPICK,
-                                                            A.AVG_DAILY_UNIT AS DAILYUNIT                                                            
+                                                            A.AVG_DAILY_UNIT AS DAILYUNIT,
+                                                            slotmaster_currtf as VCCTRF
                                                         FROM
                                                             gillingham.nptsld A
                                                                 JOIN
@@ -226,7 +227,7 @@ foreach ($L01array as $key => $value) {
     $L01array[$key]['CURRENT_IMPMOVES'] = _implied_daily_moves($L01array[$key]['CURMAX'], $L01array[$key]['CURMIN'], $avgdailyshipqty, $var_AVGINV, $L01array[$key]['SHIP_QTY_MN'], $L01array[$key]['AVGD_BTW_SLE']);
     $L01array[$key]['SUGGESTED_NEWLOCVOL'] = ($var_locvol);
     $L01array[$key]['SUGGESTED_DAYSTOSTOCK'] = intval(15);
-    $L01array[$key]['VCCTRF'] = $SUGGESTED_MAX;
+
 }
 
 //L01 items have been designated.  Loop through L01 array to add to my_npfmvc table
