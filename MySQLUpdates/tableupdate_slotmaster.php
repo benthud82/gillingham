@@ -2,7 +2,7 @@
 
 //include_once '../globalincludes/google_connect.php';
 include_once '../connection/NYServer.php';
-
+include_once '../globalfunctions/newitem.php';
 ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
 
@@ -34,7 +34,7 @@ $querydelete3 = $conn1->prepare($sqldelete3);
 $querydelete3->execute();
 
 //insert into slotmaster table
-$columns = 'slotmaster_branch,slotmaster_loc,slotmaster_item,slotmaster_grhigh,slotmaster_grdeep,slotmaster_grwide,slotmaster_grcube,slotmaster_usehigh,slotmaster_usedeep,slotmaster_usewide,slotmaster_usecube,slotmaster_pkgu,slotmaster_chargroup,slotmaster_pickzone,slotmaster_dimgroup,slotmaster_normreplen,slotmaster_minreplen,slotmaster_maxreplen,slotmaster_allowpick,slotmaster_allowreplen,slotmaster_tier,slotmaster_bay, slotmaster_impmoves';
+$columns = 'slotmaster_branch,slotmaster_loc,slotmaster_item,slotmaster_grhigh,slotmaster_grdeep,slotmaster_grwide,slotmaster_grcube,slotmaster_usehigh,slotmaster_usedeep,slotmaster_usewide,slotmaster_usecube,slotmaster_pkgu,slotmaster_chargroup,slotmaster_pickzone,slotmaster_dimgroup,slotmaster_normreplen,slotmaster_minreplen,slotmaster_maxreplen,slotmaster_allowpick,slotmaster_allowreplen,slotmaster_tier,slotmaster_bay, slotmaster_impmoves, slotmaster_currtf';
 $maxrange = 999;
 $counter = 0;
 $rowcount = count($result);
@@ -79,11 +79,12 @@ do {
 
         $slotmaster_bay = 'x';
         $slotmaster_impmoves = 0;  //this is later updated through current_implied_moves.php
+        $slotmaster_currtf = 0;
 
 
         $data[] = "('$slotmaster_branch','$slotmaster_loc',$slotmaster_item,'$slotmaster_grhigh','$slotmaster_grdeep','$slotmaster_grwide','$slotmaster_grcube','$slotmaster_usehigh',"
                 . "'$slotmaster_usedeep','$slotmaster_usewide','$slotmaster_usecube','$slotmaster_pkgu','$slotmaster_chargroup','$slotmaster_pickzone','$slotmaster_dimgroup',"
-                . "$slotmaster_normreplen,$slotmaster_minreplen,$slotmaster_maxreplen,'$slotmaster_allowpick','$slotmaster_allowreplen','$slotmaster_tier','$slotmaster_bay','$slotmaster_impmoves')";
+                . "$slotmaster_normreplen,$slotmaster_minreplen,$slotmaster_maxreplen,'$slotmaster_allowpick','$slotmaster_allowreplen','$slotmaster_tier','$slotmaster_bay','$slotmaster_impmoves', $slotmaster_currtf)";
         $counter += 1;
     }
 
@@ -98,11 +99,9 @@ do {
     $query->execute();
     $maxrange += 1000;
 } while ($counter <= $rowcount); //end of item by whse loop
-
 foreach ($fileglob as $deletefile) {
     unlink(realpath($deletefile));
 }
-
 //Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
 $sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT 
     slotmaster_branch,
@@ -127,7 +126,8 @@ $sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT
     slotmaster_allowreplen,
     slotmaster_tier,
     BAY,
-    slotmaster_impmoves
+    slotmaster_impmoves,
+    slotmaster_currtf
 FROM
     gillingham.slotmaster
         LEFT JOIN
@@ -146,3 +146,46 @@ $sqlmerge3 = "UPDATE gillingham.slotmaster
                                 slotmaster_tier = TIER";
 $querymerge3 = $conn1->prepare($sqlmerge3);
 $querymerge3->execute();
+
+//calculate current true fit of item in location
+$currtfsql = $conn1->prepare("SELECT 
+    slotmaster_loc,
+    slotmaster_item,
+    slotmaster_dimgroup,
+    slotmaster_usehigh,
+    slotmaster_usedeep,
+    slotmaster_usewide,
+    EA_HEIGHT,
+    EA_DEPTH,
+    EA_WIDTH
+FROM
+    gillingham.slotmaster
+        JOIN
+    gillingham.item_master ON slotmaster_item = ITEM");
+$currtfsql->execute();
+$currtfarray = $currtfsql->fetchAll(pdo::FETCH_ASSOC);
+
+foreach ($currtfarray as $key => $value) {
+    $slotmaster_loc = $currtfarray[$key]['slotmaster_loc'];
+    $slotmaster_item = $currtfarray[$key]['slotmaster_item'];
+    $slotmaster_dimgroup = $currtfarray[$key]['slotmaster_dimgroup'];
+    $slotmaster_usehigh = $currtfarray[$key]['slotmaster_usehigh'];
+    $slotmaster_usedeep = $currtfarray[$key]['slotmaster_usedeep'];
+    $slotmaster_usewide = $currtfarray[$key]['slotmaster_usewide'];
+    $EA_HEIGHT = $currtfarray[$key]['EA_HEIGHT'];
+    $EA_DEPTH = $currtfarray[$key]['EA_DEPTH'];
+    $EA_WIDTH = $currtfarray[$key]['EA_WIDTH'];
+
+    $truefitarray = _truefitgrid2iterations($slotmaster_dimgroup, $slotmaster_usehigh, $slotmaster_usedeep, $slotmaster_usewide, ' ', $EA_HEIGHT, $EA_DEPTH, $EA_WIDTH);
+    if (isset($truefitarray)) {
+        $truefit_tworound = $truefitarray[1];
+    } else {
+        $truefit_tworound = 0;
+    }
+    $sqlmerge4 = "UPDATE gillingham.slotmaster
+                            SET 
+                                slotmaster_currtf = $truefit_tworound
+                            WHERE slotmaster_loc = '$slotmaster_loc' and slotmaster_item = $slotmaster_item";
+    $querymerge4 = $conn1->prepare($sqlmerge4);
+    $querymerge4->execute();
+}

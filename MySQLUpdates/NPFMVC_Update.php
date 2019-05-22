@@ -74,7 +74,7 @@ $sqlmerge2 = "insert into gillingham.my_npfmvc (SELECT DISTINCT
     A.AVG_DAILY_UNIT AS DAILYUNIT,
     0 AS JAX_ENDCAP,
     A.AVG_DAILY_PICK / itemtf_locvol * 1000,
-    itemtf_max as VCCTRF
+    slotmaster_currtf as VCCTRF
 FROM
     gillingham.nptsld A
         JOIN
