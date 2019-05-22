@@ -11,7 +11,6 @@ $TOP_SCORE = $conn1->prepare("SELECT
                                                                         B.OPT_WALKCOST,
                                                                         C.slotmaster_normreplen + slotmaster_maxreplen AS CURMAX,
                                                                         C.slotmaster_normreplen AS CURMIN,
-                                                                        C.slotmaster_normreplen + slotmaster_maxreplen AS VCCTRF,
                                                                         E.SCORE_TOTALSCORE,
                                                                         E.SCORE_REPLENSCORE,
                                                                         E.SCORE_WALKSCORE,

@@ -125,7 +125,7 @@ $L01Locs = $conn1->prepare("SELECT
                                                                 JOIN
                                                             gillingham.vectormap V ON V.BAY = B.BAY
                                                         WHERE
-                                                            V.TIER = 'PALL'
+                                                            M.TIER = 'PALL'
                                                                 AND M.LOCATION NOT IN (SELECT 
                                                                     HOLDLOCATION
                                                                 FROM
