@@ -37,7 +37,7 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                         <!--<li><a href="buildingswap.php">Building Swap (Sparks)</a></li>--> 
                         <li><a href="maxminadjustment.php">Max/Min Adjustment</a></li> 
                         <li><a href="walktime.php">Walk Times</a></li> 
-                        <li><a href="dogpound.php">Dog Pound</a></li> 
+                        <!--<li><a href="dogpound.php">Dog Pound</a></li>--> 
                         <li><a href="needswants.php">Needs / Wants</a></li> 
                         <!--<li><a href="caseopps.php">Case Pkgu Opps</a></li>--> 
                         <!--<li><a href="ipopps.php">IP Pkgu Opps</a></li>--> 
@@ -87,8 +87,8 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                 <i class="fa fa-cogs fa-lg"></i><span>Modules</span></a>
 
             <ul class="dropdown-menu"> 
-                <li><a href="changelog.php">Change Log</a></li> 
-                <li><a href="2018Goal.php">2018 Goal</a></li> 
+                <!--<li><a href="changelog.php">Change Log</a></li>--> 
+                <!--<li><a href="2018Goal.php">2018 Goal</a></li>--> 
                 <?php if ($var_userid == 'BHUD01' || $var_userid == 'JMOO01') { ?>
                     <li><a href="vectormap.php">Vector Map</a></li> 
                     <li><a href = "maperrors.php">Map Errors

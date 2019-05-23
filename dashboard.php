@@ -529,7 +529,7 @@
                             point: {
                                 events: {
                                     click: function () {
-//                                        location.href = '7MovesDetail.php?date=' + this.category + '&type=' + this.series.name + '&formSubmit=Submit';
+                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
@@ -697,7 +697,7 @@
                             point: {
                                 events: {
                                     click: function () {
-//                                        location.href = 'picksbybay.php?date=' + this.category + '&type=' + this.series.name + '&formSubmit=Submit';
+                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
