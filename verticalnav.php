@@ -48,6 +48,7 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                         <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">Maintenance Reports</h4>
                         <li><a href="itemsonhold.php">Items on Hold</a></li> 
                         <li><a href="emptylocations.php">Empty Locations</a></li> 
+                        <li><a href="truefitcalc.php">True Fit Calc</a></li> 
                         <!--<li><a href="smallcaseops.php">Small Case Opps</a></li>--> 
                         <!--<li><a href="flowrestricted.php">Flow Restricted</a></li>-->
                         <!--<li><a href="fomtopoff.php">FOM Topoff</a></li>--> 						
@@ -59,7 +60,6 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                         <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">New Item Reports</h4>
                         <li><a href="slotrec.php">Slot Recommendation</a></li> 
                         <li><a href="newitemaudit.php">Audit</a></li> 
-                        <li><a href="truefitcalc.php">True Fit Calc</a></li> 
                         <li><a href="Instructions.php">Instructions</a></li> 
                         <li><a href="ReferenceManual.php">Reference Manual</a></li> 
                         <li><a href="itemchangelog.php">Item Change Log</a></li> 
