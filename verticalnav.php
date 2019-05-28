@@ -5,11 +5,14 @@ if (isset($_SESSION['MYUSER'])) {
     $var_userid = NULL;
 }
 
+
+
 //pull in warning badges
 include 'globaldata/opentasksbadge.php'; //$badgecount for open tasks assigned to TSM
-include 'globaldata/maperrorbadge.php'; //$maperrorcount for vector mapping errors
+//include 'globaldata/maperrorbadge.php'; //$maperrorcount for vector mapping errors
+//$totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
 
-$totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
+include 'globaldata/badges.php'; //$maperrorcount for vector mapping errors
 ?>
 
 <!--Need to create separate php page for nav bar-->
@@ -35,7 +38,22 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                         <li><a href="optimalbay.php">Optimal Bay</a></li> 
                         <!--<li><a href="casehightolow.php">Case High to Low</a></li>--> 
                         <!--<li><a href="buildingswap.php">Building Swap (Sparks)</a></li>--> 
-                        <li><a href="maxminadjustment.php">Max/Min Adjustment</a></li> 
+                        <li><a href="maxminadjustment.php">Max/Min Adjustment          
+                                <?php
+                                if ($maxmin > 0) {
+                                    echo "<b class='badge bg-danger'>$maxmin</b>";
+                                }
+                                ?>
+                            </a>
+                        </li> 
+                        <li><a href="dimensionissues.php">Item Dim. Opps.         
+                                <?php
+                                if ($dimissues > 0) {
+                                    echo "<b class='badge bg-danger'>$dimissues</b>";
+                                }
+                                ?>
+                            </a>
+                        </li> 
                         <li><a href="walktime.php">Walk Times</a></li> 
                         <!--<li><a href="dogpound.php">Dog Pound</a></li>--> 
                         <li><a href="needswants.php">Needs / Wants</a></li> 
@@ -56,16 +74,16 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                         <!--<li><a href="frompfr.php">Move From PFR</a></li>--> 						
                         <!--<li><a href="FromOffsiteRecs.php">Move From Offsite</a></li>--> 						
                     </div>
-<!--                    <div class="col-sm-6">
-                        <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">New Item Reports</h4>
-                        <li><a href="slotrec.php">Slot Recommendation</a></li> 
-                        <li><a href="newitemaudit.php">Audit</a></li> 
-                        <li><a href="Instructions.php">Instructions</a></li> 
-                        <li><a href="ReferenceManual.php">Reference Manual</a></li> 
-                        <li><a href="itemchangelog.php">Item Change Log</a></li> 
-                        <li><a href="changelogPFRsettings.php">PFR Change Log</a></li> 
-                        <li><a href="changelogmediasettings.php">OK in Media Log</a></li> 
-                    </div>-->
+                    <!--                    <div class="col-sm-6">
+                                            <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">New Item Reports</h4>
+                                            <li><a href="slotrec.php">Slot Recommendation</a></li> 
+                                            <li><a href="newitemaudit.php">Audit</a></li> 
+                                            <li><a href="Instructions.php">Instructions</a></li> 
+                                            <li><a href="ReferenceManual.php">Reference Manual</a></li> 
+                                            <li><a href="itemchangelog.php">Item Change Log</a></li> 
+                                            <li><a href="changelogPFRsettings.php">PFR Change Log</a></li> 
+                                            <li><a href="changelogmediasettings.php">OK in Media Log</a></li> 
+                                        </div>-->
                 </div>
             </ul> 
 
@@ -80,8 +98,10 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                 ?><i class="fa fa-tasks fa-lg"></i><span>Tasks</span></a></li> 
         <li id="modules" class="dropdown-submenu" style="cursor: pointer;"><a >
                 <?php
-                if ($totalmoduleerrors > 0) {
-                    echo "<b class='badge bg-danger pull-right'>$totalmoduleerrors</b>";
+                $totmaperror = $bayloc + $vectormap;
+                if ($totmaperror > 0) {
+
+                    echo "<b class='badge bg-danger pull-right'>$totmaperror</b>";
                 }
                 ?>
                 <i class="fa fa-cogs fa-lg"></i><span>Modules</span></a>
@@ -93,8 +113,8 @@ $totalmoduleerrors = $maperrorcount;  //+add+ $slotmastererror once programmed
                     <li><a href="vectormap.php">Vector Map</a></li> 
                     <li><a href = "maperrors.php">Map Errors
                             <?php
-                            if ($maperrorcount > 0) {
-                                echo "<b class='badge bg-danger pull-right'>$maperrorcount</b>";
+                            if ($totmaperror > 0) {
+                                echo "<b class='badge bg-danger pull-right'>$totmaperror</b>";
                             }
                             ?>
                         </a></li>

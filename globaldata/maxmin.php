@@ -127,14 +127,34 @@ foreach ($bayreportarray as $key => $value) {
 }
 
 
+//How many have been marked as reviewed
+    $badge = $conn1->prepare("SELECT 
+                                                            COUNT(*) AS opencount
+                                                        FROM
+                                                            gillingham.minmaxreview
+                                                                JOIN
+                                                            gillingham.slotmaster ON slotmaster_item = minmax_item
+                                                                AND slotmaster_loc = minmax_location ");
+    $badge->execute();
+    $badgearray = $badge->fetchAll(pdo::FETCH_ASSOC);
+
+if (isset($badgearray)) {
+    $badgecount = $badgearray[0]['opencount'];
+} else {
+    $badgecount = 0;
+}
+
+$maxmincount = count($row) - $badgecount;
 
 
+//update the maxmin badge
+$sql = "UPDATE gillingham.badges SET maxmin =  $maxmincount WHERE whse = 1;";
+$query = $conn1->prepare($sql);
+$query->execute();
 
 $output = array(
     "aaData" => array()
 );
-
-
 
 $output['aaData'] = $row;
 echo json_encode($output);

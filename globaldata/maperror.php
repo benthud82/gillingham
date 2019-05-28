@@ -29,5 +29,14 @@ foreach ($vectormapdataarray as $key => $value) {
 }
 
 
+$dimcount = count($row);
+//update the maxmin badge
+$sql = "UPDATE gillingham.badges SET vectormap =  $dimcount WHERE whse = 1;";
+$query = $conn1->prepare($sql);
+$query->execute();
+
+
+
+
 $output['aaData'] = $row;
 echo json_encode($output);

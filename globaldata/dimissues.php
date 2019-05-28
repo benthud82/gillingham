@@ -60,5 +60,30 @@ foreach ($dimissuearray as $key => $value) {
 }
 
 
+//How many have been marked as reviewed
+    $badge = $conn1->prepare("SELECT 
+                                                            COUNT(*) AS opencount
+                                                        FROM
+                                                            gillingham.locdimreview
+                                                                JOIN
+                                                            gillingham.slotmaster ON slotmaster_item = locdim_item
+                                                                AND slotmaster_loc = locdim_location ");
+    $badge->execute();
+    $badgearray = $badge->fetchAll(pdo::FETCH_ASSOC);
+
+if (isset($badgearray)) {
+    $badgecount = $badgearray[0]['opencount'];
+} else {
+    $badgecount = 0;
+}
+
+
+$dimcount = count($row) - $badgecount;
+//update the maxmin badge
+$sql = "UPDATE gillingham.badges SET dimissues =  $dimcount WHERE whse = 1;";
+$query = $conn1->prepare($sql);
+$query->execute();
+
+
 $output['aaData'] = $row;
 echo json_encode($output);
