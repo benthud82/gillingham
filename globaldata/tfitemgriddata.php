@@ -78,6 +78,8 @@ $var_itemwidthorient = $var_orientarray[2];
 //      Variables from "../PHPLogic/tflogic.php"
 echo 'The true fit for item <b>' . $post_item . '</b> in a <b>' . $post_grid5 . '</b> is <b>' . $var_maxtruefit . '</b> units.';
 echo '<br><br><div class="line-separator"></div>';
+echo "<h4>Item Dimensions: Height: ".$var_PCEHEIin." | Length: ".$var_PCELENin." | Width: ".$var_PCEWIDin."</h4>";
+echo "<h4>Grid Dimensions: Height: ".$var_gridheight." | Depth: ".$var_griddepth." | Width: ".$var_gridwidth."</h4>";
 echo "<ul><li> $var_itemheightorient</li>";
 echo "<li> $var_itemlengthtorient</li>";
 echo "<li> $var_itemwidthorient</li></ul>";
