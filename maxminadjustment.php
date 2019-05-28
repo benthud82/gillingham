@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-      include_once 'connection/NYServer.php';
+    include_once 'connection/NYServer.php';
     ?>
     <head>
         <title>OSS - Max/Min Adjustment</title>
@@ -18,41 +18,62 @@
 
         <section id="content"> 
             <section class="main padder"> 
-                <div class="row" style="padding-bottom: 25px;padding-top: 75px;"> 
-                    <div class="pull-left  col-lg-4" >
+                <div class="row" style="padding-bottom: 30px;padding-top: 75px;"> 
+                    <div class="pull-left " style="margin-left: 20px">
                         <label>Report Type:</label>
-                        <select class="selectstyle" id="reportsel" name="reportsel" style="width: 175px;padding: 5px; margin-right: 10px;">
+                        <select class="selectstyle" id="reportsel" name="reportsel" style="width: 175px;padding: 5px; margin-right: 10px;margin-left: 20px">
                             <option value="MAX">Max Adjustment</option>
                             <!--<option value="MIN">Min Adjustment</option>-->
                         </select>
+                    </div>
+                    <div class="pull-left  " >
+                        <div class="col-md-12">
+                            <label class="" style=" float: left;">Include Already Reviewed?:</label>
+                            <div class="switch-field"style="padding-left: 20px;">
+                                <input type="radio" id="switch_left" name="switch_2" value="yes" />
+                                <label for="switch_left" class="greenbackground" data-toggle="tooltip" data-title="Include max/min opps already reviewed?" data-placement="bottom">Yes</label>
+                                <input type="radio" id="switch_right" name="switch_2" value="no" checked />
+                                <label id="nolabel" for="switch_right" data-toggle="tooltip" data-title="Include max/min opps already reviewed?" data-placement="bottom">No</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-3 col-sm-6 col-xs-12 col-lg-2 col-xl-2 text-center">
                         <button id="loaddata" type="button" class="btn btn-primary" onclick="gettable();">Load Data</button>
                     </div>
                 </div>
 
-                <div id="tablecontainer" class="hidden">
-                    <table id="ptbtable" class="table table-bordered" cellspacing="0" style="font-size: 11px; font-family: Calibri;">
-                        <thead>
-                            <tr>
-                                <th>Mark as OK</th>
-                                <th>Whse</th>
-                                <th>Item</th>
-                                <th>Location</th>
-                                <th>Current Max</th>
-                                <th>Current Min</th>
-                                <th>Current Yearly Replens</th>
-                                <th>Sugg. Max</th>
-                                <th>Sugg. Min</th>
-                                <th>New Yearly Replens</th>
-                                <th>Yearly Replen Reduction</th>
-                                <th>Reviewed?</th>
-                                <th data-toggle='tooltip' title='Click "SHOW COMMENTS" to view Comments' data-placement='top' data-container='body'>Comments?</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <!--Vector map error table.  -->
+                        <section class="panel hidewrapper" id="sec_baylocerror" style="margin-bottom: 50px; margin-top: 20px;"> 
+                            <header class="panel-heading bg bg-inverse h2">Location Max/Min Adjustment Opps.</header>
+                            <div id="tbl_baylocerror" class="panel-body">
 
+                                <div id="tablecontainer" class="hidden">
+                                    <table id="ptbtable" class="table table-bordered" cellspacing="0" style="font-size: 11px; font-family: Calibri;">
+                                        <thead>
+                                            <tr>
+                                                <th>Mark as OK</th>
+                                                <th>Whse</th>
+                                                <th>Item</th>
+                                                <th>Location</th>
+                                                <th>Current Max</th>
+                                                <th>Current Min</th>
+                                                <th>Current Yearly Replens</th>
+                                                <th>Sugg. Max</th>
+                                                <th>Sugg. Min</th>
+                                                <th>New Yearly Replens</th>
+                                                <th>Yearly Replen Reduction</th>
+                                                <th>Reviewed?</th>
+                                                <th data-toggle='tooltip' title='Click "SHOW COMMENTS" to view Comments' data-placement='top' data-container='body'>Comments?</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
 
                 <!--Add comment modal-->
                 <?php include_once 'globaldata/addcommentmodal.php'; ?>
@@ -146,6 +167,12 @@
                 var userid = $('#userid').text();
                 var reportsel = $('#reportsel').val();
 
+                if (document.getElementById('switch_left').checked) {
+                    var includeaudit = 1;
+                } else {
+                    var includeaudit = 0;
+                }
+
                 oTable = $('#ptbtable').dataTable({
                     dom: "<'row'<'col-sm-4 pull-left'l><'col-sm-4 text-center'B><'col-sm-4 pull-right'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-4 pull-left'i><'col-sm-8 pull-right'p>>",
                     destroy: true,
@@ -173,7 +200,7 @@
                             }
                         }
                     ],
-                    'sAjaxSource': "globaldata/maxmin.php?userid=" + userid + "&reportsel=" + reportsel,
+                    'sAjaxSource': "globaldata/maxmin.php?userid=" + userid + "&reportsel=" + reportsel + '&includeaudit=' + includeaudit,
                     buttons: [
                         'copyHtml5',
                         'excelHtml5',

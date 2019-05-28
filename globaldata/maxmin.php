@@ -15,6 +15,14 @@ $var_whse = $whssqlarray[0]['slottingDB_users_PRIMDC'];
 
 $var_report = ($_GET['reportsel']);
 
+$includetoggle = $_GET['includeaudit'];
+
+if ($includetoggle == 0) {
+    $includesql = ' and minmax_reviewdate IS NULL';
+} else {
+    $includesql = ' ';
+}
+
 switch ($var_report) {  //build sql statement for report
     case 'MAX':
 
@@ -60,6 +68,7 @@ FROM
 WHERE
     slotmaster_currtf > (slotmaster_normreplen + slotmaster_maxreplen)
         AND A.LMTIER IN ('BIN' , 'FLOW')
+        $includesql
         AND slotmaster_impmoves >= .05");
         $bayreport->execute();
         $bayreportarray = $bayreport->fetchAll(pdo::FETCH_ASSOC);
@@ -128,15 +137,15 @@ foreach ($bayreportarray as $key => $value) {
 
 
 //How many have been marked as reviewed
-    $badge = $conn1->prepare("SELECT 
+$badge = $conn1->prepare("SELECT 
                                                             COUNT(*) AS opencount
                                                         FROM
                                                             gillingham.minmaxreview
                                                                 JOIN
                                                             gillingham.slotmaster ON slotmaster_item = minmax_item
                                                                 AND slotmaster_loc = minmax_location ");
-    $badge->execute();
-    $badgearray = $badge->fetchAll(pdo::FETCH_ASSOC);
+$badge->execute();
+$badgearray = $badge->fetchAll(pdo::FETCH_ASSOC);
 
 if (isset($badgearray)) {
     $badgecount = $badgearray[0]['opencount'];

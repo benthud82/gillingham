@@ -13,6 +13,13 @@ $whssqlarray = $whssql->fetchAll(pdo::FETCH_ASSOC);
 
 $var_whse = $whssqlarray[0]['slottingDB_users_PRIMDC'];
 
+$includetoggle = $_GET['includeaudit'];
+
+if ($includetoggle == 0){
+    $includesql =  ' and locdim_reviewdate IS NULL';
+} else{
+    $includesql = ' ';
+}
 
 
 $dimissuesql = $conn1->prepare("SELECT DISTINCT
@@ -44,6 +51,7 @@ $dimissuesql = $conn1->prepare("SELECT DISTINCT
                                                             WHERE
                                                                 slotmaster_currtf < (slotmaster_normreplen + slotmaster_maxreplen)
                                                                     AND slotmaster_tier = 'BIN'
+                                                                    $includesql
                                                             ORDER BY slotmaster_currtf / (slotmaster_normreplen + slotmaster_maxreplen) , (slotmaster_normreplen + slotmaster_maxreplen) DESC");
 $dimissuesql->execute();
 $dimissuearray = $dimissuesql->fetchAll(pdo::FETCH_ASSOC);
