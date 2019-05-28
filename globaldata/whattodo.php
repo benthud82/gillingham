@@ -156,7 +156,8 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     $MAX_Increase = _maxtoTFtest($displayarray[$topcostkey]['CURMAX'], $displayarray[$topcostkey]['VCCTRF'], $displayarray[$topcostkey]['SUGGESTED_SLOTQTY']);
     //$MAX_Increase = 0;
     if ($MAX_Increase > 0) {
-        $upsizemax_newmin = _minloc($TOP_REPLEN_COST_array[$topcostkey]['VCCTRF'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
+      //  $upsizemax_newmin = _minloc($TOP_REPLEN_COST_array[$topcostkey]['VCCTRF'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
+        $upsizemax_newmin = $TOP_REPLEN_COST_array[$topcostkey]['CURMIN'];
         $impmoves_after_max_increase = _implied_daily_moves($displayarray[$topcostkey]['VCCTRF'], $upsizemax_newmin, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['AVGD_BTW_SLE']);
         $replen_score_Max_Increase = _replen_score_from_moves($impmoves_after_max_increase);
 //        $replen_cost_return_array_Max_Increase = _slotting_replen_cost($VCCTRF, $VCCTRF, $displayarray[$topcostkey]['Curr_Min'], $SHIP_QTY_MN, $AVGD_BTW_SLE);
