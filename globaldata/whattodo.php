@@ -19,6 +19,10 @@ if (isset($_POST['returncount'])) {  //user came from loose slotting module
     $itemnumsql = ' ';
 }
 
+if (isset($_POST['tier'])) {  //user came from loose slotting module
+    $tier = $_POST['tier'];
+}
+
 if (isset($_POST['itemnum'])) {  //user came from slotting assist module
     $returncount = 1;
     $zone = 'LSE';
@@ -32,8 +36,8 @@ $displayarray = array();  //initiate array
 //include file to return highest cost items by Whse and Tier.  Will loop through these items.  Start with top 10.
 if ($zone == 'LSE') {
     include_once 'highscorearray_LSE.php';
-} else {
-    include_once 'highscorearray_CSE.php';
+} else if ($zone == 'LSE_down') {
+    include_once 'lowscorearray_LSEdown.php';
 }
 
 //include empty location file from NPFLSM.  Put into array $NPFLSM_array.
