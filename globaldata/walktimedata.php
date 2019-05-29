@@ -66,7 +66,7 @@ $dopoundsql = $conn1->prepare("SELECT DISTINCT
                                                                     AND E.SCORE_PKGU = A.PACKAGE_UNIT
                                                                     AND E.SCORE_ZONE = A.PACKAGE_TYPE
                                                             WHERE
-                                                                 A.SUGGESTED_TIER in ('BIN','FLOW')
+                                                                 A.SUGGESTED_TIER in ('BIN','FLOW', 'ECAP')
                                                                     AND $whercaluse
                                                                     ORDER BY $orderby
                                                                 LIMIT 1000");

@@ -100,6 +100,7 @@ $sqlupdate2 = "UPDATE gillingham.location_master
                                     WHEN LOCATION like '67%' then 'DEAD' 
                                     WHEN LOCATION >= '69*' THEN 'CASE'
                                     WHEN SUBSTRING(LOC_DIM, 1, 2) = 'CL' THEN 'FLOW'
+                                    WHEN DEPTH between 38 and 42 then 'ECAP'
                                     WHEN USE_DEPTH < 80 THEN 'BIN'
                                     WHEN LOC_DIM = 'MSFP1' THEN 'PALL'
                                     ELSE 'OTHER'

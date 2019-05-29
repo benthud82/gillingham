@@ -23,6 +23,7 @@
                         <label>Select Tier: </label>
                         <select class="selectstyle" id="tiersel" name="tiersel"  style="width: 100px;">
                             <option value="BIN">BIN</option>
+                            <option value="ECAP">End Cap</option>
                             <option value="FLOW">FLOW</option>
                         </select>
                     </div>

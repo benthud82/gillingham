@@ -11,16 +11,15 @@ include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
-//now truncated during itemtruefits_ecap.php
-$truncatetables = array('item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid','item_truefits_ext');
+$truncatetables = array('inventory_restricted', 'my_npfmvc', 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid', 'item_truefits_ext');
 foreach ($truncatetables as $value) {
     $querydelete2 = $conn1->prepare("TRUNCATE gillingham.$value");
     $querydelete2->execute();
 }
 
 
-//assign full pallet items
-include 'npfmvc_fullpallet.php';
+//now called during itemtruefits.php
+//include 'npfmvc_fullpallet.php';
 $maxdaysoh = 200;
 
 //smallest location to hold one unit of product
@@ -75,7 +74,7 @@ $gridsql = $conn1->prepare("SELECT
                                                         gillingham.grid_exclusions ON exclude_grid = LOC_DIM
                                                     WHERE
                                                         exclude_grid IS NULL
-                                                            AND TIER IN ('FLOW' , 'BIN')
+                                                            AND TIER IN ('ECAP')
                                                     GROUP BY LOC_DIM , USE_HEIGHT , USE_DEPTH , USE_WIDTH , USE_CUBE , TIER
                                                     ORDER BY USE_CUBE ASC");
 $gridsql->execute();
@@ -177,54 +176,125 @@ foreach ($itemarray as $key => $value) {
     $columns_itemtf_ext = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype, itemtf_griddep, itemtf_max, itemtf_min, itemtf_slotqty, itemtf_locvol, itemtf_daystostock';
 }
 
-$values = implode(',', $array_itemtf);
-$sql = "INSERT IGNORE INTO gillingham.item_truefits ($columns_itemtf) VALUES $values";
-$query = $conn1->prepare($sql);
-$query->execute();
 
 $values2 = implode(',', $array_itemtf_ext);
 $sql2 = "INSERT IGNORE INTO gillingham.item_truefits_ext ($columns_itemtf_ext) VALUES $values2";
 $query2 = $conn1->prepare($sql2);
 $query2->execute();
 
-//insert the replen reduction per increase in cube to table gillingham.rpc_reductions
-$sqlinsert = "INSERT INTO gillingham.rpc_reductions (SELECT 
-                            TF.itemtf_grid,
-                            TF.itemtf_nextgrid,
-                            TF.itemtf_rpc,
-                            TF.itemtf_loctype,
-                            IF(@lastitem = TF.itemtf_item,
-                                (@lastimpmove - TF.itemtf_impmoves) / (TF.itemtf_gridvol - @lastgridvol),
-                          --      (@lastimpmove - TF.itemtf_impmoves),
-                                0000.00) AS decrease_rpc,
-                            @lastitem:=TF.itemtf_item,
-                            @lastimpmove:=TF.itemtf_impmoves,
-                            @lastgridvol:=TF.itemtf_gridvol
-                        FROM
-                            gillingham.item_truefits TF,
-                            (SELECT @lastitem:=0, @lastimpmove:=0, @lastgridvol:=0) SQLVars
-                        ORDER BY itemtf_item ASC , itemtf_gridvol ASC)
-                        ";
-$queryinsert = $conn1->prepare($sqlinsert);
-$queryinsert->execute();
+//delete from tables the duplicates to only include the grid5 with the lowest replen per cuble
+$sql3 = "DELETE FROM gillingham.item_truefits_ext 
+ WHERE itemtf_rpc NOT IN (SELECT * 
+                    FROM (SELECT MIN(n.itemtf_rpc)
+                            FROM gillingham.item_truefits_ext  n
+                        GROUP BY n.itemtf_item) x)";
+$query3= $conn1->prepare($sql3);
+$query3->execute();
 
-//update the currgrid and nextgrid tables
-$sqlinsert2 = "INSERT INTO gillingham.currgrid (currgrid_grid, currgrid_nextgrid, currgrid_rpc, currgrid_loctype, currgrid_rpcdecrease, currgrid_item, currgrid_impmoves, currgrid_gridvol)
-                            SELECT * FROM
-                                gillingham.rpc_reductions
-                            WHERE
-                                rpc_nextgrid = 1";
-$queryinsert2 = $conn1->prepare($sqlinsert2);
-$queryinsert2->execute();
 
-$sqlinsert3 = "INSERT INTO gillingham.nextgrid (nextgrid_grid, nextgrid_nextgrid, nextgrid_rpc, nextgrid_loctype, nextgrid_rpcdecrease, nextgrid_item, nextgrid_impmoves, nextgrid_gridvol)
-                            SELECT * FROM
-                                gillingham.rpc_reductions
-                            WHERE
-                                rpc_nextgrid = 2";
-$queryinsert3 = $conn1->prepare($sqlinsert3);
-$queryinsert3->execute();
+//available ECAP locations
+$sql = $conn1->prepare("SELECT 
+                                                LOC_DIM, COUNT(*) as DIMCOUNT
+                                            FROM
+                                                gillingham.location_master
+                                                    LEFT JOIN
+                                                gillingham.grid_exclusions ON exclude_grid = LOC_DIM
+                                            WHERE
+                                                exclude_grid IS NULL
+                                                    AND TIER IN ('ECAP')
+                                            GROUP BY LOC_DIM
+                                            ORDER BY USE_CUBE ASC");
+$sql->execute();
+$gridarray_ecap = $sql->fetchAll(pdo::FETCH_ASSOC);
 
-//delete any items ranked as 1 or 2 from rpc_reductions as these are in the currgrid or nextgrid table
-$querydelete2 = $conn1->prepare("DELETE FROM gillingham.rpc_reductions WHERE rpc_nextgrid in (1,2)");
-$querydelete2->execute();
+foreach ($gridarray_ecap as $key => $value) {
+    $grid5  = $gridarray_ecap[$key]['LOC_DIM'];
+    $grid5_count  = $gridarray_ecap[$key]['DIMCOUNT'];
+    
+    //pull in items with no implied moves ordered by PPC desc, limit on the number of available locations
+    
+    $sqlinsert1 = "insert into gillingham.my_npfmvc (
+        SELECT DISTINCT
+    'GB00001' AS WAREHOUSE,
+    A.ITEM AS ITEM_NUMBER,
+    A.PKGU AS PACKAGE_UNIT,
+    A.PKTYPE AS PACKAGE_TYPE,
+    D.slotmaster_loc AS LMLOC,
+    A.DSLS AS DAYS_FRM_SLE,
+    A.ADBS AS AVGD_BTW_SLE,
+    A.AVG_INVOH AS AVG_INV_OH,
+    A.DAYCOUNT AS NBR_SHIP_OCC,
+    A.AVG_PICK AS PICK_QTY_MN,
+    A.PICK_STD AS PICK_QTY_SD,
+    A.AVG_UNITS AS SHIP_QTY_MN,
+    A.UNIT_STD AS SHIP_QTY_SD,
+    X.PKGU_EA AS CPCEPKU,
+    X.PKGU_CA AS CPCCPKU,
+    'Y' AS CPCFLOW,
+    'Y' AS CPCTOTE,
+    'Y' AS CPCSHLF,
+    'Y' AS CPCROTA,
+    0 AS CPCESTK,
+    ' ' AS CPCLIQU,
+    X.EA_DEPTH AS CPCELEN,
+    X.EA_HEIGHT AS CPCEHEI,
+    X.EA_WIDTH AS CPCEWID,
+    X.CA_DEPTH AS CPCCLEN,
+    X.CA_HEIGHT AS CPCCHEI,
+    X.CA_WIDTH AS CPCCWID,
+    D.slotmaster_usehigh AS LMHIGH,
+    D.slotmaster_usedeep AS LMDEEP,
+    D.slotmaster_usewide AS LMWIDE,
+    D.slotmaster_usecube AS LMVOL9,
+    D.slotmaster_tier AS LMTIER,
+    D.slotmaster_dimgroup AS LMGRD5,
+    CASE
+        WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
+        ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
+    END AS DLY_CUBE_VEL,
+    CASE
+        WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_PICK) * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH
+        ELSE (A.AVG_DAILY_PICK) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH
+    END AS DLY_PICK_VEL,
+    itemtf_loctype,
+    itemtf_grid,
+    itemtf_griddep,
+    itemtf_max,
+    itemtf_min,
+    itemtf_slotqty,
+    itemtf_impmoves,
+    slotmaster_impmoves AS CURRENT_IMPMOVES,
+    itemtf_locvol,
+    itemtf_daystostock,
+    A.AVG_DAILY_PICK AS DAILYPICK,
+    A.AVG_DAILY_UNIT AS DAILYUNIT,
+    0 AS JAX_ENDCAP,
+    A.AVG_DAILY_PICK / itemtf_locvol * 1000,
+    slotmaster_currtf AS VCCTRF
+FROM
+    gillingham.nptsld A
+        JOIN
+    gillingham.item_master X ON X.ITEM = A.ITEM
+        JOIN
+    gillingham.slotmaster D ON D.slotmaster_item = A.ITEM
+        JOIN
+    gillingham.item_truefits_ext ON A.ITEM = itemtf_item
+        LEFT JOIN
+    gillingham.my_npfmvc F ON F.ITEM_NUMBER = A.ITEM
+WHERE
+    F.ITEM_NUMBER IS NULL
+        AND D.slotmaster_pkgu = 'EA'
+        AND A.PKTYPE = 'EA'
+        AND CHAR_GROUP NOT IN ('D' , 'J', 'T')
+        AND itemtf_grid = '$grid5'
+ORDER BY itemtf_impmoves ASC , AVG_DAILY_PICK / itemtf_locvol * 1000 DESC
+LIMIT $grid5_count)";
+$queryinsert1 = $conn1->prepare($sqlinsert1);
+$queryinsert1->execute();
+       
+    
+}
+
+
+
+

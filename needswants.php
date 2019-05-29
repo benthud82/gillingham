@@ -26,6 +26,7 @@
                             <option value="PALL">PALL</option>
                             <option value="FLOW">FLOW</option>
                             <option value="BIN">BIN</option>
+                            <option value="ECAP">End Cap</option>
 
                         </select>
 

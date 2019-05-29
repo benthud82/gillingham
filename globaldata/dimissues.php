@@ -50,7 +50,7 @@ $dimissuesql = $conn1->prepare("SELECT DISTINCT
                                                                 gillingham.slotting_itemcomments ON itemcomments_item = slotmaster_item
                                                             WHERE
                                                                 slotmaster_currtf < (slotmaster_normreplen + slotmaster_maxreplen)
-                                                                    AND slotmaster_tier = 'BIN'
+                                                                    AND slotmaster_tier in ('BIN', 'ECAP')
                                                                     $includesql
                                                             ORDER BY slotmaster_currtf / (slotmaster_normreplen + slotmaster_maxreplen) , (slotmaster_normreplen + slotmaster_maxreplen) DESC");
 $dimissuesql->execute();

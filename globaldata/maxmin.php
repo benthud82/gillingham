@@ -67,7 +67,7 @@ FROM
         AND S.PKGU_TYPE = A.PACKAGE_TYPE
 WHERE
     slotmaster_currtf > (slotmaster_normreplen + slotmaster_maxreplen)
-        AND A.LMTIER IN ('BIN' , 'FLOW')
+        AND A.LMTIER IN ('BIN' , 'FLOW', 'ECAP')
         $includesql
         AND slotmaster_impmoves >= .05");
         $bayreport->execute();
