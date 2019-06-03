@@ -295,6 +295,12 @@ $queryinsert1->execute();
     
 }
 
+$truncatetables = array( 'item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid', 'item_truefits_ext');
+foreach ($truncatetables as $value) {
+    $querydelete2 = $conn1->prepare("TRUNCATE gillingham.$value");
+    $querydelete2->execute();
+}
+
 
 
 
