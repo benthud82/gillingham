@@ -3,7 +3,7 @@
  
 $JAX_ENDCAP = 0;
 $whssel = 'GB0001';
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 $itemsonhold = $conn1->prepare("SELECT DISTINCT
                                 'GB00001' as WAREHOUSE,
                                 A.ITEM as ITEM_NUMBER,

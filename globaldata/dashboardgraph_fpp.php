@@ -1,6 +1,6 @@
 <?php
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $time = strtotime("-1 year", time());
 $date = date("Y-m-d", $time);
 
@@ -13,7 +13,7 @@ $result1->execute();
 $rows = array();
 $rows['name'] = 'Date';
 $rows1 = array();
-$rows1['name'] = 'FPP';
+$rows1['name'] = 'Meters Per Pick';
 
 
 foreach ($result1 as $row) {

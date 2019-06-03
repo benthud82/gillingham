@@ -17,14 +17,14 @@ function searchForExcl($id, $array) {
     return null;
 }
 
-function _searchForKey($id, $array, $searchkey) {
-    foreach ($array as $key => $val) {
-        if ($val[$searchkey] === $id) {
-            return $key;
-        }
-    }
-    return null;
-}
+//function _searchForKey($id, $array, $searchkey) {
+//    foreach ($array as $key => $val) {
+//        if ($val[$searchkey] === $id) {
+//            return $key;
+//        }
+//    }
+//    return null;
+//}
 
 function searchForMoves($id, $array) {
     foreach ($array as $key => $val) {
@@ -380,8 +380,7 @@ function _class_plus_minus($MCCLASS) {
 function _AcceptBayFunction($startbay) {
     switch ($startbay) {
         case 0:
-            $BAY_array = array(0, 1);
-
+            $BAY_array = array(0, 1, 2);
             break;
         case 1:
             $BAY_array = array($startbay, 0, 2, 3);
@@ -1162,8 +1161,8 @@ function _walkcost_GILL($currbay, $shouldbay, $dailypicks, $currfeet) {
     $addtl_cost_per_year = ((($addtl_feet_per_day * $days_year) / $walkrate_sec ) / 3600) * $hourlyrate;
 
     $walkcostarray = array();
-    $walkcostarray['CURR_FT_PER_DAY'] = $currwalkfeet * $dailypicks;
-    $walkcostarray['SHOULD_FT_PER_DAY'] = $shldwalkfeet * $dailypicks;
+    $walkcostarray['CURR_FT_PER_DAY'] = ($currwalkfeet * $dailypicks) / 1000;
+    $walkcostarray['SHOULD_FT_PER_DAY'] = ($shldwalkfeet * $dailypicks) / 1000;
     $walkcostarray['ADDTL_FT_PER_PICK'] = $addtl_feet_per_pick;
     $walkcostarray['ADDTL_FT_PER_DAY'] = $addtl_feet_per_day;
     $walkcostarray['ADDTL_COST_PER_YEAR'] = $addtl_cost_per_year;
@@ -1182,8 +1181,8 @@ function _walkcost_feet($currfeet, $shouldfeet, $dailypicks) {
     $addtl_cost_per_year = ((($addtl_feet_per_day * $days_year) / $walkrate_sec ) / 3600) * $hourlyrate;
 
     $walkcostarray = array();
-    $walkcostarray['CURR_FT_PER_DAY'] = $currfeet * $dailypicks;
-    $walkcostarray['SHOULD_FT_PER_DAY'] = $shouldfeet * $dailypicks;
+    $walkcostarray['CURR_FT_PER_DAY'] = ($currfeet * $dailypicks) / 1000;
+    $walkcostarray['SHOULD_FT_PER_DAY'] = ($shouldfeet * $dailypicks) / 1000;
     $walkcostarray['ADDTL_FT_PER_PICK'] = $addtl_feet_per_pick;
     $walkcostarray['ADDTL_FT_PER_DAY'] = $addtl_feet_per_day;
     $walkcostarray['ADDTL_COST_PER_YEAR'] = $addtl_cost_per_year;
@@ -1506,7 +1505,12 @@ function _minloc($max, $avgshipqty, $caseqty) {
     if (($avgshipqty * 2) <= ($max * .25)) {
         $minloc = ($avgshipqty * 2); //set min to 2 ship occurences if less
     } elseif (($avgshipqty * 2) >= ($max * .25)) {
+        //i changed to this at some point.  cant remember why.  Reverting back to .25 of max
+        //$minloc = ceil($max); //set min to 25% of max
         $minloc = ceil($max * .25); //set min to 25% of max
+    }
+    if ($minloc == 0) {
+        $minloc = 1;
     }
 
     return $minloc;
@@ -1553,6 +1557,11 @@ function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, 
         return $impliedmoves;
     }
 
+    if ($max == $min) {
+        $impliedmoves = 1 / ($max / $daily_ship_qty);
+        return $impliedmoves;
+    }
+
     $divisor = (($loc_theoretical_max - $min) / $daily_ship_qty);
     if ($divisor == 0) {
         $divisor = 9999999;
@@ -1563,6 +1572,25 @@ function _implied_daily_moves($max, $min, $daily_ship_qty, $avginv, $shipqtymn, 
     } else {
         $impliedmoves = 1 / $divisor;
     }
+    return $impliedmoves;
+}
+
+function _implied_daily_moves_nomin($max, $daily_ship_qty, $avginv) {
+    $loc_theoretical_max = min($max, $avginv);  //should never have more than this in location.
+    if ($daily_ship_qty == 0) {
+        $impliedmoves = 0;
+        return $impliedmoves;
+    }
+    if ($loc_theoretical_max == $avginv) {
+        $impliedmoves = 0;
+        return $impliedmoves;
+    }
+
+    if ($loc_theoretical_max == 0) {
+        $impliedmoves = 0;
+        return $impliedmoves;
+    }
+    $impliedmoves = $daily_ship_qty / $loc_theoretical_max;
     return $impliedmoves;
 }
 

@@ -1,7 +1,7 @@
 
 <?php
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $sqlfilter = 0;
 
 $var_item = intval($_POST['itemnum']);  //pulled from itemquery.php
@@ -38,7 +38,7 @@ $var_userid = $_POST['userid'];
     A.SUGGESTED_DAYSTOSTOCK,
     A.AVG_DAILY_PICK,
     A.AVG_DAILY_UNIT,
-    B.OPT_NEWGRIDVOL,
+    A.SUGGESTED_NEWLOCVOL,
     B.OPT_PPCCALC,
     B.OPT_OPTBAY,
     B.OPT_CURRBAY,

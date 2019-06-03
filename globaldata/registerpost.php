@@ -1,7 +1,7 @@
 <?php
 
 //add the user to the slottingdb_users table
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $options = [
     'cost' => 11,
 ];

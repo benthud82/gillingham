@@ -2,7 +2,7 @@
 <?php
 
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $var_whse = 'GB0001';
 $var_date = date('Y-m-d',  strtotime($_GET['datesel']));
@@ -19,6 +19,7 @@ $bayreport = $conn1->prepare("SELECT
                                     gillingham.vectormap ON BAY = picksbybay_BAY
                                 WHERE
                                     picksbybay_DATE = '$var_date'
+                                        and picksbybay_BAY <= '69*'
                                 ORDER BY picksbybay_PICKS * WALKFEET desc ;");
 $bayreport->execute();
 $bayreportarray = $bayreport->fetchAll(pdo::FETCH_ASSOC);

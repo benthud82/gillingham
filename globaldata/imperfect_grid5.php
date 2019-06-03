@@ -3,7 +3,7 @@
 //*********    The logic never recommends an imperfect grid5????  ********
 
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 $displayarray[$topcostkey]['MOVES_AFTER_IMP_GRID'] = '-';
 $displayarray[$topcostkey]['MOVESCORE_AFTER_IMP_GRID'] = '-';
 $displayarray[$topcostkey]['WALKSCORE_AFTER_IMP_GRID'] = '-';
@@ -16,7 +16,7 @@ foreach ($EMPTYGRID_array as $key3 => $value3) {
 
 
 
-    if ($EMPTYGRID_array[$key3]['LMTIER'] !== substr($TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_TIER'], 0, 3)) {  //must be the correct tier
+    if ($EMPTYGRID_array[$key3]['LMTIER'] !== ($TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_TIER'])) {  //must be the correct tier
         continue;
     }
 
@@ -31,7 +31,8 @@ foreach ($EMPTYGRID_array as $key3 => $value3) {
     //I think this works need to test.
     //START HERE*************
 
-    if (($slotcalc >= 1.25 && $slotcalc <= .75) || $spcount == $key3) {
+    
+    if (($slotcalc <= 2.5 && $slotcalc >= .75) || $spcount == $key3) {
         $NEW_LOC_TRUEFIT_round2 = $NEW_LOC_TRUEFIT_array[1]; //assign 2-iteration tf to variable
 //        $tf_to_newdmdcalc = number_format($NEW_LOC_TRUEFIT_round2 / $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_SLOTQTY'], 2);  //compare calculated TF to desired slotting quantity to determine if need to contiue to next grid5
 //        $tf_to_curmaxcalc = number_format($NEW_LOC_TRUEFIT_round2 / $TOP_REPLEN_COST_array[$topcostkey]['CURMAX'], 2);
@@ -43,10 +44,10 @@ foreach ($EMPTYGRID_array as $key3 => $value3) {
     $IMPERFECT_GRID5_key = array_search($lookupkey_l3, array_column($EMPTYLOC_array, 'KEYVAL'));
     if ($IMPERFECT_GRID5_key <> FALSE) {
 
-        $NEW_LOC = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['slotmaster_loc'];
+        $NEW_LOC = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['LOCATION'];
         $NEW_loc_bay = intval($EMPTYLOC_array[$IMPERFECT_GRID5_key]['WALKBAY']);
         $displayarray[$topcostkey]['IMPERFECT_GRID5_SLOT_LOC'] = $NEW_LOC;
-        $NEW_GRD5 = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['slotmaster_dimgroup'];
+        $NEW_GRD5 = $EMPTYLOC_array[$IMPERFECT_GRID5_key]['LOC_DIM'];
         $displayarray[$topcostkey]['AssgnGrid5'] = $NEW_GRD5; //Add new grid5 to display array
 
         $Newmin = _minloc($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);

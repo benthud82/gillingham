@@ -1,7 +1,6 @@
 <?php
-$TOP_SCORE = $conn1->prepare("SELECT DISTINCT
+$TOP_SCORE = $conn1->prepare("SELECT 
                                                                         A.*,
-                                                                        B.OPT_NEWGRIDVOL,
                                                                         B.OPT_PPCCALC,
                                                                         B.OPT_OPTBAY,
                                                                         B.OPT_CURRBAY,
@@ -12,7 +11,6 @@ $TOP_SCORE = $conn1->prepare("SELECT DISTINCT
                                                                         B.OPT_WALKCOST,
                                                                         C.slotmaster_normreplen + slotmaster_maxreplen AS CURMAX,
                                                                         C.slotmaster_normreplen AS CURMIN,
-                                                                        C.slotmaster_normreplen + slotmaster_maxreplen AS VCCTRF,
                                                                         E.SCORE_TOTALSCORE,
                                                                         E.SCORE_REPLENSCORE,
                                                                         E.SCORE_WALKSCORE,
@@ -21,20 +19,34 @@ $TOP_SCORE = $conn1->prepare("SELECT DISTINCT
                                                                         E.SCORE_WALKSCORE_OPT,
                                                                         'Y' AS CPCPFRC,
                                                                         'Y' AS CPCPFRA,
-                                                                        L.WALKBAY
+                                                                        (SELECT 
+                                                                                walkfeet_feet
+                                                                            FROM
+                                                                                gillingham.walkfeet_standard
+                                                                            WHERE
+                                                                                walkfeet_bay = B.OPT_OPTBAY) AS SUGG_WALKFEET,
+                                                                        openactions_assignedto,
+                                                                        openactions_comment
                                                                     FROM
                                                                         gillingham.my_npfmvc A
                                                                             JOIN
                                                                         gillingham.optimalbay B ON A.ITEM_NUMBER = B.OPT_ITEM
+                                                                            AND OPT_CSLS = PACKAGE_TYPE
                                                                             JOIN
                                                                         gillingham.slotmaster C ON C.slotmaster_item = A.ITEM_NUMBER
+                                                                            AND slotmaster_pkgu = PACKAGE_TYPE
                                                                             JOIN
                                                                         gillingham.slottingscore E ON E.SCORE_ITEM = A.ITEM_NUMBER
-                                                                            JOIN
-                                                                        gillingham.npfcpcsettings F ON F.CPCITEM = A.ITEM_NUMBER
+                                                                            AND SCORE_ZONE = PACKAGE_TYPE
                                                                             JOIN
                                                                         gillingham.bay_location L ON L.LOCATION = A.CUR_LOCATION
-                                                                        WHERE A.SUGGESTED_TIER not in ('L01','L02')
+                                                                            JOIN
+                                                                        gillingham.vectormap V ON V.BAY = L.BAY
+                                                                            LEFT JOIN
+                                                                        gillingham.slottingdb_itemactions ON openactions_item = SCORE_ITEM
+                                                                    WHERE
+                                                                        A.SUGGESTED_TIER <> ('PALL')
+                        --                                                and ITEM_NUMBER = 1128445
                                                                     ORDER BY E.SCORE_TOTALSCORE ASC , E.SCORE_REPLENSCORE , E.SCORE_WALKSCORE
                                                                     LIMIT $returncount");
 $TOP_SCORE->execute();

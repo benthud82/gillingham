@@ -8,7 +8,7 @@ $mindsls = 14; //sold in the last two weeks
 //$daystostock = 15;  //stock 10 shipping occurences as max
 $slowdownsizecutoff = 999999;  //min ADBS to only stock to 2 ship occurences as Max.  Not used right now till capacity is determined
 $skippedkeycount = 0;
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 
 
 
@@ -146,7 +146,7 @@ foreach ($L02array as $key => $value) {
         $var_pkgu = intval($L02array[$key]['PACKAGE_UNIT']);
         $var_pkty = $L02array[$key]['PACKAGE_TYPE'];
         $var_should = 'FLOW';
-        include_once '../connection/connection_details.php';
+        include_once '../connection/NYServer.php';
         //write to table that should have gone to flow and was restricted
         $result2 = $conn1->prepare("INSERT INTO gillingham.items_restricted (REST_ID, REST_WHSE, REST_ITEM, REST_PKGU, REST_PKTY, REST_SHOULD) values (0,'$whssel', $var_item ,$var_pkgu,'" . $var_pkty . "','" . $var_should . "')");
         $result2->execute();
@@ -211,7 +211,7 @@ foreach ($L02array as $key => $value) {
         $var_pkty = $L02array[$key]['PACKAGE_TYPE'];
         $optqty = $slotqty_return_array['OPTQTY'];
         $slotqty = $slotqty_return_array['CEILQTY'];
-        include '../connection/connection_details.php';
+        include '../connection/NYServer.php';
         //write to table inventory_restricted
         $result2 = $conn1->prepare("INSERT INTO gillingham.inventory_restricted (ID_INV_REST, WHSE_INV_REST, ITEM_INV_REST, PKGU_INV_REST, PKGTYPE_INV_REST, AVGINV_INV_REST, OPTQTY_INV_REST, CEILQTY_INV_REST) values (0,'$whssel', $ITEM_NUMBER ,$var_pkgu,'$var_pkty',$var_AVGINV, $optqty, $slotqty)");
         $result2->execute();
@@ -278,7 +278,7 @@ array_splice($L02array, ($key - $skippedkeycount - 1));
 
 $L02array = array_values($L02array);  //reset array
 
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 
 $values = array();
 $intranid = 0;

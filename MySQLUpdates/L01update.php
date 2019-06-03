@@ -3,7 +3,7 @@
 $daystostock = 15;
 $JAX_ENDCAP = 0;
 $slowdownsizecutoff = 99999;
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 //true l01 count
 $L01countsql = $conn1->prepare("SELECT 
                                                                     COUNT(*) AS L01COUNT
@@ -171,7 +171,7 @@ foreach ($L01array as $key => $value) {
         $optqty = $slotqty_return_array['OPTQTY'];
         $slotqty = $slotqty_return_array['CEILQTY'];
         //write to table inventory_restricted
-        include '../connection/connection_details.php';
+        include '../connection/NYServer.php';
         $result2 = $conn1->prepare("INSERT INTO gillingham.inventory_restricted (ID_INV_REST, WHSE_INV_REST, ITEM_INV_REST, PKGU_INV_REST, PKGTYPE_INV_REST, AVGINV_INV_REST, OPTQTY_INV_REST, CEILQTY_INV_REST) values (0,'$whssel', $ITEM_NUMBER ,$var_pkgu,'$var_pkty',$var_AVGINV, $optqty, $slotqty)");
         $result2->execute();
         $conn1 = null;
@@ -307,7 +307,7 @@ do {
     if (empty($values)) {
         break;
     }
-    include '../connection/connection_details.php';
+    include '../connection/NYServer.php';
     $sql = "INSERT IGNORE INTO gillingham.my_npfmvc ($columns) VALUES $values";
     $query = $conn1->prepare($sql);
     $query->execute();

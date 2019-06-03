@@ -19,7 +19,7 @@ $sqlexclude = '';
 
 //*** Step 4: L04 Designation ***
 
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 //Pull in available L04 Grid5s by volume ascending order
 
 //with useable dimensions

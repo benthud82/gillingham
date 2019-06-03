@@ -1,31 +1,27 @@
 <?php
 
 $EMPTYLOC_result = $conn1->prepare("SELECT 
-                                                                            CONCAT(slotmaster_tier,
-                                                                                    slotmaster_dimgroup,
-                                                                                    WALKFEET * 1) AS KEYVAL,
-                                                                            CONCAT(slotmaster_tier,
-                                                                                    slotmaster_dimgroup,
-                                                                                    WALKBAY * 1) AS KEYVAL2,
-                                                                            slotmaster_loc,
-                                                                            slotmaster_item,
-                                                                            slotmaster_allowpick,
-                                                                            slotmaster_grdeep,
-                                                                            slotmaster_grhigh,
-                                                                            slotmaster_grwide,
-                                                                            slotmaster_grcube,
-                                                                            slotmaster_tier,
-                                                                            slotmaster_dimgroup,
-                                                                            WALKFEET,
+                                                                            CONCAT(M.TIER, LOC_DIM, V.WALKFEET * 1) AS KEYVAL,
+                                                                            CONCAT(M.TIER, LOC_DIM, WALKBAY * 1) AS KEYVAL2,
+                                                                            M.LOCATION,
+                                                                            M.USE_DEPTH,
+                                                                            M.USE_HEIGHT,
+                                                                            M.USE_WIDTH,
+                                                                            M.USE_CUBE,
+                                                                            M.TIER,
+                                                                            M.LOC_DIM,
+                                                                            V.WALKFEET,
                                                                             WALKBAY
                                                                         FROM
-                                                                            gillingham.slotmaster
+                                                                            gillingham.location_master M
                                                                                 JOIN
-                                                                            gillingham.vectormap ON BAY = slotmaster_bay
+                                                                            gillingham.bay_location B ON B.LOCATION = M.LOCATION
                                                                                 JOIN
-                                                                            gillingham.bay_location ON LOCATION = slotmaster_loc
+                                                                            gillingham.vectormap V ON V.BAY = B.BAY
+                                                                                JOIN
+                                                                            gillingham.emptylocations on emptylocation = M.LOCATION
                                                                         WHERE
-                                                                            slotmaster_allowpick = 'Y'
-                                                                                AND slotmaster_item IS NULL");  
+                                                                            ALLOW_PICK = 'Y'");  
 $EMPTYLOC_result->execute();
 $EMPTYLOC_array = $EMPTYLOC_result->fetchAll(pdo::FETCH_ASSOC);
+

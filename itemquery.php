@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
     ?>
     <head>
         <title>OSS - Item Query</title>
@@ -31,6 +31,12 @@
                         <button id="loaddata" type="button" class="btn btn-primary" onclick="fillitemlocation();" >Load Data</button>
                     </div>
                 </div>
+
+                <!--Build itemhistory link-->
+                <div id="gotoitemhistory"></div>
+
+                <!--Build move assist link-->
+                <div id="gotomoveassist"></div>
 
                 <div id="itemdetailcontainer" class="col-md-12"> </div>
 
@@ -125,8 +131,6 @@
 
             }
 
-
-
             function gettable(itemnumpost) {
                 debugger;
                 $('#tasktablecontainer').addClass('hidden');
@@ -197,7 +201,27 @@
                     'sAjaxSource': "globaldata/itemquery_closedtasks.php?userid=" + userid + "&itemnum=" + itemnum
 
                 });
+                //Build itemquery link
+                $.ajax({
+                    url: 'globaldata/itemhistorylink.php',
+                    type: 'POST',
+                    dataType: 'html',
+                    data: {userid: userid, itemnum: itemnum},
+                    success: function (result) {
+                        $("#gotoitemhistory").html(result);
+                    }
+                });
 
+                //Build moveassist link
+                $.ajax({
+                    url: 'globaldata/moveassistlink.php',
+                    type: 'POST',
+                    dataType: 'html',
+                    data: {userid: userid, itemnum: itemnum},
+                    success: function (result) {
+                        $("#gotomoveassist").html(result);
+                    }
+                });
 
             }
 
@@ -243,7 +267,7 @@
                 $('#addactionmodal').modal('toggle');
             });
 
-//show move audit modal
+            //show move audit modal
             $(document).on("click touchstart", ".moveauditclick", function (e) {
                 $('#actualmovemodal').modal('toggle');
                 $('#itemdetailcontainerloading').toggleClass('hidden');
@@ -266,7 +290,7 @@
                 });
             });
 
-//show pick audit modal
+            //show pick audit modal
             $(document).on("click touchstart", ".pickauditclick", function (e) {
                 $('#actualpickmodal').modal('toggle');
                 $('#itemdetailcontainerloading_pick').toggleClass('hidden');

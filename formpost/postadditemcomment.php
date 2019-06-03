@@ -1,7 +1,7 @@
 
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 include '../sessioninclude.php';
 $var_userid = $_SESSION['MYUSER'];
 

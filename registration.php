@@ -21,7 +21,7 @@
                     <div class="col-lg-2 col-md-4 col-sm-6 col-lg-offset-5 col-md-offset-4 col-sm-offset-3 text">
 
                         <form class="form-register" method="post" action="globaldata/registerpost.php">
-                            <h2 class="form-signin-heading text-center">Register</h2>
+                            <h2 class="form-signin-heading text-center" style="text-align: left">Register</h2>
                             <label for="username" class="sr-only">Enter A-System TSM ID</label>
                             <input type="text" id="username" name="username" class="form-control" placeholder="Enter A-System TSM ID" required="" autofocus="" style="width: 160px;margin-bottom: 10px;">
                             <label for="pass" class="sr-only">Enter Password</label>

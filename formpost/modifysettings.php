@@ -1,7 +1,7 @@
 
 <?php
 $var_whse = 'GB0001';
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 include '../sessioninclude.php';
 $var_casetf = ($_POST['casetf']);
 $var_item = intval($_POST['itemmodal']);

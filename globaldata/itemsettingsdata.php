@@ -1,7 +1,7 @@
 
 <?php
 ini_set('max_execution_time', 99999);
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 
 $var_item = $_POST['itemnum'];  //pulled from itemquery.php
@@ -10,11 +10,11 @@ $var_userid = $_POST['userid'];
 $itemsettings_loose = $conn1->prepare("SELECT 
                                                                             *
                                                                         FROM
-                                                                            gillingham.npfcpcsettings
-                                                                                LEFT JOIN
-                                                                            gillingham.item_settings ON ITEM = CPCITEM
+                                                                            gillingham.item_master A
+                                                                               LEFT JOIN
+                                                                            gillingham.item_settings B ON A.ITEM = B.ITEM 
                                                                         WHERE
-                                                                           CPCITEM = $var_item;");
+                                                                           A.ITEM = $var_item;");
 $itemsettings_loose->execute();
 $itemsettingsarray_loose = $itemsettings_loose->fetchAll(pdo::FETCH_ASSOC);
 
@@ -30,31 +30,31 @@ foreach ($itemsettingsarray_loose as $key => $value) {
                 <!-- Characteristics List group -->
                 <div class="list-group">
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCCPKU']); ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['PKGU_CA']); ?></strong></span> 
                         Case Pkgu
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCELEN'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['EA_DEPTH'], 2) . ' (cm)'; ?></strong></span> 
                         Each Length
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCEWID'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['EA_WIDTH'], 2) . ' (cm)'; ?></strong></span> 
                         Each Width
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCEHEI'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['EA_HEIGHT'], 2) . ' (cm)'; ?></strong></span> 
                         Each Height
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCCLEN'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CA_DEPTH'], 2) . ' (cm)'; ?></strong></span> 
                         Case Length
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCCWID'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CA_WIDTH'], 2) . ' (cm)'; ?></strong></span> 
                         Case Width
                     </div>
                     <div class="list-group-item"> 
-                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CPCCHEI'], 2) . ' (cm)'; ?></strong></span> 
+                        <span class="pull-right"><strong><?php echo number_format($itemsettingsarray_loose[$key]['CA_HEIGHT'], 2) . ' (cm)'; ?></strong></span> 
                         Case Height
                     </div>
                 </div>
@@ -76,27 +76,27 @@ foreach ($itemsettingsarray_loose as $key => $value) {
                     <div class="row">
                         <div class="col-md-6 bordered">
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCFLOW'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 OK in Flow
                             </div>
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCTOTE'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 OK in Tote
                             </div>
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCSHLF'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 OK in Shelf
                             </div>
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCROTA'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 Rotate
                             </div>
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCESTK'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 Stack Limit
                             </div>
                             <div class="list-group-item "> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCLIQU'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A' ?></strong></span> 
                                 Liquid
                             </div>
                             <div class="list-group-item"> 
@@ -114,7 +114,7 @@ foreach ($itemsettingsarray_loose as $key => $value) {
                                 Local PFR
                             </div>
                             <div class="list-group-item"> 
-                                <span class="pull-right"><strong><?php echo $itemsettingsarray_loose[$key]['CPCNEST'] ?></strong></span> 
+                                <span class="pull-right"><strong><?php echo  'N/A'  ?></strong></span> 
                                 Nest Limit
                             </div>
                             <div class="list-group-item"> 

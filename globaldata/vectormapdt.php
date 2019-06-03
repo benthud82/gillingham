@@ -3,7 +3,7 @@
 ini_set('max_execution_time', 99999);
 
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $vectormapdata = $conn1->prepare("SELECT ' ', vectormap.* FROM gillingham.vectormap ORDER BY BAY ASC");
 $vectormapdata->execute();

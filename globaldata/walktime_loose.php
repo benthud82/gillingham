@@ -1,6 +1,6 @@
 <?php
 
-include_once '../connection/connection_details.php';
+include_once '../connection/NYServer.php';
 
 $walkred_loose = $conn1->prepare("SELECT 
                                         SUM(OPT_ADDTLFTPERDAY) / 1000 as WALKTIMEREDLOOSE

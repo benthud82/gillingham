@@ -5,7 +5,7 @@ $JAX_ENDCAP = 1;
 
 
 $slowdownsizecutoff = 99999;
-include '../connection/connection_details.php';
+include '../connection/NYServer.php';
 include_once '../globalfunctions/slottingfunctions.php';
 
 $var_CURTF = NULL;

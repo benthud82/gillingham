@@ -420,3 +420,5 @@ function linear_regression($x, $y) {
     // return result
     return array("m" => $m, "b" => $b);
 }
+
+

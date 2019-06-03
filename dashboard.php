@@ -2,7 +2,7 @@
 <html>
     <?php
     include 'sessioninclude.php';
-    include_once 'connection/connection_details.php';
+    include_once 'connection/NYServer.php';
     ?>
     <head>
         <title>OSS - Dashboard</title>
@@ -17,22 +17,14 @@
         <?php include_once 'horizontalnav.php'; ?>
         <!--include vert nav php file-->
         <?php
-        include_once 'connection/connection_details.php';
         include_once 'verticalnav.php';
         include_once 'globaldata/dashboard_scores_case.php';
         include_once 'globaldata/dashboard_scores_loose.php';
-        include_once 'globaldata/l04capacity.php';
         ?>
 
         <section id="content"> 
             <section class="main padder"> 
                 <div class="row" style="padding-top: 75px;">
-                    <!--Is L04 capacity out of tolerance?-->
-                    <?php if ($l04capacity >= .98 || $l04capacity <= .85) { ?>
-                        <div class="col-sm-12">
-                            <div class="alert alert-danger " style="font-size: 100%;"> <button type="button" class="close" data-dismiss="alert"><i class="fa fa-times"></i></button> <i class="fa fa-exclamation-triangle fa-lg"></i><span> The capacity for you standard blue bin location (tier L04) is at risk.  <strong>Please email Bentley Hudson immediately!</strong></span></div>
-                        </div>
-                    <?php } ?>
 
                     <!--Loose Stats-->
                     <div class="col-lg-6"> 
@@ -206,7 +198,6 @@
                     </div>
                 </section>
 
-
                 <!--Historical Replens to Invoice Lines graph-->
                 <section class="panel hidewrapper" id="graph_historicalreplenstolines_actual" style="margin-bottom: 50px; margin-top: 20px;"> 
                     <header class="panel-heading bg bg-inverse h2">Historical Completed Replens per 1000 Invoice Lines<i class="fa fa-close pull-right closehidden" style="cursor: pointer;" id="close_replenstolinesgraph_actual"></i><i class="fa fa-chevron-up pull-right clicktotoggle-chevron" style="cursor: pointer;"></i></header>
@@ -226,7 +217,6 @@
                         </div>
                     </div>
                 </section>
-
 
                 <!--Historical Scores graph-->
                 <section class="panel hidewrapper hidden-xs" id="graph_historicalscores" style="margin-bottom: 50px; margin-top: 20px;"> 
@@ -267,37 +257,19 @@
 
                 <!--Historical Feet per Pick graph-->
                 <section class="panel hidewrapper" id="graph_fpp" style="margin-bottom: 50px; margin-top: 20px;"> 
-                    <header class="panel-heading bg bg-inverse h2">Historical Feet Per Pick<i class="fa fa-close pull-right closehidden" style="cursor: pointer;" id="close_fpp"></i><i class="fa fa-chevron-up pull-right clicktotoggle-chevron" style="cursor: pointer;"></i></header>
+                    <header class="panel-heading bg bg-inverse h2">Historical Meters Per Pick<i class="fa fa-close pull-right closehidden" style="cursor: pointer;" id="close_fpp"></i><i class="fa fa-chevron-up pull-right clicktotoggle-chevron" style="cursor: pointer;"></i></header>
                     <div id="historicalfpp" class="panel-body" style="background: #efefef">
                         <div id="chartpage_fpp"  class="page-break" style="width: 100%">
                             <div id="charts padded">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="alert alert-info " style="font-size: 100%;"> <button type="button" class="close" data-dismiss="alert"><i class="fa fa-times"></i></button> <i class="fa fa-info-circle fa-lg"></i><span> On average, how many aisle feet are walked per item picked. </span></div>
+                                        <div class="alert alert-info " style="font-size: 100%;"> <button type="button" class="close" data-dismiss="alert"><i class="fa fa-times"></i></button> <i class="fa fa-info-circle fa-lg"></i><span> On average, how many aisle meters are walked per item picked. </span></div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="alert alert-success" style="font-size: 100%;"> <button type="button" class="close" data-dismiss="alert"><i class="fa fa-times"></i></button> <i class="fa fa-arrow-down fa-lg"></i><span> Positive improvement indicated by <strong>downward</strong> trending graph. </span></div>
                                     </div>
                                 </div>
                                 <div id="container_fpp" class="dashboardstyle printrotate"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!--Capacity gauges-->
-                <section class="panel hidewrapper" id="graph_capacity" style="margin-bottom: 50px; margin-top: 20px;"> 
-                    <header class="panel-heading bg bg-inverse h2">Capacity Gauges<i class="fa fa-close pull-right closehidden" style="cursor: pointer;" id="close_fpp"></i><i class="fa fa-chevron-up pull-right clicktotoggle-chevron" style="cursor: pointer;"></i></header>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-4 col-sm-4">
-                                <div class="metric infogauge" data-ratio="<?php echo $l04capacity ?>">
-                                    <svg viewBox="0 0 1000 500">
-                                    <path d="M 950 500 A 450 450 0 0 0 50 500"></path>
-                                    <text class='percentage' text-anchor="middle" alignment-baseline="middle" x="500" y="300" font-size="140" font-weight="bold">0%</text>
-                                    <text class='title' text-anchor="middle" alignment-baseline="middle" x="500" y="450" font-size="90" font-weight="normal">L04 Capacity</text>
-                                    </svg>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -372,7 +344,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_scores',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -456,7 +429,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replens',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -539,7 +513,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replens_actual',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -554,7 +529,7 @@
                             point: {
                                 events: {
                                     click: function () {
-//                                        location.href = '7MovesDetail.php?date=' + this.category + '&type=' + this.series.name + '&formSubmit=Submit';
+                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
@@ -608,8 +583,8 @@
                     success: function (json) {
                         options3.xAxis.categories = json[0]['data'];
                         options3.series[0] = json[1];
-                        options3.series[1] = json[2];
-                        options3.series[2] = json[3];
+//                        options3.series[1] = json[2];
+//                        options3.series[2] = json[3];
 
                         chart = new Highcharts.Chart(options3);
                         series = chart.series;
@@ -623,7 +598,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_fpp',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -666,7 +642,7 @@
                     },
                     yAxis: {
                         title: {
-                            text: 'Average Feet per Pick'
+                            text: 'Average Meters per Pick'
                         },
                         plotLines: [{
                                 value: 0,
@@ -705,7 +681,8 @@
                         marginTop: 50,
                         marginBottom: 135,
                         renderTo: 'container_replenstolines_actual',
-                        type: 'spline'
+                        type: 'spline',
+                        zoomType: 'x'
                     }, credits: {
                         enabled: false
                     },
@@ -720,7 +697,7 @@
                             point: {
                                 events: {
                                     click: function () {
-//                                        location.href = 'picksbybay.php?date=' + this.category + '&type=' + this.series.name + '&formSubmit=Submit';
+                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
@@ -773,7 +750,6 @@
                     success: function (json) {
                         options5.xAxis.categories = json[0]['data'];
                         options5.series[0] = json[1];
-                        options5.series[1] = json[2];
 
 
                         chart = new Highcharts.Chart(options5);
