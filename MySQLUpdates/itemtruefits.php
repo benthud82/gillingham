@@ -84,7 +84,8 @@ $gridarray = $gridsql->fetchAll(pdo::FETCH_ASSOC);
 //loop through each item and assign the smallest grid to hold one unit
 foreach ($itemarray as $key => $value) {
     //reset variables
-    //$array_itemtf = array();
+    $array_itemtf = array();
+    $array_itemtf_ext = array();
     $implieddailymoves = 999;
     $grid5 = 'NOFIT';
     $truefit_tworound = 0;
