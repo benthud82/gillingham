@@ -52,6 +52,9 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     $settingscheck = 0; //initiate settings check
     $LEVEL_ONE_match_key = $IMPERFECT_MC_key = $IMPERFECT_GRID5_key = FALSE;
     $var_itemcode = $TOP_REPLEN_COST_array[$topcostkey]['ITEM_NUMBER']; //variable for include files
+    if($var_itemcode == 1034051){
+        echo 't';
+    }
     $var_location = $TOP_REPLEN_COST_array[$topcostkey]['CUR_LOCATION']; //variable for include files
 
     $displayarray[$topcostkey]['ITEM_NUMBER'] = $var_itemcode; //add info to display array
@@ -162,7 +165,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
     if ($MAX_Increase > 0) {
       //  $upsizemax_newmin = _minloc($TOP_REPLEN_COST_array[$topcostkey]['VCCTRF'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
         $upsizemax_newmin = $TOP_REPLEN_COST_array[$topcostkey]['CURMIN'];
-        $impmoves_after_max_increase = _implied_daily_moves($displayarray[$topcostkey]['VCCTRF'], $upsizemax_newmin, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['AVGD_BTW_SLE']);
+        $impmoves_after_max_increase = _implied_daily_moves_nomin($displayarray[$topcostkey]['VCCTRF'],  $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH']);
         $replen_score_Max_Increase = _replen_score_from_moves($impmoves_after_max_increase);
 //        $replen_cost_return_array_Max_Increase = _slotting_replen_cost($VCCTRF, $VCCTRF, $displayarray[$topcostkey]['Curr_Min'], $SHIP_QTY_MN, $AVGD_BTW_SLE);
         $displayarray[$topcostkey]['MOVESCORE_AFTER_MAX_INCREASE'] = $replen_score_Max_Increase;
@@ -190,7 +193,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
         $displayarray[$topcostkey]['AssgnGrid5'] = $NEW_GRD5; //Add new grid5 to display array
         $NEW_LOC_TRUEFIT_round2 = $TOP_REPLEN_COST_array[$topcostkey]['SUGGESTED_MAX'];
         $Newmin = _minloc($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
-        $impmoves_after_perfloc = _implied_daily_moves($NEW_LOC_TRUEFIT_round2, $Newmin, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['AVGD_BTW_SLE']);
+        $impmoves_after_perfloc = _implied_daily_moves_nomin($NEW_LOC_TRUEFIT_round2,  $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH']);
         $replen_score_Perf_Loc = _replen_score_from_moves($impmoves_after_perfloc);
 
         if ($zone == 'CSE') { //calculate LSE or CSE walk cost

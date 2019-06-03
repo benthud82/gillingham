@@ -51,7 +51,7 @@ foreach ($EMPTYGRID_array as $key3 => $value3) {
         $displayarray[$topcostkey]['AssgnGrid5'] = $NEW_GRD5; //Add new grid5 to display array
 
         $Newmin = _minloc($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['CPCCPKU']);
-        $impmoves_after_perfloc = _implied_daily_moves($NEW_LOC_TRUEFIT_round2, $Newmin, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH'], $TOP_REPLEN_COST_array[$topcostkey]['SHIP_QTY_MN'], $TOP_REPLEN_COST_array[$topcostkey]['AVGD_BTW_SLE']);
+        $impmoves_after_perfloc = _implied_daily_moves_nomin($NEW_LOC_TRUEFIT_round2, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['AVG_INV_OH']);
         $replen_score_Perf_Loc = _replen_score_from_moves($impmoves_after_perfloc);
 
         if ($zone == 'CSE') { //calculate LSE or CSE walk cost

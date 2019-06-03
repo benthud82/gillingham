@@ -223,8 +223,8 @@ foreach ($L01array as $key => $value) {
     $L01array[$key]['SUGGESTED_MAX'] = $SUGGESTED_MAX;
     $L01array[$key]['SUGGESTED_MIN'] = $SUGGESTED_MIN;
     $L01array[$key]['SUGGESTED_SLOTQTY'] = $slotqty;
-    $L01array[$key]['SUGGESTED_IMPMOVES'] = _implied_daily_moves($SUGGESTED_MAX, $SUGGESTED_MIN, $avgdailyshipqty, $var_AVGINV, $L01array[$key]['SHIP_QTY_MN'], $L01array[$key]['AVGD_BTW_SLE']);
-    $L01array[$key]['CURRENT_IMPMOVES'] = _implied_daily_moves($L01array[$key]['CURMAX'], $L01array[$key]['CURMIN'], $avgdailyshipqty, $var_AVGINV, $L01array[$key]['SHIP_QTY_MN'], $L01array[$key]['AVGD_BTW_SLE']);
+    $L01array[$key]['SUGGESTED_IMPMOVES'] = _implied_daily_moves_nomin($SUGGESTED_MAX, $avgdailyshipqty, $var_AVGINV);
+    $L01array[$key]['CURRENT_IMPMOVES'] = _implied_daily_moves_nomin($L01array[$key]['CURMAX'], $avgdailyshipqty, $var_AVGINV);
     $L01array[$key]['SUGGESTED_NEWLOCVOL'] = ($var_locvol);
     $L01array[$key]['SUGGESTED_DAYSTOSTOCK'] = intval(15);
 

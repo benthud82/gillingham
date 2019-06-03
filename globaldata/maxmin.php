@@ -116,7 +116,7 @@ foreach ($bayreportarray as $key => $value) {
     $COMMENTS = $bayreportarray[$key]['COMMENTS'];
 
     $newmin = ceil(_minloc($SUGGSTEDMAX, $AVG_DAILY_UNIT, $CPCCPKU));
-    $newimpliedmoves = intval(_implied_daily_moves($SUGGSTEDMAX, $newmin, $AVG_DAILY_UNIT, $AVG_INV_OH, $SHIP_QTY_MN, $AVGD_BTW_SLE) * 253);
+    $newimpliedmoves = intval(_implied_daily_moves_nomin($SUGGSTEDMAX, $AVG_DAILY_UNIT, $AVG_INV_OH));
     $replenreduction = intval($CURRENT_IMPMOVES - $newimpliedmoves);
     $bayreportarray[$key]['SUGGSTEDMIN'] = $newmin;
     $bayreportarray[$key]['IMP_IMPMOVES'] = $newimpliedmoves;
