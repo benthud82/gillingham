@@ -138,7 +138,7 @@ WHERE
                                             Optimal Yearly Moves
                                         </div>
                                         <div class="list-group-item"> 
-                                            <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['SUGGESTED_GRID5'] ?></strong></span> 
+                                            <span class="pull-right"><strong><i id="click_sugggrid5" class="fa fa-question-circle grid5click" style="cursor: pointer; text-decoration: none; margin-right: 4px;" data-grid="<?php echo $itemdetailarray_loose[$key]['SUGGESTED_GRID5'] ?>" ></i><?php echo $itemdetailarray_loose[$key]['SUGGESTED_GRID5'] ?></strong></span> 
                                             Suggested Grid5
                                         </div>
                                         <div class="list-group-item"> 
@@ -146,7 +146,7 @@ WHERE
                                             Suggested Depth
                                         </div>
                                         <div class="list-group-item"> 
-                                            <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['LMGRD5'] ?></strong></span> 
+                                            <span class="pull-right"><strong><i id="click_currgrid5" class="fa fa-question-circle grid5click" style="cursor: pointer; text-decoration: none;margin-right: 4px;" data-grid="<?php echo $itemdetailarray_loose[$key]['LMGRD5'] ?>" ></i><?php echo $itemdetailarray_loose[$key]['LMGRD5'] ?></strong></span> 
                                             Current Grid5
                                         </div>
                                         <div class="list-group-item"> 

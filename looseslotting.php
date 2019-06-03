@@ -189,13 +189,13 @@
                 }
             }
 
-            function fillwhseinputval(whsesel) {  //fill whse dropdown
-                document.getElementById("whsesel").value = whsesel;
-            }
-
-            function filliteminputval(itemnum) {  //fill item input text
-                document.getElementById("itemnum").value = itemnum;
-            }
+//            function fillwhseinputval(whsesel) {  //fill whse dropdown
+//                document.getElementById("whsesel").value = whsesel;
+//            }
+//
+//            function filliteminputval(itemnum) {  //fill item input text
+//                document.getElementById("itemnum").value = itemnum;
+//            }
 
             function cleanurl() { //clean the URL if called from another page
                 var clean_uri = location.protocol + "//" + location.host + location.pathname;

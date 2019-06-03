@@ -40,7 +40,6 @@
 
                 <div id="itemdetailcontainer" class="col-md-12"> </div>
 
-
                 <div id="itemsettingscontainer" class="col-md-12" style="display: block;padding-left: 0px;padding-right: 0px;"> </div>
 
 
@@ -290,6 +289,25 @@
                 });
             });
 
+            //show grid5 size modal
+            $(document).on("click touchstart", ".grid5click", function (e) {
+                $('#modal_grid5dim').modal('toggle');
+                $('#divtablecontainer').addClass('hidden');
+                var grid5 = $(this).attr('data-grid');
+
+                debugger;
+                $.ajax({
+                    url: 'globaldata/modaldata_locdim.php',
+                    data: {grid5: grid5},
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (ajaxresult) {
+                        $('#divtablecontainer').removeClass('hidden');
+                        $("#locdimdata").html(ajaxresult);
+                    }
+                });
+            });
+
             //show pick audit modal
             $(document).on("click touchstart", ".pickauditclick", function (e) {
                 $('#actualpickmodal').modal('toggle');
@@ -487,6 +505,7 @@
         <!--Include acutal move modal-->
         <?php include_once 'globaldata/actualmovemodal.php'; ?>
         <?php include_once 'globaldata/actualpickmodal.php'; ?>
+        <?php include_once 'globaldata/modal_grid5.php'; ?>
 
         <!--Open Item actions table-->
         <!-- Complete Action Modal -->
