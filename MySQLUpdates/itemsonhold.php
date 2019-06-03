@@ -1,6 +1,6 @@
 
 <?php
- 
+
 $JAX_ENDCAP = 0;
 $whssel = 'GB0001';
 include '../connection/NYServer.php';
@@ -214,8 +214,8 @@ foreach ($itemsonholdarray as $key => $value) {
     $itemsonholdarray[$key]['SUGGESTED_MAX'] = $SUGGESTED_MAX;
     $itemsonholdarray[$key]['SUGGESTED_MIN'] = $SUGGESTED_MIN;
     $itemsonholdarray[$key]['SUGGESTED_SLOTQTY'] = $slotqty;
-    $itemsonholdarray[$key]['SUGGESTED_IMPMOVES'] = _implied_daily_moves($SUGGESTED_MAX, $SUGGESTED_MIN, $avgdailyshipqty, $var_AVGINV, $itemsonholdarray[$key]['SHIP_QTY_MN'], $itemsonholdarray[$key]['AVGD_BTW_SLE']);
-    $itemsonholdarray[$key]['CURRENT_IMPMOVES'] = _implied_daily_moves($itemsonholdarray[$key]['CURMAX'], $itemsonholdarray[$key]['CURMIN'], $avgdailyshipqty, $var_AVGINV, $itemsonholdarray[$key]['SHIP_QTY_MN'], $itemsonholdarray[$key]['AVGD_BTW_SLE']);
+    $itemsonholdarray[$key]['SUGGESTED_IMPMOVES'] = _implied_daily_moves_nomin($SUGGESTED_MAX, $avgdailyshipqty, $var_AVGINV);
+    $itemsonholdarray[$key]['CURRENT_IMPMOVES'] = _implied_daily_moves_nomin($itemsonholdarray[$key]['CURMAX'], $avgdailyshipqty, $var_AVGINV);
     $itemsonholdarray[$key]['SUGGESTED_NEWLOCVOL'] = intval($itemsonholdarray[$key]['LMVOL9']);
     $itemsonholdarray[$key]['SUGGESTED_DAYSTOSTOCK'] = intval($daystostock);
 
@@ -268,16 +268,16 @@ foreach ($itemsonholdarray as $key => $value) {
     $SUGGESTED_DAYSTOSTOCK = intval($itemsonholdarray[$key]['SUGGESTED_DAYSTOSTOCK']);
     $AVG_DAILY_PICK = $itemsonholdarray[$key]['DAILYPICK'];
     $AVG_DAILY_UNIT = $itemsonholdarray[$key]['DAILYUNIT'];
-        if ($LMTIER == 'L01') {
-            $VCBAY = $CUR_LOCATION;
-        } else if ($LMTIER == 'L05') {
-            $VCBAY = substr($CUR_LOCATION, 0, 3) . '01';
-        } else if (substr($LMGRD5, 0, 2) == 'MB') {
-            $VCBAY = substr($CUR_LOCATION, 0, 2) . '0' . substr($CUR_LOCATION, 2, 1);
-        } else {
-            $VCBAY = substr($CUR_LOCATION, 0, 4);
-        }
-     $data[] = "($WAREHOUSE,$ITEM_NUMBER,$PACKAGE_UNIT,'$PACKAGE_TYPE','$CUR_LOCATION',$DAYS_FRM_SLE,$AVGD_BTW_SLE,$AVG_INV_OH,$NBR_SHIP_OCC,$PICK_QTY_MN,$PICK_QTY_SD,$SHIP_QTY_MN,$SHIP_QTY_SD,$CPCEPKU,$CPCCPKU,'$CPCFLOW','$CPCTOTE','$CPCSHLF','$CPCROTA',$CPCESTK,'$CPCLIQU',$CPCELEN,$CPCEHEI,$CPCEWID,$CPCCLEN,$CPCCHEI,$CPCCWID,'$LMHIGH','$LMDEEP','$LMWIDE','$LMVOL9','$LMTIER','$LMGRD5',$DLY_CUBE_VEL,$DLY_PICK_VEL,'$SUGGESTED_TIER','$SUGGESTED_GRID5','$SUGGESTED_DEPTH',$SUGGESTED_MAX,$SUGGESTED_MIN,$SUGGESTED_SLOTQTY,'$SUGGESTED_IMPMOVES','$CURRENT_IMPMOVES','$SUGGESTED_NEWLOCVOL',$SUGGESTED_DAYSTOSTOCK,'$AVG_DAILY_PICK','$AVG_DAILY_UNIT', '$VCBAY', $JAX_ENDCAP)";
+    if ($LMTIER == 'L01') {
+        $VCBAY = $CUR_LOCATION;
+    } else if ($LMTIER == 'L05') {
+        $VCBAY = substr($CUR_LOCATION, 0, 3) . '01';
+    } else if (substr($LMGRD5, 0, 2) == 'MB') {
+        $VCBAY = substr($CUR_LOCATION, 0, 2) . '0' . substr($CUR_LOCATION, 2, 1);
+    } else {
+        $VCBAY = substr($CUR_LOCATION, 0, 4);
+    }
+    $data[] = "($WAREHOUSE,$ITEM_NUMBER,$PACKAGE_UNIT,'$PACKAGE_TYPE','$CUR_LOCATION',$DAYS_FRM_SLE,$AVGD_BTW_SLE,$AVG_INV_OH,$NBR_SHIP_OCC,$PICK_QTY_MN,$PICK_QTY_SD,$SHIP_QTY_MN,$SHIP_QTY_SD,$CPCEPKU,$CPCCPKU,'$CPCFLOW','$CPCTOTE','$CPCSHLF','$CPCROTA',$CPCESTK,'$CPCLIQU',$CPCELEN,$CPCEHEI,$CPCEWID,$CPCCLEN,$CPCCHEI,$CPCCWID,'$LMHIGH','$LMDEEP','$LMWIDE','$LMVOL9','$LMTIER','$LMGRD5',$DLY_CUBE_VEL,$DLY_PICK_VEL,'$SUGGESTED_TIER','$SUGGESTED_GRID5','$SUGGESTED_DEPTH',$SUGGESTED_MAX,$SUGGESTED_MIN,$SUGGESTED_SLOTQTY,'$SUGGESTED_IMPMOVES','$CURRENT_IMPMOVES','$SUGGESTED_NEWLOCVOL',$SUGGESTED_DAYSTOSTOCK,'$AVG_DAILY_PICK','$AVG_DAILY_UNIT', '$VCBAY', $JAX_ENDCAP)";
 
     if ($key % 100 == 0 && $key <> 0) {
         $values = implode(',', $data);
@@ -301,7 +301,7 @@ If (count($data) > 0) {
 
 
 //Add SQL to group assigned volume by tier for items on hold.  This will be removed from available volume going forward
- 
+
 $holdvolume = $conn1->prepare("SELECT 
                                                                     SUGGESTED_TIER,
                                                                     SUM(SUGGESTED_NEWLOCVOL) AS ASSVOL,
