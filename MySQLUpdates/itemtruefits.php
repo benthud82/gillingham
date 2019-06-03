@@ -10,7 +10,8 @@ include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
-
+    $array_itemtf = array();
+    $array_itemtf_ext = array();
 //now truncated during itemtruefits_ecap.php
 $truncatetables = array('item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid','item_truefits_ext');
 foreach ($truncatetables as $value) {
@@ -84,8 +85,7 @@ $gridarray = $gridsql->fetchAll(pdo::FETCH_ASSOC);
 //loop through each item and assign the smallest grid to hold one unit
 foreach ($itemarray as $key => $value) {
     //reset variables
-    $array_itemtf = array();
-    $array_itemtf_ext = array();
+
     $implieddailymoves = 999;
     $grid5 = 'NOFIT';
     $truefit_tworound = 0;
