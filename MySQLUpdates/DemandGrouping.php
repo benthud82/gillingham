@@ -1,4 +1,5 @@
 <?php
+
 //creates table gillingham.nptsld
 $holidays = array();
 ini_set('max_execution_time', 99999);
@@ -60,6 +61,7 @@ $rawsql = $conn1->prepare("SELECT
                                                         gillingham.item_master B ON B.ITEM = A.ITEM
                                                             LEFT JOIN
                                                         gillingham.avg_inv V ON V.ITEM = A.ITEM
+                                                        WHERE A.ITEM = 1000000
                                                     GROUP BY A.ITEM , 1 , A.PKTYPE , A.PICKDATE
                                                     ORDER BY A.ITEM ASC , A.PICKDATE DESC");
 $rawsql->execute();
@@ -87,15 +89,18 @@ do {
         $KEYVAL = ($groupedarray[$counter]['KEYVAL']);
 
         //when item changes, don't calc DSLS
-        if ($maxrange === $counter) {
-            $previousdate = '0000-00-00';
-            $DSLS = 0;
+        if ($counter === 0) {
+            $previousdate = date('Y-m-d');
+            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
+        } else if ($KEYVAL !== $groupedarray[$counter - 1]['KEYVAL']) {
+            $previousdate = date('Y-m-d');
+            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
         } else if ($KEYVAL !== $groupedarray[$counter + 1]['KEYVAL']) {
             $previousdate = '0000-00-00';
             $DSLS = 0;
-        } else {
-            $previousdate = date('Y-m-d', strtotime($groupedarray[$counter + 1]['PICKDATE']));
-            $DSLS = intval(getWorkingDays($previousdate, $PICKDATE, $holidays));
+        }else {
+            $previousdate = date('Y-m-d', strtotime($groupedarray[$counter - 1]['PICKDATE']));
+            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
         }
         $data[] = "($ITEM, $PKGU, '$PKTYPE', '$PICKDATE', $PICK_COUNT, $UNITS_SUM, '$previousdate', $DSLS, $INV_OH)";
         $counter += 1;
@@ -216,7 +221,7 @@ $query2 = $conn1->prepare($sql2);
 $query2->execute();
 
 //no sales update
-    $sql = "INSERT IGNORE into gillingham.nptsld
+$sql = "INSERT IGNORE into gillingham.nptsld
                         SELECT 
                             slotmaster_item, 1, 'EA', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
                         FROM
@@ -231,7 +236,7 @@ $query2->execute();
                                 AND slotmaster_pkgu = 'EA'
                                 AND CHAR_GROUP NOT IN ('D' , 'J', 'T')
                                 AND slotmaster_tier <> 'CASE'";
-    $query = $conn1->prepare($sql);
-    $query->execute();
+$query = $conn1->prepare($sql);
+$query->execute();
 
 
