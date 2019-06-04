@@ -61,7 +61,6 @@ $rawsql = $conn1->prepare("SELECT
                                                         gillingham.item_master B ON B.ITEM = A.ITEM
                                                             LEFT JOIN
                                                         gillingham.avg_inv V ON V.ITEM = A.ITEM
-                                                        WHERE A.ITEM = 1000000
                                                     GROUP BY A.ITEM , 1 , A.PKTYPE , A.PICKDATE
                                                     ORDER BY A.ITEM ASC , A.PICKDATE DESC");
 $rawsql->execute();
