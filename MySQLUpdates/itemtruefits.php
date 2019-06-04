@@ -38,6 +38,7 @@ $itemsql = $conn1->prepare("SELECT
                                 D.AVG_INVOH,
                                 D.AVG_UNITS,
                                 D.ADBS,
+                                D.DSLS,
                                 (SELECT 
                                         MIN(adbs_days)
                                     FROM
@@ -108,6 +109,8 @@ foreach ($itemarray as $key => $value) {
     }
     $ea_cube = $itemarray[$key]['ITEMCUBE'];
     $daystostore = $itemarray[$key]['DAYS_TO_STORE'];
+    $DSLS = $itemarray[$key]['DSLS'];
+     $daily_pick_qty = $itemarray[$key]['AVG_DAILY_PICK'];
     $adbs = $itemarray[$key]['ADBS'];
     $shipqtymn = $itemarray[$key]['AVG_UNITS'];
     $var_EachSLOTQTY = intval($daystostore * $shipqtymn);
@@ -123,6 +126,16 @@ foreach ($itemarray as $key => $value) {
 
         //if cube of one unit is greater than cube of grid, then continue
         if ($ea_cube > $gridcube) {
+            continue;
+        }
+        
+        //if DSLS is greater than 30 then not a flow candidate
+        if($DSLS > 30 && $gridtype == 'FLOW'){
+            continue;
+        }
+        
+        //if DSLS is greater than 30 then not a flow candidate
+        if($daily_pick_qty <= .5 && $gridtype == 'FLOW'){
             continue;
         }
 
