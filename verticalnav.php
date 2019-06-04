@@ -57,6 +57,7 @@ include 'globaldata/badges.php'; //$maperrorcount for vector mapping errors
                         <li><a href="walktime.php">Walk Times</a></li> 
                         <!--<li><a href="dogpound.php">Dog Pound</a></li>--> 
                         <li><a href="needswants.php">Needs / Wants</a></li> 
+                        <li><a href="locationdownsize.php">Location Downsize</a></li> 
                         <!--<li><a href="caseopps.php">Case Pkgu Opps</a></li>--> 
                         <!--<li><a href="ipopps.php">IP Pkgu Opps</a></li>--> 
                     </div>

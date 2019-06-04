@@ -184,7 +184,7 @@ WHERE
                                             Optimal Bay
                                         </div>
                                         <div class="list-group-item"> 
-                                            <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['OPT_ADDTLFTPERDAY'] ?></strong></span> 
+                                            <span class="pull-right"><strong><?php echo number_format($itemdetailarray_loose[$key]['OPT_ADDTLFTPERDAY'],1) ?></strong></span> 
                                             Additional Meters / Day
                                         </div>
                                         <div class="list-group-item"> 
