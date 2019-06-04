@@ -224,7 +224,7 @@ WHERE
                                         <div class="row">
                                             <div class="col-md-6 bordered">
                                                 <div class="list-group-item "> 
-                                                    <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['AVGD_BTW_SLE'] ?></strong></span> 
+                                                    <span class="pull-right"><strong><?php echo number_format($itemdetailarray_loose[$key]['AVGD_BTW_SLE'],2) ?></strong></span> 
                                                     Avg. Days Between Sale
                                                 </div>
                                                 <div class="list-group-item "> 
@@ -240,11 +240,11 @@ WHERE
                                                     Avg Inventory OH
                                                 </div>
                                                 <div class="list-group-item "> 
-                                                    <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['PICK_QTY_MN'] ?></strong></span> 
+                                                    <span class="pull-right"><strong><?php echo number_format($itemdetailarray_loose[$key]['PICK_QTY_MN'],2) ?></strong></span> 
                                                     Pick Quantity Mean
                                                 </div>
                                                 <div class="list-group-item "> 
-                                                    <span class="pull-right"><strong><?php echo $itemdetailarray_loose[$key]['SHIP_QTY_MN'] ?></strong></span> 
+                                                    <span class="pull-right"><strong><?php echo number_format($itemdetailarray_loose[$key]['SHIP_QTY_MN'],2) ?></strong></span> 
                                                     Ship Qty Mean
                                                 </div>
                                             </div>
