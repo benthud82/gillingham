@@ -37,7 +37,7 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, IT
                                                                     FROM
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
-                                                                WHERE PICKDATE >= '2017-01-01'  
+                                                                WHERE PICKDATE >= '2017-01-01' 
                                                                 and PKTYPE = 'EA'
                                                                  and  rank <= 61");
 
@@ -62,7 +62,7 @@ $rawsql = $conn1->prepare("SELECT
                                                             LEFT JOIN
                                                         gillingham.avg_inv V ON V.ITEM = A.ITEM
                                                     GROUP BY A.ITEM , 1 , A.PKTYPE , A.PICKDATE
-                                                    ORDER BY A.ITEM ASC , A.PICKDATE DESC");
+                                                    ORDER BY A.ITEM ASC , A.PICKDATE ASC");
 $rawsql->execute();
 $groupedarray = $rawsql->fetchAll(pdo::FETCH_ASSOC);
 $columns = 'GROUPED_ITEM, GROUPED_PKGU, GROUPED_PKTYPE, GROUPED_DATE, GROUPED_PICKS, GROUPED_UNITS, GROUPED_PREVSALE, GROUPED_DSLS, GROUPED_INVOH';
@@ -88,18 +88,18 @@ do {
         $KEYVAL = ($groupedarray[$counter]['KEYVAL']);
 
         //when item changes, don't calc DSLS
-        if ($counter === 0) {
-            $previousdate = date('Y-m-d');
-            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
-        } else if ($KEYVAL !== $groupedarray[$counter - 1]['KEYVAL']) {
-            $previousdate = date('Y-m-d');
-            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
-        } else if ($KEYVAL !== $groupedarray[$counter + 1]['KEYVAL']) {
+        if ($counter === 0) {  //first row, no previous sale date
             $previousdate = '0000-00-00';
             $DSLS = 0;
-        }else {
+        } else if ($KEYVAL !== $groupedarray[$counter - 1]['KEYVAL']) {  //if item <> previous item, first row of item, no previous sale date
+            $previousdate = '0000-00-00';
+            $DSLS = 0;
+        } else if ($KEYVAL !== $groupedarray[$counter + 1]['KEYVAL']) {  //if item <> next item, calculated days from last sale to today for DSLS
+            $previousdate = date('Y-m-d');
+            $DSLS = intval(getWorkingDays($PICKDATE,$previousdate, $holidays));
+        }else {  //default to days between last pick date and current pick date
             $previousdate = date('Y-m-d', strtotime($groupedarray[$counter - 1]['PICKDATE']));
-            $DSLS = intval(getWorkingDays($PICKDATE, $previousdate, $holidays));
+            $DSLS = intval(getWorkingDays($previousdate, $PICKDATE,  $holidays));
         }
         $data[] = "($ITEM, $PKGU, '$PKTYPE', '$PICKDATE', $PICK_COUNT, $UNITS_SUM, '$previousdate', $DSLS, $INV_OH)";
         $counter += 1;
