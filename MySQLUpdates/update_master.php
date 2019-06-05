@@ -2,29 +2,30 @@
 
 //master to update all slotting recommendations
 //need to add logic to scan FTP folder for new files and add if any are there
+date_default_timezone_set('Europe/London');
 include 'tableupdate_locmaster.php';  //must update before slotmaster because tier is pulled from here for slotmaster
-sleep(10);
-include 'tableupdate_slotmaster.php';
-sleep(10);
-include 'tableupdate_itemmaster.php';
-sleep(10);
-include 'tableupdate_replen.php';
-sleep(10);
-include 'tableupdate_sales.php';
-sleep(10);
-include 'current_implied_moves.php';  //has to be called after tableupdate_slotmaster.php
-sleep(10);
-include 'DemandGrouping.php';
-sleep(10);
-include 'itemtruefits_ecap.php';
-sleep(10);
-include 'itemtruefits.php';
-sleep(10);
-include 'replenpercube.php';
-sleep(10);
-include'NPFMVC_Update.php';
-sleep(10);
-include'optimalbayloose.php';
-sleep(10);
-include'itemscore.php';
 
+include 'tableupdate_slotmaster.php';
+
+include 'tableupdate_itemmaster.php';
+
+include 'tableupdate_replen.php';
+
+include 'tableupdate_sales.php';
+
+include 'current_implied_moves.php';  //has to be called after tableupdate_slotmaster.php
+
+include 'DemandGrouping.php';
+
+include 'itemtruefits_ecap.php';
+
+include 'itemtruefits.php';
+
+include 'replenpercube.php';
+
+include'NPFMVC_Update.php';
+
+include'optimalbayloose.php';
+
+include'itemscore.php';
+date_default_timezone_set('America/New_York');
