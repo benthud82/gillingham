@@ -31,7 +31,8 @@ $result1 = $conn1->prepare("SELECT
                                                     replen_pkgu = 'EA'
                                                         AND replen_toloc < '69*'
                                                         AND replen_date >= '$startdate'
-                                                        AND replen_item = $var_item");
+                                                        AND replen_item = $var_item
+                                                ORDER BY replen_date desc");
 $result1->execute();
 $result1array = $result1->fetchAll(pdo::FETCH_ASSOC);
 
