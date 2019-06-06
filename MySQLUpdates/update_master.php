@@ -15,7 +15,7 @@ include 'tableupdate_sales.php';
 
 include 'current_implied_moves.php';  //has to be called after tableupdate_slotmaster.php
 
-include 'DemandGrouping.php';
+include 'DemandGrouping.php';  //NPTSLD file creation
 
 include 'itemtruefits_ecap.php';
 
