@@ -48,6 +48,7 @@ $TOP_SCORE = $conn1->prepare("SELECT
                                                                         A.SUGGESTED_TIER <> ('PALL')
                                                                         and A.NBR_SHIP_OCC >= 10
                         --                                                and ITEM_NUMBER = 1128445
+                                                                    $itemnumsql
                                                                     ORDER BY E.SCORE_TOTALSCORE ASC , E.SCORE_REPLENSCORE , E.SCORE_WALKSCORE
                                                                     LIMIT $returncount");
 $TOP_SCORE->execute();
