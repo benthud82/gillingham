@@ -550,7 +550,7 @@ function _reslotrecommendation($CurrCostTotal, $CurrCostWalk, $CurrCostReplen, $
 
 //case when all adjusted costs are blank
     if ($MaxAdjCost == '-' && $PerfSlotCostTotal == '-' && $Level1CostTotal == '-' && $ImpMCCostTotal == '-' && $ImpGRID5ScoreTotal == '-') {
-        $finalrecommendation['TEXT'] = 'Nothing can be done';
+        $finalrecommendation['TEXT'] = 'Downsize Locations - '. '<a href="locationdownsize.php">Open Report</a>';
         $finalrecommendation['CostSavingsTotal'] = 0;
         $finalrecommendation['CostSavingsWalk'] = 0;
         $finalrecommendation['CostSavingsReplen'] = 0;
@@ -1773,4 +1773,34 @@ function _walkcost_case2($currfeet, $shouldfeet, $dailypicks) {
         $walkcostarray['WALK_SCORE'] = $walkscore;
     }
     return $walkcostarray;
+}
+
+
+
+function _AcceptBayFunction_gill($startbay) {
+    switch ($startbay) {
+        case 0:
+            $BAY_array = array(4250, 6250);
+
+            break;
+        case 4250:
+            $BAY_array = array($startbay, 0, 4250, 6250);
+            break;
+        case 8250:
+            $BAY_array = array($startbay, 4250, 6250, 8250, 10250);
+            break;
+        case 10250:
+            $BAY_array = array($startbay, 6250, 8250, 10250, 12250, 14250);
+            break;
+        case 12250:
+            $BAY_array = array($startbay, 8250, 10250, 12250, 14250);
+            break;
+        case 14250:
+            $BAY_array = array($startbay, 10250, 12250, 14250, 16250);
+            break;
+        default:
+            $BAY_array = array($startbay, $startbay - 1, $startbay + 1, $startbay - 2, $startbay + 2, $startbay - 3, $startbay + 3);
+            break;
+    }
+    return $BAY_array;
 }

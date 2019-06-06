@@ -4,7 +4,8 @@ ini_set('max_execution_time', 99999);
 set_time_limit(99999);
 ini_set('memory_limit', '-1');
 include_once '../connection/NYServer.php';
-include_once '../../globalfunctions/slottingfunctions.php';
+//include_once '../../globalfunctions/slottingfunctions.php';
+include_once '../globalfunctions/slottingfunctions.php';
 include_once '../../globalfunctions/newitem.php';
 
 $var_userid = $_POST['userid'];
@@ -200,7 +201,7 @@ foreach ($TOP_REPLEN_COST_array as $topcostkey => $topvalue) {
             $walk_score_Perf_Loc_array = _walkcost_case($VCFTIR, $VCTTIR, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_UNIT'], $TOP_REPLEN_COST_array[$topcostkey]['FLOOR']);
             $walk_score_Perf_Loc = 1;
         } else {
-            $walk_score_Perf_Loc = _walkscore(intval(substr($NEW_LOC, 3, 2)), $OPT_OPTBAY, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_PICK']);
+            $walk_score_Perf_Loc = _walkscore($OPT_OPTBAY, $OPT_OPTBAY, $TOP_REPLEN_COST_array[$topcostkey]['AVG_DAILY_PICK'], -1);
         }
         $displayarray[$topcostkey]['MOVES_AFTER_PERF_GRID'] = $impmoves_after_perfloc;
         $displayarray[$topcostkey]['MOVESCORE_AFTER_PERF_GRID'] = abs($replen_score_Perf_Loc);
