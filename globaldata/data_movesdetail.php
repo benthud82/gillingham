@@ -27,7 +27,8 @@ $movedata = $conn1->prepare("SELECT
 FROM
     gillingham.replen
 WHERE
-    replen_date BETWEEN '$startdate' AND '$enddate'");
+ replen_toloc < '69*'
+ AND   replen_date BETWEEN '$startdate' AND '$enddate'");
 $movedata->execute();
 $movedata_array = $movedata->fetchAll(pdo::FETCH_ASSOC);
 

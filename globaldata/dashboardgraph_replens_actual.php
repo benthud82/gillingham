@@ -16,6 +16,7 @@ $result1 = $conn1->prepare("SELECT
                                                     gillingham.excl_replenphistorical ON replen_date = replenexcl_date
                                                 WHERE
                                                     replen_date >= '$date'
+                                                        AND replen_toloc < '69*'
                                                         AND replenexcl_date IS NULL
                                                 GROUP BY replen_date");
 $result1->execute();
