@@ -13,7 +13,7 @@ $SCENARIO = $displayarray[$key2]['ReslotScenario'];
 
 switch ($SCENARIO) {
     case 0: //Nothing can be done
-        echo 'Nothing can be done!';
+        echo 'Downsize Locations - '. '<a href="locationdownsize.php">Open Report</a>';
         break;
 
     case 999: //Settings Check
