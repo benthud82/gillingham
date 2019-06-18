@@ -56,8 +56,9 @@ include 'globaldata/badges.php'; //$maperrorcount for vector mapping errors
                         </li> 
                         <li><a href="walktime.php">Walk Times</a></li> 
                         <!--<li><a href="dogpound.php">Dog Pound</a></li>--> 
-                        <li><a href="needswants.php">Needs / Wants</a></li> 
-                        <li><a href="locationdownsize.php">Location Downsize</a></li> 
+                        <li><a href="locationdownsize.php">Location Downsize</a></li>                         
+                        <li><a href="tofromflow.php">Flow Rack</a></li> 
+                        <li><a href="tofrompall.php">Pallet</a></li> 
                         <!--<li><a href="caseopps.php">Case Pkgu Opps</a></li>--> 
                         <!--<li><a href="ipopps.php">IP Pkgu Opps</a></li>--> 
                     </div>
@@ -67,7 +68,8 @@ include 'globaldata/badges.php'; //$maperrorcount for vector mapping errors
                         <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">Maintenance Reports</h4>
                         <!--<li><a href="itemsonhold.php">Items on Hold</a></li>--> 
                         <li><a href="emptylocations.php">Empty Locations</a></li> 
-                        <li><a href="truefitcalc.php">True Fit Calc</a></li> 
+                        <li><a href="truefitcalc.php">True Fit Calc</a></li>                        
+                        <li><a href="needswants.php">Needs / Wants</a></li> 
                         <!--<li><a href="smallcaseops.php">Small Case Opps</a></li>--> 
                         <!--<li><a href="flowrestricted.php">Flow Restricted</a></li>-->
                         <!--<li><a href="fomtopoff.php">FOM Topoff</a></li>--> 						

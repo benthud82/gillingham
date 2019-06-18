@@ -1,2 +1,2 @@
-C:\Bitnami\wampstack-5.6.30-5\php\php.exe "C:\Bitnami\wampstack-5.6.30-5\apache2\htdocs\gillingham\MySQLUpdates\update_master.php"
+D:\xampp\php\php.exe "D:\xampp\htdocs\Gillingham\MySQLUpdates\itemscore.php"
 pause

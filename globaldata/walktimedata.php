@@ -18,7 +18,7 @@ $var_report = ($_GET['reportsel']);
 switch ($var_report) {  //build sql statement for report
     case 'highwalk':
 
-        $whercaluse = ' B.OPT_ADDTLFTPERDAY > 0 ';
+        $whercaluse = ' B.OPT_ADDTLFTPERDAY > 0 and A.DAYS_FRM_SLE <=5 ';
         $orderby = ' B.OPT_ADDTLFTPERDAY DESC';
         break;
 

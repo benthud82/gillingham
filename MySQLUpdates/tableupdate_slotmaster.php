@@ -189,3 +189,21 @@ foreach ($currtfarray as $key => $value) {
     $querymerge4 = $conn1->prepare($sqlmerge4);
     $querymerge4->execute();
 }
+
+
+//Update empty location table
+    $sqldelete5 = "TRUNCATE gillingham.emptylocations";
+    $querydelete5 = $conn1->prepare($sqldelete5);
+    $querydelete5->execute();
+
+    $sqlmerge5 = "INSERT INTO gillingham.emptylocations
+                                SELECT 
+                                    LOCATION
+                                FROM
+                                    gillingham.location_master
+                                        LEFT JOIN
+                                    gillingham.slotmaster ON LOCATION = slotmaster_loc
+                                WHERE
+                                    slotmaster_loc IS NULL";
+    $querymerge5 = $conn1->prepare($sqlmerge5);
+    $querymerge5->execute();

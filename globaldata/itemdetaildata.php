@@ -59,7 +59,7 @@ FROM
         JOIN
     gillingham.optimalbay B ON A.ITEM_NUMBER = B.OPT_ITEM
         JOIN
-    gillingham.slotmaster C ON C.slotmaster_item = A.ITEM_NUMBER
+    gillingham.slotmaster C ON C.slotmaster_item = A.ITEM_NUMBER and PACKAGE_TYPE = slotmaster_pkgu
         JOIN
     gillingham.slottingscore E ON E.SCORE_ITEM = A.ITEM_NUMBER
 WHERE

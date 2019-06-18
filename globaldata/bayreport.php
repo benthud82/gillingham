@@ -51,6 +51,7 @@ $bayreport = $conn1->prepare("SELECT
                                                                 A.WAREHOUSE,
                                                                 A.ITEM_NUMBER,
                                                                 A.CUR_LOCATION,
+                                                                PICK_ZONE,
                                                                 A.DAYS_FRM_SLE,
                                                                 A.AVGD_BTW_SLE,
                                                                 A.LMGRD5,
@@ -81,6 +82,7 @@ $bayreport = $conn1->prepare("SELECT
                                                                 gillingham.slottingscore E ON E.SCORE_ITEM = A.ITEM_NUMBER
                                                                     AND E.SCORE_PKGU = A.PACKAGE_UNIT
                                                                     AND E.SCORE_ZONE = A.PACKAGE_TYPE
+                                                                    JOIN gillingham.location_master L on CUR_LOCATION = L.LOCATION
                                                              WHERE
                                                                 $reportsql
                                                             ORDER BY E.SCORE_REPLENSCORE ASC

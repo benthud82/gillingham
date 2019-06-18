@@ -77,6 +77,7 @@
                                 <th>Whse</th>
                                 <th>Item</th>
                                 <th>Loc</th>
+                                <th>Pick Zone</th>
                                 <th>DSLS</th>
                                 <th>ADBS</th>
                                 <th>Cur Grid5</th>

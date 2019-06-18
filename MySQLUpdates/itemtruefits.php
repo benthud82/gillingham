@@ -130,7 +130,7 @@ foreach ($itemarray as $key => $value) {
         }
         
         //if DSLS is greater than 30 then not a flow candidate
-        if($DSLS > 30 && $gridtype == 'FLOW'){
+        if($DSLS > 10 && $gridtype == 'FLOW'){
             continue;
         }
         

@@ -119,6 +119,7 @@ $L01sql = $conn1->prepare("SELECT DISTINCT
                                                         WHERE
                                                             F.ITEM_NUMBER IS NULL
                                                             AND A.AVG_DAILY_PICK > 5
+                                                            AND  A.DSLS <= 10
                                                             AND D.slotmaster_pkgu = 'EA'
                                                             AND A.PKTYPE = 'EA'
                                                             AND CHAR_GROUP not in ('D','J','T')
