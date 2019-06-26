@@ -18,6 +18,7 @@ $sqldelete2 = "TRUNCATE gillingham.gill_raw_30day";
 $querydelete2 = $conn1->prepare($sqldelete2);
 $querydelete2->execute();
 
+$startdate = date('Y-m-d', strtotime('-7 days'));
 
 //create 30 day table
 $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
@@ -238,6 +239,20 @@ $sql = "INSERT IGNORE into gillingham.nptsld
 $query = $conn1->prepare($sql);
 $query->execute();
 
-
+//update grouped sales history for forecasting
+$sql3 = "INSERT INTO fcast_linesgrouped 
+SELECT 
+    PICKDATE,
+    slotmaster_tier,
+    COUNT(ITEM) AS WHSLINES
+FROM
+    gillingham.gill_raw 
+        JOIN
+    gillingham.slotmaster ON slotmaster_loc = LOCATION
+    WHERE PICKDATE >= '$startdate'
+GROUP BY slotmaster_tier , PICKDATE
+ON DUPLICATE KEY UPDATE linesgrouped_lines=values(linesgrouped_lines)";
+$query3 = $conn1->prepare($sql3);
+$query3->execute();
 
 
