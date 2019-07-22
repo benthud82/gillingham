@@ -13,7 +13,7 @@ $allopentasks = $conn1->prepare("SELECT
                                                             FROM
                                                                 gillingham.slottingdb_itemactions
                                                             WHERE
-                                                               openactions_completeduser = '$var_userid'
+                                                               UPPER(openactions_completeduser) = '$var_userid'
                                                                     AND openactions_status = 'COMPLETED';");
 $allopentasks->execute();
 $allopentasksarray= $allopentasks->fetchAll(pdo::FETCH_ASSOC);

@@ -19,10 +19,10 @@ $allopentasks = $conn1->prepare("SELECT
                                                             FROM
                                                                 gillingham.slottingdb_itemactions
                                                                     LEFT JOIN
-                                                                my_npfmvc ON WAREHOUSE = openactions_whse
+                                                                gillingham.my_npfmvc ON WAREHOUSE = openactions_whse
                                                                     AND ITEM_NUMBER = openactions_item
                                                             WHERE
-                                                                openactions_assignedto <> '$var_userid'
+                                                                UPPER(openactions_assignedto) <> '$var_userid'
                                                                     AND openactions_status = 'OPEN';");
 $allopentasks->execute();
 $allopentasksarray= $allopentasks->fetchAll(pdo::FETCH_ASSOC);

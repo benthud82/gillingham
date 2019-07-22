@@ -14,9 +14,9 @@ $opentasks = $conn1->prepare("SELECT
                                                             FROM
                                                                 gillingham.slottingdb_itemactions
                                                                     LEFT JOIN
-                                                                my_npfmvc ON ITEM_NUMBER = openactions_item
+                                                                gillingham.my_npfmvc ON ITEM_NUMBER = openactions_item
                                                             WHERE
-                                                                openactions_assignedto = '$var_userid'
+                                                                UPPER(openactions_assignedto) = '$var_userid'
                                                                     AND openactions_status = 'OPEN';");
 $opentasks->execute();
 $opentasksarray = $opentasks->fetchAll(pdo::FETCH_ASSOC);
