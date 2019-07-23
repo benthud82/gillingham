@@ -36,7 +36,7 @@ $userid = strtoupper($_GET['userid']);
 $baynum = intval($_GET['baynum']);
 $tiersel = ($_GET['tiersel']);
 
-$whssql = $conn1->prepare("SELECT slottingDB_users_PRIMDC from gillingham.slottingdb_users WHERE idslottingDB_users_ID = '$userid'");
+$whssql = $conn1->prepare("SELECT slottingDB_users_PRIMDC from gillingham.slottingdb_users WHERE UPPER(idslottingDB_users_ID) = '$userid'");
 $whssql->execute();
 $whssqlarray = $whssql->fetchAll(pdo::FETCH_ASSOC);
 $var_whse = $whssqlarray[0]['slottingDB_users_PRIMDC'];

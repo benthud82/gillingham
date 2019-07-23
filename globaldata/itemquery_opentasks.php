@@ -15,7 +15,7 @@ $opentasks = $conn1->prepare("SELECT
                                                         FROM
                                                             gillingham.slottingdb_itemactions
                                                         WHERE
-                                                            openactions_item = $var_itemnum
+                                                            UPPER(openactions_item) = $var_itemnum
                                                                     and openactions_status = 'OPEN';");
 $opentasks->execute();
 $opentasksarray = $opentasks->fetchAll(pdo::FETCH_ASSOC);

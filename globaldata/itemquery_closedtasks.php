@@ -16,7 +16,7 @@ $closedtasks = $conn1->prepare("SELECT
                                                         FROM
                                                             gillingham.slottingdb_itemactions
                                                         WHERE
-                                                            openactions_item = $var_itemnum
+                                                            UPPER(openactions_item) = $var_itemnum
                                                                     and openactions_status = 'COMPLETED';");
 $closedtasks->execute();
 $closedtasksarray = $closedtasks->fetchAll(pdo::FETCH_ASSOC);
