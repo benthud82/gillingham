@@ -11,7 +11,7 @@ $sqldelete = "TRUNCATE  gillingham.item_master";
 $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
-$fileglob = glob('../../ftproot/ftpuk/item*.csv');  //glob wildcard searches for any file
+$fileglob = glob('../../ftproot/ftpuk/Item*.csv');  //glob wildcard searches for any file
 
 if (count($fileglob) > 0) {
     $filename = $fileglob[0];
@@ -34,7 +34,7 @@ if (($headers = fgetcsv($fp, 0, ",")) !== FALSE) {
 fclose($fp);
 
 //insert into item_master table
-$columns = 'BRANCH,ITEM,PKGU_EA,PKGU_CA,PKGU_PL,EA_DEPTH,EA_HEIGHT,EA_WIDTH,CA_DEPTH,CA_HEIGHT,CA_WIDTH,PA_DEPTH,PA_HEIGHT,PA_WIDTH,LINE_TYPE,CHAR_GROUP';
+$columns = 'BRANCH,ITEM,PKGU_EA,PKGU_CA,PKGU_PL,EA_DEPTH,EA_HEIGHT,EA_WIDTH,CA_DEPTH,CA_HEIGHT,CA_WIDTH,PA_DEPTH,PA_HEIGHT,PA_WIDTH,LINE_TYPE,CHAR_GROUP, ITEM_WEIGHT, DESC1, DESC2';
 $maxrange = 999;
 $counter = 0;
 $rowcount = count($result);
@@ -63,9 +63,13 @@ do {
         $item_pawid = ($result[$counter]['Pallet Width']);
         $item_linetype = ($result[$counter]['Line Type']);
         $item_chargroup = ($result[$counter]['Characteristics Group']);
+        $item_weight = ($result[$counter]['Item Weight']);
+         $item_desc1 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 1']);
+         $item_desc2 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 2']);
+
 
         $data[] = "('$item_branch', $item_item, $item_eapkgu, $item_capkgu, $item_plpkgu, '$item_eadep', '$item_eahei', '$item_eawid', '$item_cadep', '$item_cahei', '$item_cawid', '$item_padep',
-            '$item_pahei', '$item_pawid','$item_linetype', '$item_chargroup')";
+            '$item_pahei', '$item_pawid','$item_linetype', '$item_chargroup', '$item_weight', '$item_desc1', '$item_desc2')";
         $counter += 1;
     }
 
