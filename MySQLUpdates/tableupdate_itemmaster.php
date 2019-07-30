@@ -48,7 +48,7 @@ do {
     $values = array();
     while ($counter <= $maxrange) { //split into 5,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
         $item_branch = ($result[$counter]['Branch']);
-        $item_item = ($result[$counter]['Item']);
+        $item_item = intval($result[$counter]['Item']);
         $item_eapkgu = ($result[$counter]['Each Unit']);
         $item_capkgu = ($result[$counter]['Case Unit']);
         $item_plpkgu = ($result[$counter]['Pallet Unit']);
