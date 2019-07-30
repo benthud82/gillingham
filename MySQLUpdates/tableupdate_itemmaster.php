@@ -11,7 +11,7 @@ $sqldelete = "TRUNCATE  gillingham.item_master";
 $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
-$fileglob = glob('../../ftproot/ftpuk/Item*.csv');  //glob wildcard searches for any file
+$fileglob = glob('../../ftproot/ftpuk/item*.csv');  //glob wildcard searches for any file
 
 if (count($fileglob) > 0) {
     $filename = $fileglob[0];
