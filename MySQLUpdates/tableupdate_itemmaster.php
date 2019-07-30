@@ -79,7 +79,7 @@ do {
     if (empty($values)) {
         break;
     }
-    $sql = "INSERT INTO gillingham.item_master ($columns) VALUES $values";
+    $sql = "INSERT IGNORE INTO gillingham.item_master ($columns) VALUES $values";
     $query = $conn1->prepare($sql);
     $query->execute();
     $maxrange += 1000;
