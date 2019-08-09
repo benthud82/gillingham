@@ -56,7 +56,7 @@ $itemsql = $conn1->prepare("SELECT
                              --   and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
-                                and M.ITEM = 1017167
+                          --      and M.ITEM = 1017167
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
