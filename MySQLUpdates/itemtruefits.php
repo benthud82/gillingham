@@ -56,7 +56,7 @@ $itemsql = $conn1->prepare("SELECT
                              --   and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
-  --                              and M.ITEM = 1039246
+                                and M.ITEM = 1017167
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -82,6 +82,9 @@ $gridsql = $conn1->prepare("SELECT
                                                     ORDER BY USE_CUBE ASC");
 $gridsql->execute();
 $gridarray = $gridsql->fetchAll(pdo::FETCH_ASSOC);
+
+$array_keys = array_keys($gridarray);
+$lastgrid_key = end($array_keys);
 
 //loop through each item and assign the smallest grid to hold one unit
 foreach ($itemarray as $key => $value) {
@@ -134,7 +137,7 @@ foreach ($itemarray as $key => $value) {
             continue;
         }
         
-        //if DSLS is greater than 30 then not a flow candidate
+        //if pick qty <= .5 then not a flow candidate
         if($daily_pick_qty <= .5 && $gridtype == 'FLOW'){
             continue;
         }
@@ -149,7 +152,7 @@ foreach ($itemarray as $key => $value) {
         }
         $previousTF = $truefit_tworound;
         //test if true fit > slotquantity
-        if ($truefit_tworound >= $var_EachSLOTQTY) {
+        if ($truefit_tworound >= $var_EachSLOTQTY || $lastgrid_key == $key2) {
             //what is next grid size?
             //what is the implied daily moves at this TF
             $daily_ship_qty = $itemarray[$key]['AVG_DAILY_UNIT'];
