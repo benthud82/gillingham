@@ -529,7 +529,7 @@
                             point: {
                                 events: {
                                     click: function () {
-                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
+                                        window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
@@ -611,6 +611,7 @@
                         },
                         series: {
                             cursor: 'pointer',
+                            regression: true,
                             point: {
                                 events: {
                                     click: function () {
@@ -667,7 +668,8 @@
                     success: function (json) {
                         options4.xAxis.categories = json[0]['data'];
                         options4.series[0] = json[1];
-
+                        options4.series[1] = json[2];
+                        options4.series[1].dashStyle = 'dash';
 
                         chart = new Highcharts.Chart(options4);
                         series = chart.series;
@@ -697,7 +699,7 @@
                             point: {
                                 events: {
                                     click: function () {
-                                             window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
+                                        window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
                                     }
                                 }
                             }
