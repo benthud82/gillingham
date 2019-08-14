@@ -583,8 +583,8 @@
                     success: function (json) {
                         options3.xAxis.categories = json[0]['data'];
                         options3.series[0] = json[1];
-//                        options3.series[1] = json[2];
-//                        options3.series[2] = json[3];
+                        options3.series[1] = json[2];
+                        options3.series[1].dashStyle = 'dash';
 
                         chart = new Highcharts.Chart(options3);
                         series = chart.series;
@@ -752,11 +752,14 @@
                     success: function (json) {
                         options5.xAxis.categories = json[0]['data'];
                         options5.series[0] = json[1];
-
+                        options5.series[1] = json[2];
+                        options5.series[1].dashStyle = 'dash';
 
                         chart = new Highcharts.Chart(options5);
                         series = chart.series;
                         $(window).resize();
+                        
+                        
                     }
                 });
 
