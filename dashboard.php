@@ -275,6 +275,9 @@
                     </div>
                 </section>
 
+                <!-- Add Vector Map Modal -->
+                <?php include 'globaldata/addbaylocmodal.php' ?>
+
             </section>
         </section>
 
@@ -530,6 +533,7 @@
                                 events: {
                                     click: function () {
                                         window.open('movesdetail.php?startdate=' + this.category + '&enddate=' + this.category + '&formSubmit=Submit');
+                        
                                     }
                                 }
                             }
@@ -758,8 +762,8 @@
                         chart = new Highcharts.Chart(options5);
                         series = chart.series;
                         $(window).resize();
-                        
-                        
+
+
                     }
                 });
 

@@ -16,7 +16,7 @@ $result1 = $conn1->prepare("SELECT
                                                             JOIN
                                                         (SELECT @curRank:=0) AS init
                                                     WHERE
-                                                        replen_date >= ''
+                                                        replen_date >= '$date'
                                                             AND replen_toloc < '69*'
                                                             AND replenexcl_date IS NULL
                                                     GROUP BY replen_date

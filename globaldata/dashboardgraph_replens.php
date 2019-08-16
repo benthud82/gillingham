@@ -1,13 +1,15 @@
 <?php
 
 include_once '../connection/NYServer.php';
+$time = strtotime("-1 year", time());
+$date = date("Y-m-d", $time);
 
 $result1 = $conn1->prepare("SELECT 
                                                         *
                                                     FROM
-                                                        gillingham.slottingscore_hist");
+                                                        gillingham.slottingscore_hist
+                                                        WHERE slottingscore_hist_DATE >= '$date");
 $result1->execute();
-
 
 
 $rows = array();
