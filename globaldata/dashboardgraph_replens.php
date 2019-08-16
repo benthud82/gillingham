@@ -8,7 +8,7 @@ $result1 = $conn1->prepare("SELECT
                                                         *
                                                     FROM
                                                         gillingham.slottingscore_hist
-                                                        WHERE slottingscore_hist_DATE >= '$date");
+                                                        WHERE slottingscore_hist_DATE >= '$date'");
 $result1->execute();
 
 
