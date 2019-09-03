@@ -10,15 +10,17 @@ include_once '../connection/NYServer.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
-    $array_itemtf = array();
-    $array_itemtf_ext = array();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+$array_itemtf = array();
+$array_itemtf_ext = array();
 //now truncated during itemtruefits_ecap.php
-$truncatetables = array('item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid','item_truefits_ext');
+$truncatetables = array('item_truefits', 'rpc_reductions', 'currgrid', 'nextgrid', 'item_truefits_ext');
 foreach ($truncatetables as $value) {
     $querydelete2 = $conn1->prepare("TRUNCATE gillingham.$value");
     $querydelete2->execute();
 }
-
 
 //assign full pallet items
 include 'npfmvc_fullpallet.php';
@@ -56,7 +58,7 @@ $itemsql = $conn1->prepare("SELECT
                              --   and D.AVG_DAILY_UNIT > 0
                                 and PKTYPE = 'EA'
                                 and F.ITEM_NUMBER IS NULL
-                          --      and M.ITEM = 1017167
+              --                  and M.ITEM = 1111499
                                     AND CHAR_GROUP NOT IN ('D' , 'J', 'T')");
 $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
@@ -93,7 +95,7 @@ foreach ($itemarray as $key => $value) {
     $implieddailymoves = 999;
     $grid5 = 'NOFIT';
     $truefit_tworound = 0;
-    $nextgrid = 1;
+    $nextgrid = intval(1);
     $rpc = '0';
     $previousTF = 0;
     $daysohcount = 0;
@@ -113,7 +115,7 @@ foreach ($itemarray as $key => $value) {
     $ea_cube = $itemarray[$key]['ITEMCUBE'];
     $daystostore = $itemarray[$key]['DAYS_TO_STORE'];
     $DSLS = $itemarray[$key]['DSLS'];
-     $daily_pick_qty = $itemarray[$key]['AVG_DAILY_PICK'];
+    $daily_pick_qty = $itemarray[$key]['AVG_DAILY_PICK'];
     $adbs = $itemarray[$key]['ADBS'];
     $shipqtymn = $itemarray[$key]['AVG_UNITS'];
     $var_EachSLOTQTY = intval($daystostore * $shipqtymn);
@@ -131,14 +133,14 @@ foreach ($itemarray as $key => $value) {
         if ($ea_cube > $gridcube) {
             continue;
         }
-        
+
         //if DSLS is greater than 30 then not a flow candidate
-        if($DSLS > 10 && $gridtype == 'FLOW'){
+        if ($DSLS > 10 && $gridtype == 'FLOW') {
             continue;
         }
-        
+
         //if pick qty <= .5 then not a flow candidate
-        if($daily_pick_qty <= .5 && $gridtype == 'FLOW'){
+        if ($daily_pick_qty <= .5 && $gridtype == 'FLOW') {
             continue;
         }
 
@@ -148,7 +150,9 @@ foreach ($itemarray as $key => $value) {
         $truefit_tworound = $truefitarray[1];
         //if new tf is less than previous TF, continue
         if ($truefit_tworound <= ($previousTF * 1.1)) {
-            continue;
+            if ($lastgrid_key !== $key2) {
+                continue;
+            }
         }
         $previousTF = $truefit_tworound;
         //test if true fit > slotquantity
@@ -172,7 +176,7 @@ foreach ($itemarray as $key => $value) {
 
             $min = _minloc($truefit_tworound, $shipqtymn, 1);
             $implieddailymoves = number_format(_implied_daily_moves_nomin($truefit_tworound, $daily_ship_qty, $avginv), 4);
-            $rpc = ($implieddailymoves / $gridcube) * 1000;
+            $rpc = number_format(($implieddailymoves / $gridcube) * 1000, 6);
 
             //push to array
             $array_itemtf[] = "($item, '$grid5', '$implieddailymoves','$gridcube',$nextgrid, '$rpc', '$gridtype')";
@@ -180,9 +184,9 @@ foreach ($itemarray as $key => $value) {
 
 
             if ($nextgrid == 1) {
-                $nextgrid = 2;
+                $nextgrid = intval(2);
             } else {
-                $nextgrid = 0;
+                $nextgrid = intval(0);
             }
 
             if ($implieddailymoves == '0.0000') {
@@ -205,7 +209,7 @@ $query2 = $conn1->prepare($sql2);
 $query2->execute();
 
 //insert the replen reduction per increase in cube to table gillingham.rpc_reductions
-$sqlinsert = "INSERT INTO gillingham.rpc_reductions (SELECT 
+$sqlinsert = "INSERT IGNORE INTO  gillingham.rpc_reductions (SELECT 
                             TF.itemtf_grid,
                             TF.itemtf_nextgrid,
                             TF.itemtf_rpc,
@@ -226,7 +230,7 @@ $queryinsert = $conn1->prepare($sqlinsert);
 $queryinsert->execute();
 
 //update the currgrid and nextgrid tables
-$sqlinsert2 = "INSERT INTO gillingham.currgrid (currgrid_grid, currgrid_nextgrid, currgrid_rpc, currgrid_loctype, currgrid_rpcdecrease, currgrid_item, currgrid_impmoves, currgrid_gridvol)
+$sqlinsert2 = "INSERT IGNORE INTO gillingham.currgrid (currgrid_grid, currgrid_nextgrid, currgrid_rpc, currgrid_loctype, currgrid_rpcdecrease, currgrid_item, currgrid_impmoves, currgrid_gridvol)
                             SELECT * FROM
                                 gillingham.rpc_reductions
                             WHERE
@@ -234,7 +238,7 @@ $sqlinsert2 = "INSERT INTO gillingham.currgrid (currgrid_grid, currgrid_nextgrid
 $queryinsert2 = $conn1->prepare($sqlinsert2);
 $queryinsert2->execute();
 
-$sqlinsert3 = "INSERT INTO gillingham.nextgrid (nextgrid_grid, nextgrid_nextgrid, nextgrid_rpc, nextgrid_loctype, nextgrid_rpcdecrease, nextgrid_item, nextgrid_impmoves, nextgrid_gridvol)
+$sqlinsert3 = "INSERT IGNORE INTO gillingham.nextgrid (nextgrid_grid, nextgrid_nextgrid, nextgrid_rpc, nextgrid_loctype, nextgrid_rpcdecrease, nextgrid_item, nextgrid_impmoves, nextgrid_gridvol)
                             SELECT * FROM
                                 gillingham.rpc_reductions
                             WHERE
