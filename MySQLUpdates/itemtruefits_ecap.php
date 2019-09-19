@@ -176,11 +176,12 @@ foreach ($itemarray as $key => $value) {
     $columns_itemtf_ext = 'itemtf_item, itemtf_grid, itemtf_impmoves, itemtf_gridvol, itemtf_nextgrid, itemtf_rpc, itemtf_loctype, itemtf_griddep, itemtf_max, itemtf_min, itemtf_slotqty, itemtf_locvol, itemtf_daystostock';
 }
 
-
+if(isset($array_itemtf_ext) && !empty($array_itemtf_ext)){
 $values2 = implode(',', $array_itemtf_ext);
 $sql2 = "INSERT IGNORE INTO gillingham.item_truefits_ext ($columns_itemtf_ext) VALUES $values2";
 $query2 = $conn1->prepare($sql2);
 $query2->execute();
+}
 
 //delete from tables the duplicates to only include the grid5 with the lowest replen per cuble
 $sql3 = "DELETE FROM gillingham.item_truefits_ext 
