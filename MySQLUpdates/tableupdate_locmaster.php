@@ -49,27 +49,30 @@ do {
     $data = array();
     $values = array();
     while ($counter <= $maxrange) { //split into 5,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
-        $store_branch = ($result[$counter]['Branch']);
-        $store_loc = ($result[$counter]['Location']);
-        $store_hei = ($result[$counter]['Height']);
-        $store_dep = ($result[$counter]['Depth']);
-        $store_wid = ($result[$counter]['Width']);
-        $store_cube = ($result[$counter]['Cube']);
-        $store_usehei = ($result[$counter]['Usable Height']);
-        $store_usedep = ($result[$counter]['Usable Depth']);
-        $store_usewid = ($result[$counter]['Usable Width']);
-        $store_usecube = ($result[$counter]['Usable Cube']);
-        $store_locchar = ($result[$counter]['Location Characteristics']);
-        $store_zone = ($result[$counter]['Picking Zone']);
-        $store_aisle = ($result[$counter]['Aisle']);
-        $store_dimgroup = ($result[$counter]['Group Location Dimension']);
-        $store_pick = ($result[$counter]['Allow Pick']);
-        $store_replen = ($result[$counter]['Allow Replen']);
-        $store_put = ($result[$counter]['Allow Putaway']);
+        if (isset($result[$counter]['Branch'])) {
+            $store_branch = ($result[$counter]['Branch']);
+            $store_loc = ($result[$counter]['Location']);
+            $store_hei = ($result[$counter]['Height']);
+            $store_dep = ($result[$counter]['Depth']);
+            $store_wid = ($result[$counter]['Width']);
+            $store_cube = ($result[$counter]['Cube']);
+            $store_usehei = ($result[$counter]['Usable Height']);
+            $store_usedep = ($result[$counter]['Usable Depth']);
+            $store_usewid = ($result[$counter]['Usable Width']);
+            $store_usecube = ($result[$counter]['Usable Cube']);
+            $store_locchar = ($result[$counter]['Location Characteristics']);
+            $store_zone = ($result[$counter]['Picking Zone']);
+            $store_aisle = ($result[$counter]['Aisle']);
+            $store_dimgroup = ($result[$counter]['Group Location Dimension']);
+            $store_pick = ($result[$counter]['Allow Pick']);
+            $store_replen = ($result[$counter]['Allow Replen']);
+            $store_put = ($result[$counter]['Allow Putaway']);
 
 
-        $data[] = "('$store_branch', '$store_loc', '$store_hei', '$store_dep', '$store_wid', '$store_cube', '$store_usehei', '$store_usedep', '$store_usewid', '$store_usecube', '$store_locchar', '$store_zone',"
-                . "'$store_aisle', '$store_dimgroup', '$store_pick', '$store_replen', '$store_put', '$tier')";
+            $data[] = "('$store_branch', '$store_loc', '$store_hei', '$store_dep', '$store_wid', '$store_cube', '$store_usehei', '$store_usedep', '$store_usewid', '$store_usecube', '$store_locchar', '$store_zone',"
+                    . "'$store_aisle', '$store_dimgroup', '$store_pick', '$store_replen', '$store_put', '$tier')";
+            $counter += 1;
+        }
         $counter += 1;
     }
 

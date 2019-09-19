@@ -47,29 +47,32 @@ do {
     $data = array();
     $values = array();
     while ($counter <= $maxrange) { //split into 5,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
-        $item_branch = ($result[$counter]['Branch']);
-        $item_item = intval($result[$counter]['Item']);
-        $item_eapkgu = ($result[$counter]['Each Unit']);
-        $item_capkgu = ($result[$counter]['Case Unit']);
-        $item_plpkgu = ($result[$counter]['Pallet Unit']);
-        $item_eadep = ($result[$counter]['Each Depth']);
-        $item_eahei = ($result[$counter]['Each Height']);
-        $item_eawid = ($result[$counter]['Each Width']);
-        $item_cadep = ($result[$counter]['Case Depth']);
-        $item_cahei = ($result[$counter]['Case Height']);
-        $item_cawid = ($result[$counter]['Case Width']);
-        $item_padep = ($result[$counter]['Pallet Depth']);
-        $item_pahei = ($result[$counter]['Pallet Height']);
-        $item_pawid = ($result[$counter]['Pallet Width']);
-        $item_linetype = ($result[$counter]['Line Type']);
-        $item_chargroup = ($result[$counter]['Characteristics Group']);
-        $item_weight = ($result[$counter]['Item Weight']);
-         $item_desc1 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 1']);
-         $item_desc2 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 2']);
+        if (isset($result[$counter]['Branch'])) {
+            $item_branch = ($result[$counter]['Branch']);
+            $item_item = intval($result[$counter]['Item']);
+            $item_eapkgu = ($result[$counter]['Each Unit']);
+            $item_capkgu = ($result[$counter]['Case Unit']);
+            $item_plpkgu = ($result[$counter]['Pallet Unit']);
+            $item_eadep = ($result[$counter]['Each Depth']);
+            $item_eahei = ($result[$counter]['Each Height']);
+            $item_eawid = ($result[$counter]['Each Width']);
+            $item_cadep = ($result[$counter]['Case Depth']);
+            $item_cahei = ($result[$counter]['Case Height']);
+            $item_cawid = ($result[$counter]['Case Width']);
+            $item_padep = ($result[$counter]['Pallet Depth']);
+            $item_pahei = ($result[$counter]['Pallet Height']);
+            $item_pawid = ($result[$counter]['Pallet Width']);
+            $item_linetype = ($result[$counter]['Line Type']);
+            $item_chargroup = ($result[$counter]['Characteristics Group']);
+            $item_weight = ($result[$counter]['Item Weight']);
+            $item_desc1 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 1']);
+            $item_desc2 = preg_replace('/[^ \w]+/', '', $result[$counter]['Description 2']);
 
 
-        $data[] = "('$item_branch', $item_item, $item_eapkgu, $item_capkgu, $item_plpkgu, '$item_eadep', '$item_eahei', '$item_eawid', '$item_cadep', '$item_cahei', '$item_cawid', '$item_padep',
+            $data[] = "('$item_branch', $item_item, $item_eapkgu, $item_capkgu, $item_plpkgu, '$item_eadep', '$item_eahei', '$item_eawid', '$item_cadep', '$item_cahei', '$item_cawid', '$item_padep',
             '$item_pahei', '$item_pawid','$item_linetype', '$item_chargroup', '$item_weight', '$item_desc1', '$item_desc2')";
+            $counter += 1;
+        }
         $counter += 1;
     }
 

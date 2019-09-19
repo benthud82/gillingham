@@ -1533,9 +1533,9 @@ function _slotqty_offsys($avgshipqty, $daystostock, $avginventory, $slowdownsize
         return $slotqtyarray;
     }
 
-    $maxceil = intval(ceil($avginventory * $PKGU_PERC_Restriction));
+    $maxceil = intval(ceil($avginventory * $PKGU_PERC_Restriction)); 
 
-    $optimatalqty = $avgshipqty * $daystostock;  //based of days to stock, optimal quantity to slot as max
+    $optimatalqty = $avgshipqty * $daystostock;  //based of days to stock, optimal quantity to slot as max 
     $slotqtyarray['OPTQTY'] = $optimatalqty;
     if ($optimatalqty > $maxceil) {
         $slotqtyarray['CEILQTY'] = $maxceil;
