@@ -36,7 +36,7 @@ if (($headers = fgetcsv($fp, 0, ",")) !== FALSE) {
 fclose($fp);
 
 //insert into item_master table
-$columns = 'BRANCH,LOCATION,HEIGHT,DEPTH,WIDTH,CUBE,USE_HEIGHT,USE_DEPTH,USE_WIDTH,USE_CUBE,LOC_CHAR,PICK_ZONE,AISLE,LOC_DIM,ALLOW_PICK,ALLOW_REPLEN,ALLOW_PUT, TIER';
+$columns = 'BRANCH, LOCATION, HEIGHT, DEPTH, WIDTH, `CUBE`, USE_HEIGHT, USE_DEPTH, USE_WIDTH, USE_CUBE, LOC_CHAR, PICK_ZONE, AISLE, LOC_DIM, ALLOW_PICK, ALLOW_REPLEN, ALLOW_PUT, TIER';
 $maxrange = 999;
 $counter = 0;
 $rowcount = count($result);
@@ -50,8 +50,12 @@ do {
     $values = array();
     while ($counter <= $maxrange) { //split into 5,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
         if (isset($result[$counter]['Branch'])) {
-            $store_branch = ($result[$counter]['Branch']);
+            $store_branch = trim($result[$counter]['Branch']);
             $store_loc = ($result[$counter]['Location']);
+            if(is_null($store_branch) || empty($store_loc)){
+                $counter += 1;
+                continue;
+            }
             $store_hei = ($result[$counter]['Height']);
             $store_dep = ($result[$counter]['Depth']);
             $store_wid = ($result[$counter]['Width']);
@@ -72,8 +76,9 @@ do {
             $data[] = "('$store_branch', '$store_loc', '$store_hei', '$store_dep', '$store_wid', '$store_cube', '$store_usehei', '$store_usedep', '$store_usewid', '$store_usecube', '$store_locchar', '$store_zone',"
                     . "'$store_aisle', '$store_dimgroup', '$store_pick', '$store_replen', '$store_put', '$tier')";
             $counter += 1;
+        } else {
+            $counter += 1;
         }
-        $counter += 1;
     }
 
 

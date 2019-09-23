@@ -72,8 +72,10 @@ do {
             $data[] = "('$item_branch', $item_item, $item_eapkgu, $item_capkgu, $item_plpkgu, '$item_eadep', '$item_eahei', '$item_eawid', '$item_cadep', '$item_cahei', '$item_cawid', '$item_padep',
             '$item_pahei', '$item_pawid','$item_linetype', '$item_chargroup', '$item_weight', '$item_desc1', '$item_desc2')";
             $counter += 1;
+        }else{
+            $counter += 1;
         }
-        $counter += 1;
+
     }
 
 
