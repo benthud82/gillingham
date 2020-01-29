@@ -103,7 +103,7 @@ foreach ($fileglob as $deletefile) {
     unlink(realpath($deletefile));
 }
 //Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
-$sqlmerge2 = "INSERT INTO gillingham.slotmaster  (SELECT 
+$sqlmerge2 = "INSERT IGNORE INTO gillingham.slotmaster  (SELECT 
     slotmaster_branch,
     slotmaster_loc,
     slotmaster_item,
