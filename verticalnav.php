@@ -68,6 +68,7 @@ include 'globaldata/badges.php'; //$maperrorcount for vector mapping errors
                         <h4 style="cursor: default; margin: 3px 3px 3px 3px;" class="">Maintenance Reports</h4>
                         <!--<li><a href="itemsonhold.php">Items on Hold</a></li>--> 
                         <li><a href="emptylocations.php">Empty Locations</a></li> 
+                        <li><a href="deadlocations.php">Dead Locations</a></li> 
                         <li><a href="truefitcalc.php">True Fit Calc</a></li>                        
                         <li><a href="needswants.php">Needs / Wants</a></li> 
                         <!--<li><a href="smallcaseops.php">Small Case Opps</a></li>--> 

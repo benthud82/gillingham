@@ -22,8 +22,7 @@ foreach ($truncatetables as $value) {
 //include 'npfmvc_fullpallet.php';
 $maxdaysoh = 200;
 
-//smallest location to hold one unit of product
-//this will be the starting point for moves per cubic inch
+
 //pull in all "normal" items
 $itemsql = $conn1->prepare("SELECT 
                                 M.ITEM,
@@ -59,7 +58,7 @@ $itemsql->execute();
 $itemarray = $itemsql->fetchAll(pdo::FETCH_ASSOC);
 
 
-//pull in all grid sizes
+//pull in all grid sizes (this is for end-caps only)
 $gridsql = $conn1->prepare("SELECT 
                                                         LOC_DIM,
                                                         USE_HEIGHT,
@@ -251,7 +250,8 @@ foreach ($gridarray_ecap as $key => $value) {
     D.slotmaster_dimgroup AS LMGRD5,
     CASE
         WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_UNIT * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH)
-        ELSE (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
+        WHEN X.PKGU_CA > 0 THEN (A.AVG_DAILY_UNIT) * X.CA_DEPTH * X.CA_HEIGHT * X.CA_WIDTH / X.PKGU_CA
+        ELSE '.01'
     END AS DLY_CUBE_VEL,
     CASE
         WHEN X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH > 0 THEN (A.AVG_DAILY_PICK) * X.EA_DEPTH * X.EA_HEIGHT * X.EA_WIDTH
