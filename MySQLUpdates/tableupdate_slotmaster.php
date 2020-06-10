@@ -53,8 +53,8 @@ do {
             $counter += 1;
             continue;
         }
-        $slotmaster_item = $result[$counter]['Item'];
-        If ($slotmaster_item == '') {
+        $slotmaster_item = intval($result[$counter]['Item']);
+        If ($slotmaster_item == '' || $slotmaster_item == 0) {
             $counter += 1;
             continue;
         }
@@ -192,11 +192,11 @@ foreach ($currtfarray as $key => $value) {
 
 
 //Update empty location table
-    $sqldelete5 = "TRUNCATE gillingham.emptylocations";
-    $querydelete5 = $conn1->prepare($sqldelete5);
-    $querydelete5->execute();
+$sqldelete5 = "TRUNCATE gillingham.emptylocations";
+$querydelete5 = $conn1->prepare($sqldelete5);
+$querydelete5->execute();
 
-    $sqlmerge5 = "INSERT INTO gillingham.emptylocations
+$sqlmerge5 = "INSERT INTO gillingham.emptylocations
                                 SELECT 
                                     LOCATION
                                 FROM
@@ -205,5 +205,5 @@ foreach ($currtfarray as $key => $value) {
                                     gillingham.slotmaster ON LOCATION = slotmaster_loc
                                 WHERE
                                     slotmaster_loc IS NULL";
-    $querymerge5 = $conn1->prepare($sqlmerge5);
-    $querymerge5->execute();
+$querymerge5 = $conn1->prepare($sqlmerge5);
+$querymerge5->execute();
