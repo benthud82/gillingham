@@ -50,6 +50,7 @@
                                             <th>Number of Sales</th>
                                             <th>Location Grid</th>
                                             <th>Location Volume</th>
+                                            <th>Line Type</th>
                                         </tr>
                                     </thead>
                                 </table>
