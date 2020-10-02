@@ -19,10 +19,13 @@ $emptylocsql = $conn1->prepare("SELECT
                                     AVG_INV_OH,
                                     NBR_SHIP_OCC,
                                     LMGRD5,
-                                    LMVOL9
+                                    LMVOL9,
+                                    LINE_TYPE
+                                    
                                 FROM
                                     gillingham.my_npfmvc
                                     JOIN gillingham.location_master on LOCATION = CUR_LOCATION
+                                    JOIN gillingham.item_master on ITEM = ITEM_NUMBER
                                 WHERE
                                     DAYS_FRM_SLE >= 300
                                     AND TIER = '$var_tier'
