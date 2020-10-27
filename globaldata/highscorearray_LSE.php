@@ -47,6 +47,7 @@ $TOP_SCORE = $conn1->prepare("SELECT
                                                                     WHERE
                                                                         A.SUGGESTED_TIER <> ('PALL')
                                                                         and A.NBR_SHIP_OCC >= 10
+                                                                        and openactions_status <> 'COMPLETED'
                         --                                                and ITEM_NUMBER = 1128445
                                                                     $itemnumsql
                                                                     ORDER BY E.SCORE_TOTALSCORE ASC , E.SCORE_REPLENSCORE , E.SCORE_WALKSCORE
