@@ -6,7 +6,7 @@ ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
 //include_once '../globalincludes/google_connect.php';
 //include_once '../../connections/conn_printvis.php';
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -194,7 +194,7 @@ $query3->execute();
 
 //available ECAP locations
 $sql = $conn1->prepare("SELECT 
-                                                LOC_DIM, COUNT(*) as DIMCOUNT
+                                                LOC_DIM, USE_CUBE, COUNT(*) as DIMCOUNT
                                             FROM
                                                 gillingham.location_master
                                                     LEFT JOIN
@@ -202,7 +202,7 @@ $sql = $conn1->prepare("SELECT
                                             WHERE
                                                 exclude_grid IS NULL
                                                     AND TIER IN ('ECAP')
-                                            GROUP BY LOC_DIM
+                                            GROUP BY LOC_DIM, USE_CUBE
                                             ORDER BY USE_CUBE ASC");
 $sql->execute();
 $gridarray_ecap = $sql->fetchAll(pdo::FETCH_ASSOC);

@@ -2,10 +2,10 @@
 
 //creates table gillingham.nptsld
 $holidays = array();
+ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
-ini_set('memory_limit', '-1');
 //include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';
@@ -14,7 +14,7 @@ $sqldelete = "TRUNCATE gillingham.gill_grouped";
 $querydelete = $conn1->prepare($sqldelete);
 $querydelete->execute();
 
-$sqldelete2 = "TRUNCATE gillingham.gill_raw_30day";
+$sqldelete2 = "TRUNCATE gillingham.gill_raw_30day";     
 $querydelete2 = $conn1->prepare($sqldelete2);
 $querydelete2->execute();
 
@@ -33,14 +33,14 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, IT
                                                                 FROM
                                                                     (SELECT 
                                                                         A.*,
-                                                                            @currcount:=IF(@currvalue = CONCAT(ITEM, PICKDATE), @currcount, IF(SUBSTRING(@currvalue, 1, 7) = ITEM, @currcount + 1, 1)) AS rank,
+                                                                            @currcount:=IF(@currvalue = CONCAT(ITEM, PICKDATE), @currcount, IF(SUBSTRING(@currvalue, 1, 7) = ITEM, @currcount + 1, 1)) AS rank_rank,
                                                                             @currvalue:=CONCAT(ITEM, PICKDATE) AS whatever
                                                                     FROM
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
                                                                 WHERE PICKDATE >= '2017-01-01' 
                                                                 and PKTYPE = 'EA'
-                                                                 and  rank <= 61");
+                                                                 and  rank_rank <= 61");
 
 $sql_30day->execute();
 
@@ -240,7 +240,7 @@ $query = $conn1->prepare($sql);
 $query->execute();
 
 //update grouped sales history for forecasting
-$sql3 = "INSERT INTO fcast_linesgrouped 
+$sql3 = "INSERT INTO gillingham.fcast_linesgrouped 
 SELECT 
     PICKDATE,
     slotmaster_tier,

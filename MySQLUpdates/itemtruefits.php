@@ -6,7 +6,7 @@ ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
 //include_once '../globalincludes/google_connect.php';
 //include_once '../../connections/conn_printvis.php';
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 include_once 'globalfunctions.php';
 include_once '../globalfunctions/newitem.php';
 include_once '../globalfunctions/slottingfunctions.php';

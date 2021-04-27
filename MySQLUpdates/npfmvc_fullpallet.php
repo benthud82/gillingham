@@ -7,7 +7,7 @@ $JAX_ENDCAP = 0;
 $slowdownsizecutoff = 99999;
 $whssel = 'GB00001';
 //include_once '../../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 //include_once '../../connections/conn_printvis.php';
 //true l01 count
 //*******Assuming LOC_DIM of MSFP1 are full pallets********

@@ -2,7 +2,7 @@
 
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 date_default_timezone_set('Europe/London');
 $datetime = date('Y-m-d');
 $previous7days = date('Y-m-d', strtotime('-7 days'));
@@ -16,7 +16,7 @@ $columns = 'SCORE_WHSE, SCORE_ITEM, SCORE_PKGU, SCORE_ZONE, SCORE_TOTALSCORE, SC
 
 $scoresql = $conn1->prepare("INSERT INTO gillingham.slottingscore
     SELECT 
-    A.WAREHOUSE,
+    0,
     A.ITEM_NUMBER,
     A.PACKAGE_UNIT,
     A.PACKAGE_TYPE,
@@ -55,8 +55,7 @@ $scoresql = $conn1->prepare("INSERT INTO gillingham.slottingscore
 FROM
     gillingham.my_npfmvc A
         join
-    gillingham.optimalbay B ON A.WAREHOUSE = B.OPT_WHSE
-        and A.ITEM_NUMBER = B.OPT_ITEM
+    gillingham.optimalbay B ON A.ITEM_NUMBER = B.OPT_ITEM
         and A.PACKAGE_UNIT = B.OPT_PKGU
         and A.PACKAGE_TYPE = B.OPT_CSLS
         WHERE
@@ -177,7 +176,7 @@ $result6->execute();
 //replen history by bay
 $result2 = $conn1->prepare("INSERT INTO gillingham.replen_hist (replen_whse, replen_date, replen_bay, replen_replens) 
                             SELECT 
-                                WAREHOUSE,
+                                0,
                                 CURDATE(),
                                 BAY,
                                 SUM(CURRENT_IMPMOVES - SUGGESTED_IMPMOVES) * 253 AS YEARLYMOVES

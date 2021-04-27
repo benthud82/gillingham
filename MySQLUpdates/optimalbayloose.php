@@ -6,7 +6,7 @@ $whssel = 'GB0001';
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
 //include_once '../globalincludes/google_connect.php';
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 include_once '../globalfunctions/slottingfunctions.php';
 //include_once 'sql_dailypick.php';  //pulls in variable $sql_dailypick to calculate daily pick quantites
 
@@ -17,8 +17,8 @@ $querydelete->execute();
 
 $baycube = $conn1->prepare("SELECT 
                                                             WALKBAY AS BAY,
-                                                            SUM(CUBE) AS GRIDVOL,
-                                                            SUM(USE_CUBE) AS USEVOL
+                                                            SUM(A.CUBE) AS GRIDVOL,
+                                                            SUM(A.USE_CUBE) AS USEVOL
                                                         FROM
                                                             gillingham.location_master A
                                                                 JOIN
@@ -197,6 +197,7 @@ $L01Locs = $conn1->prepare("SELECT
                                                                     gillingham.item_settings)");
 $L01Locs->execute();
 $L01Locsarray = $L01Locs->fetchAll(pdo::FETCH_ASSOC);
+$data = array();
 //assign L01s to specific location
 foreach ($ppcL01array as $key => $value) {
 //is there a hold location?
@@ -261,7 +262,7 @@ if (!empty($valuesl01)) {
     $query->execute();
 }
 
-
+$data = array();
 
 //Result set for PPC sorted by highest PPC for items currently in FLOW
 $ppcFLOW = $conn1->prepare("SELECT 
@@ -388,8 +389,9 @@ if (!empty($valuesl01)) {
 
 
 $values = array();
-
-$maxrange = 3999;
+$data = array();
+//$maxrange = 3999;
+$maxrange = 99;
 $counter = 0;
 $rowcount = count($ppcarray);
 $newgrid_runningvol = 0;
@@ -418,7 +420,8 @@ do {
         $OPT_LOCATION = '';
         $CURRFEET = $ppcarray[$counter]['CURWALKFEET'];
         $HOLDLOC = $ppcarray[$counter]['HOLDLOCATION'];
-        if (!is_null($HOLDLOC)) { //if location is held, the volume is already subtracted out of the available volume by bay
+        $holdloc_len = strlen($HOLDLOC);
+        if (!is_null($HOLDLOC) && $holdloc_len >= 4) { //if location is held, the volume is already subtracted out of the available volume by bay
             $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
             $OPT_OPTBAY = intval(substr($HOLDLOC, 3, 2));
         } else { //no hold
@@ -452,7 +455,8 @@ do {
     $sql = "INSERT IGNORE INTO gillingham.optimalbay ($columns) VALUES $values";
     $query = $conn1->prepare($sql);
     $query->execute();
-    $maxrange += 4000;
+//    $maxrange += 4000;
+    $maxrange += 100;
 } while ($counter <= $rowcount);
 
 //update history table
@@ -478,59 +482,5 @@ GROUP BY OPT_WHSE , LMTIER , CURDATE() , L.BAY";
 $query_hist = $conn1->prepare($sql_hist);
 $query_hist->execute();
 
-//$sql_hist2 = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
-//                 SELECT OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC as BAY, sum(OPT_DAILYPICKS), avg(ABS(OPT_WALKCOST)), count(OPT_ITEM) FROM gillingham.optimalbay WHERE OPT_CURTIER = 'L01'  GROUP BY OPT_WHSE, OPT_CURTIER, CURDATE(), OPT_LOC;";
-//$query_hist2 = $conn1->prepare($sql_hist2);
-//$query_hist2->execute();
-
-//add all others that weren't calculated.  Since using insert igore, can pull in all locations
-//$sql_hist3 = "INSERT IGNORE INTO gillingham.optimalbay_hist(optbayhist_whse, optbayhist_tier, optbayhist_date, optbayhist_bay, optbayhist_pick, optbayhist_cost, optbayhist_count)
-//SELECT 
-//    WAREHOUSE,
-//    LMTIER,
-//    CURDATE(),
-// CASE
-//                    WHEN
-//                        LMGRD5 LIKE 'MB%'
-//                            AND SUBSTRING(OPT_LOC, 3, 2) > '12'
-//                    THEN
-//                        CONCAT(SUBSTRING(OPT_LOC, 1, 2), '0', SUBSTRING(OPT_LOC, 3, 1))
-//                    ELSE SUBSTRING(OPT_LOC, 1, 4)
-//                END AS BAY,
-//    SUM(CASE
-//        WHEN AVGD_BTW_SLE >= 365 THEN 0
-//        WHEN DAYS_FRM_SLE >= 180 THEN 0
-//        WHEN
-//            PICK_QTY_MN > SHIP_QTY_MN
-//        THEN
-//            (SHIP_QTY_MN / (CASE
-//                WHEN CPCCPKU > 0 THEN CPCCPKU
-//                ELSE 1
-//            END)) / AVGD_BTW_SLE
-//        WHEN AVGD_BTW_SLE = 0 AND DAYS_FRM_SLE = 0 THEN PICK_QTY_MN
-//        WHEN AVGD_BTW_SLE = 0 THEN (PICK_QTY_MN / DAYS_FRM_SLE)
-//        ELSE (PICK_QTY_MN / AVGD_BTW_SLE)
-//    END) AS PICKSSUM,
-//    0 AS COST,
-//    0 AS CNT
-//FROM
-//    gillingham.mysql_nptsld
-//        JOIN
-//    gillingham.npfcpcsettings ON CPCWHSE = WAREHOUSE
-//        AND ITEM_NUMBER = CPCITEM
-//        JOIN
-//    gillingham.mysql_npflsm ON LMWHSE = WAREHOUSE
-//        AND LMITEM = ITEM_NUMBER
-//        AND LMLOC = CUR_LOCATION
-//GROUP BY WAREHOUSE , LMTIER , CURDATE() , CASE
-//                    WHEN
-//                        LMGRD5 LIKE 'MB%'
-//                            AND SUBSTRING(OPT_LOC, 3, 2) > '12'
-//                    THEN
-//                        CONCAT(SUBSTRING(OPT_LOC, 1, 2), '0', SUBSTRING(OPT_LOC, 3, 1))
-//                    ELSE SUBSTRING(OPT_LOC, 1, 4)
-//                END";
-//$query_hist3 = $conn1->prepare($sql_hist3);
-//$query_hist3->execute();
 
     

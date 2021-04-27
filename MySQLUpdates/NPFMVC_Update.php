@@ -1,7 +1,7 @@
 <?php
 
 //haven't started on this.  This is pulled from the US main update php file
-include_once '../connection/NYServer.php';
+require '../../connections/conn_slotting.php';
 //include_once '../globalincludes/google_connect.php';
 include_once '../globalfunctions/slottingfunctions.php';
 include_once '../globalfunctions/newitem.php';
