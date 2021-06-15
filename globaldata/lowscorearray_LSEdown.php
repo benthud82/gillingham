@@ -48,8 +48,8 @@ $TOP_SCORE = $conn1->prepare("SELECT
                                                                         A.SUGGESTED_TIER <> ('PALL')
                                                                         and LMTIER = '$tier'
                                                                         and SUGGESTED_IMPMOVES = 0
-                                                                        and openactions_status is not NULL
-                                                                        and openactions_status = 'OPEN'
+                                                                        and (openactions_status is NULL or openactions_status = 'OPEN')
+                                                                        
                                                                     ORDER BY LMVOL9 DESC, SUGGESTED_NEWLOCVOL asc, E.SCORE_TOTALSCORE DESC , E.SCORE_REPLENSCORE DESC , E.SCORE_WALKSCORE DESC
                                                                     LIMIT $returncount");
 $TOP_SCORE->execute();
