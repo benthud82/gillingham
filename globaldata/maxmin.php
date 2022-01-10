@@ -69,7 +69,7 @@ WHERE
     slotmaster_currtf > (slotmaster_normreplen + slotmaster_maxreplen)
         AND A.LMTIER IN ('BIN' , 'FLOW', 'ECAP')
         $includesql
-        AND slotmaster_impmoves >= .05");
+        AND slotmaster_impmoves >= .01");
         $bayreport->execute();
         $bayreportarray = $bayreport->fetchAll(pdo::FETCH_ASSOC);
         break;
