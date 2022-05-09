@@ -19,6 +19,7 @@ $querydelete2 = $conn1->prepare($sqldelete2);
 $querydelete2->execute();
 
 $startdate = date('Y-m-d', strtotime('-7 days'));
+$startdate2 = date('Y-m-d', strtotime('-750 days'));
 
 //create 30 day table
 $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
@@ -38,7 +39,7 @@ $sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, IT
                                                                     FROM
                                                                         gillingham.gill_raw A
                                                                     ORDER BY ITEM , PICKDATE DESC) AS whatever
-                                                                WHERE PICKDATE >= '2017-01-01' 
+                                                                WHERE PICKDATE >= '$startdate2' 
                                                                 and PKTYPE = 'EA'
                                                                  and  rank_rank <= 61");
 
