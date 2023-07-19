@@ -6,6 +6,15 @@ include_once '../connection/NYServer.php';
 ini_set('memory_limit', '-1'); //max size 32m
 ini_set('max_execution_time', 99999);
 
+//Move records from gill_raw to gill_raw_hist if sales date is greater than 2 years old
+$sqldrop = "INSERT INTO gillingham.gill_raw_hist
+                    SELECT *
+                    FROM gillingham.gill_raw
+                    WHERE PICKDATE < DATE_SUB(NOW(), INTERVAL 2 YEAR);";
+$querydrop = $conn1->prepare($sqldrop);
+$querydrop->execute();
+
+
 $fileglob = glob('../../ftproot/ftpuk/sales*.csv');  //glob wildcard searches for any file
 
 if (count($fileglob) > 0) {
