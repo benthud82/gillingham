@@ -22,28 +22,28 @@ $startdate = date('Y-m-d', strtotime('-7 days'));
 $startdate2 = date('Y-m-d', strtotime('-750 days'));
 
 //create 30 day table
-$sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
-                                                                SELECT 
-                                                                    idGill_Test,
-                                                                    ITEM,
-                                                                    1,
-                                                                    PKTYPE,
-                                                                    UNITS,
-                                                                    PICKDATE,
-                                                                    LOCATION
-                                                                FROM
-                                                                    (SELECT 
-                                                                        A.*,
-                                                                            @currcount:=IF(@currvalue = CONCAT(ITEM, PICKDATE), @currcount, IF(SUBSTRING(@currvalue, 1, 7) = ITEM, @currcount + 1, 1)) AS rank_rank,
-                                                                            @currvalue:=CONCAT(ITEM, PICKDATE) AS whatever
-                                                                    FROM
-                                                                        gillingham.gill_raw A
-                                                                    ORDER BY ITEM , PICKDATE DESC) AS whatever
-                                                                WHERE PICKDATE >= '$startdate2' 
-                                                                and PKTYPE = 'EA'
-                                                                 and  rank_rank <= 61");
-
-$sql_30day->execute();
+//$sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
+//                                                                SELECT 
+//                                                                    idGill_Test,
+//                                                                    ITEM,
+//                                                                    1,
+//                                                                    PKTYPE,
+//                                                                    UNITS,
+//                                                                    PICKDATE,
+//                                                                    LOCATION
+//                                                                FROM
+//                                                                    (SELECT 
+//                                                                        A.*,
+//                                                                            @currcount:=IF(@currvalue = CONCAT(ITEM, PICKDATE), @currcount, IF(SUBSTRING(@currvalue, 1, 7) = ITEM, @currcount + 1, 1)) AS rank_rank,
+//                                                                            @currvalue:=CONCAT(ITEM, PICKDATE) AS whatever
+//                                                                    FROM
+//                                                                        gillingham.gill_raw A
+//                                                                    ORDER BY ITEM , PICKDATE DESC) AS whatever
+//                                                                WHERE PICKDATE >= '$startdate2' 
+//                                                                and PKTYPE = 'EA'
+//                                                                 and  rank_rank <= 61");
+//
+//$sql_30day->execute();
 
 
 
@@ -58,7 +58,7 @@ $rawsql = $conn1->prepare("SELECT
                                                         CONCAT(A.ITEM, 1, A.PKTYPE) AS KEYVAL,
                                                         ceil(AVG(V.AVG_OH)) AS INV_OH
                                                     FROM
-                                                        gillingham.gill_raw_30day A
+                                                        gillingham.gill_raw A
                                                             JOIN
                                                         gillingham.item_master B ON B.ITEM = A.ITEM
                                                             LEFT JOIN

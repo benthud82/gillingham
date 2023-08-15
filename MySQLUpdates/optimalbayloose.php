@@ -2,7 +2,6 @@
 
 $whssel = 'GB0001';
 
-
 ini_set('max_execution_time', 99999);
 ini_set('memory_limit', '-1');
 //include_once '../globalincludes/google_connect.php';
@@ -31,7 +30,6 @@ $baycube = $conn1->prepare("SELECT
                                                         GROUP BY WALKBAY");
 $baycube->execute();
 $baycubearray = $baycube->fetchAll(pdo::FETCH_ASSOC);
-
 
 //Result set for items to go to ECAP
 $ppc_ecap = $conn1->prepare("SELECT DISTINCT
@@ -64,8 +62,6 @@ $ppc_ecap = $conn1->prepare("SELECT DISTINCT
                                                 ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
 $ppc_ecap->execute();
 $ppc_ecap_array = $ppc_ecap->fetchAll(pdo::FETCH_ASSOC);
-
-
 
 foreach ($ppc_ecap_array as $key => $value) {
 //is there a hold location?
@@ -130,7 +126,7 @@ $ppc = $conn1->prepare("SELECT DISTINCT
                                                     HOLDTIER,
                                                     HOLDGRID,
                                                     HOLDLOCATION,
-                                                    L.WALKBAY AS CURR_BAY
+                                                    case when L.WALKBAY is null then 7 else L.WALKBAY end AS CURR_BAY
                                                 FROM
                                                     gillingham.my_npfmvc A
                                                         JOIN
@@ -144,7 +140,6 @@ $ppc = $conn1->prepare("SELECT DISTINCT
                                                 ORDER BY PPC_CALC DESC , A.SUGGESTED_NEWLOCVOL ASC");
 $ppc->execute();
 $ppcarray = $ppc->fetchAll(pdo::FETCH_ASSOC);
-
 
 //Result set for PPC sorted by highest PPC for items currently in L01
 $ppcL01 = $conn1->prepare("SELECT 
@@ -176,7 +171,6 @@ $ppcL01 = $conn1->prepare("SELECT
 $ppcL01->execute();
 $ppcL01array = $ppcL01->fetchAll(pdo::FETCH_ASSOC);
 
-
 //L01 Locations in ascending walkfeet to match with highest picked L01 Recs
 $L01Locs = $conn1->prepare("SELECT 
                                                             M.LOCATION AS LMLOC,
@@ -206,11 +200,9 @@ foreach ($ppcL01array as $key => $value) {
     $OPT_NEWGRID = $ppcL01array[$key]['OPT_NEWGRID'];
     $OPT_NDEP = intval($ppcL01array[$key]['OPT_NDEP']);
 
-
-
     if (!is_null($testloc) && $testloc <> '') {
         $OPT_LOCATION = $testloc;
-    } else if (count($L01Locsarray > 0)) {
+    } else if (!empty($L01Locsarray)) {
         //need to verify the location size matches
 
         foreach ($L01Locsarray as $key2 => $value) {//loop through L01 non-assigned grids
@@ -294,9 +286,6 @@ $ppcFLOW = $conn1->prepare("SELECT
 $ppcFLOW->execute();
 $ppcFLOWarray = $ppcFLOW->fetchAll(pdo::FETCH_ASSOC);
 
-
-
-
 foreach ($ppcFLOWarray as $key => $value) {
 //is there a hold location?
     $testloc = $ppcFLOWarray[$key]['HOLDLOCATION'];
@@ -304,8 +293,6 @@ foreach ($ppcFLOWarray as $key => $value) {
     $OPT_NEWGRID = $ppcFLOWarray[$key]['OPT_NEWGRID'];
     $OPT_NDEP = intval($ppcFLOWarray[$key]['OPT_NDEP']);
     $OPT_LOCATION = '';
-
-
 
     $OPT_WHSE = intval($ppcFLOWarray[$key]['OPT_WHSE']);
     $OPT_ITEM = intval($ppcFLOWarray[$key]['OPT_ITEM']);
@@ -422,8 +409,8 @@ do {
         $HOLDLOC = $ppcarray[$counter]['HOLDLOCATION'];
         $holdloc_len = strlen($HOLDLOC);
         if (!is_null($HOLDLOC) && $holdloc_len >= 4) { //if location is held, the volume is already subtracted out of the available volume by bay
-            $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
-            $OPT_OPTBAY = intval(substr($HOLDLOC, 3, 2));
+//            $newgrid_runningvol += $OPT_NEWGRIDVOL; //add newgrid vol to running total of newgrid vol
+            $OPT_OPTBAY = intval($OPT_CURRBAY);
         } else { //no hold
             if ($newgrid_runningvol <= $baytotalvolume) {  //can next item volume fit into current available room?
                 $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
@@ -433,17 +420,17 @@ do {
                 $newgrid_runningvol = 0; //reset vol
                 $OPT_OPTBAY = intval($baycubearray[$baykey]['BAY']);
             }
-
-            $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
-            $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
-            $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
-            $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
-            $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
-            $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
-            $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC',  '$OPT_CSLS',  $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
-            $counter += 1;
         }
+        $walkcostarray = _walkcost_GILL($OPT_CURRBAY, $OPT_OPTBAY, $OPT_DAILYPICKS, $CURRFEET);
+        $OPT_CURRDAILYFT = ($walkcostarray['CURR_FT_PER_DAY']);
+        $OPT_SHLDDAILYFT = ($walkcostarray['SHOULD_FT_PER_DAY']);
+        $OPT_ADDTLFTPERPICK = ($walkcostarray['ADDTL_FT_PER_PICK']);
+        $OPT_ADDTLFTPERDAY = ($walkcostarray['ADDTL_FT_PER_DAY']);
+        $OPT_WALKCOST = $walkcostarray['ADDTL_COST_PER_YEAR'];
+        $data[] = "($OPT_WHSE, $OPT_ITEM, $OPT_PKGU, '$OPT_LOC',  '$OPT_CSLS',  $OPT_PPCCALC, $OPT_OPTBAY, $OPT_CURRBAY, '$OPT_CURRDAILYFT', '$OPT_SHLDDAILYFT', '$OPT_ADDTLFTPERPICK', '$OPT_ADDTLFTPERDAY', $OPT_WALKCOST, '$OPT_LOCATION',$OPT_BUILDING)";
+        $counter += 1;
     }
+
 
 
     $values = implode(',', $data);
@@ -482,5 +469,3 @@ GROUP BY OPT_WHSE , LMTIER , CURDATE() , L.BAY";
 $query_hist = $conn1->prepare($sql_hist);
 $query_hist->execute();
 
-
-    
