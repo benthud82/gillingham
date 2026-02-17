@@ -100,7 +100,9 @@ do {
     $maxrange += 1000;
 } while ($counter <= $rowcount); //end of item by whse loop
 foreach ($fileglob as $deletefile) {
-    unlink(realpath($deletefile));
+    $filename_only = basename($deletefile);
+    $destination = '../../ftproot/ftpuk/old_files/' . $filename_only;
+    rename(realpath($deletefile), $destination);
 }
 //Pull in vector map bay from bay_loc and overwrite $slotmaster_bay in the slotmaster table
 $sqlmerge2 = "INSERT IGNORE INTO gillingham.slotmaster  (SELECT 

@@ -21,101 +21,96 @@ $querydelete2->execute();
 $startdate = date('Y-m-d', strtotime('-7 days'));
 $startdate2 = date('Y-m-d', strtotime('-750 days'));
 
-//create 30 day table
-//$sql_30day = $conn1->prepare("INSERT into gillingham.gill_raw_30day (idsales, ITEM, PKGU, PKTYPE, UNITS, PICKDATE, LOCATION)
-//                                                                SELECT 
-//                                                                    idGill_Test,
-//                                                                    ITEM,
-//                                                                    1,
-//                                                                    PKTYPE,
-//                                                                    UNITS,
-//                                                                    PICKDATE,
-//                                                                    LOCATION
-//                                                                FROM
-//                                                                    (SELECT 
-//                                                                        A.*,
-//                                                                            @currcount:=IF(@currvalue = CONCAT(ITEM, PICKDATE), @currcount, IF(SUBSTRING(@currvalue, 1, 7) = ITEM, @currcount + 1, 1)) AS rank_rank,
-//                                                                            @currvalue:=CONCAT(ITEM, PICKDATE) AS whatever
-//                                                                    FROM
-//                                                                        gillingham.gill_raw A
-//                                                                    ORDER BY ITEM , PICKDATE DESC) AS whatever
-//                                                                WHERE PICKDATE >= '$startdate2' 
-//                                                                and PKTYPE = 'EA'
-//                                                                 and  rank_rank <= 61");
-//
-//$sql_30day->execute();
+// Step 1: Determine the total number of unique items
+$totalItemsQuery = $conn1->prepare("SELECT COUNT(DISTINCT ITEM) AS total_items FROM gillingham.gill_raw WHERE PICKDATE >= '$startdate2'");
+$totalItemsQuery->execute();
+$totalItems = $totalItemsQuery->fetchColumn();
 
+// Step 2: Calculate the number of items in each 10% segment
+$segmentSize = ceil($totalItems / 10);
 
+// Step 3: Loop through each 10% segment
+for ($segment = 0; $segment < 10; $segment++) {
+    $offset = $segment * $segmentSize;
 
-//would only want to go back certain number of days
-$rawsql = $conn1->prepare("SELECT 
-                                                        A.ITEM,
-                                                        1,
-                                                        A.PKTYPE,
-                                                        A.PICKDATE,
-                                                        COUNT(*) AS PICK_COUNT,
-                                                        SUM(A.UNITS) AS UNITS_SUM,
-                                                        CONCAT(A.ITEM, 1, A.PKTYPE) AS KEYVAL,
-                                                        ceil(AVG(V.AVG_OH)) AS INV_OH
-                                                    FROM
-                                                        gillingham.gill_raw A
-                                                            JOIN
-                                                        gillingham.item_master B ON B.ITEM = A.ITEM
-                                                            LEFT JOIN
-                                                        gillingham.avg_inv V ON V.ITEM = A.ITEM
-                                                    GROUP BY A.ITEM , 1 , A.PKTYPE , A.PICKDATE
-                                                    ORDER BY A.ITEM ASC , A.PICKDATE ASC");
-$rawsql->execute();
-$groupedarray = $rawsql->fetchAll(pdo::FETCH_ASSOC);
-$columns = 'GROUPED_ITEM, GROUPED_PKGU, GROUPED_PKTYPE, GROUPED_DATE, GROUPED_PICKS, GROUPED_UNITS, GROUPED_PREVSALE, GROUPED_DSLS, GROUPED_INVOH';
-$maxrange = 20000;
-$counter = 0;
-$rowcount = count($groupedarray);
-do {
-    if ($maxrange > $rowcount) {  //prevent undefined offset
-        $maxrange = $rowcount - 1;
-    }
+    // Fetch items for the current segment
+    $itemsQuery = $conn1->prepare("SELECT DISTINCT ITEM FROM gillingham.gill_raw WHERE PICKDATE >= '$startdate2' ORDER BY ITEM ASC LIMIT $segmentSize OFFSET $offset");
+    $itemsQuery->execute();
+    $items = $itemsQuery->fetchAll(PDO::FETCH_COLUMN);
 
-    $data = array();
-    $values = array();
-    while ($counter <= $maxrange) { //split into 10,000 lines segments to insert into merge table //sub loop through items by whse to pull in CPC settings by whse/item
-        $ITEM = intval($groupedarray[$counter]['ITEM']);
-        //$PKGU = intval($groupedarray[$counter]['PKGU']);
-        $PKGU = intval(1);
-        $PKTYPE = $groupedarray[$counter]['PKTYPE'];
-        $PICKDATE = date('Y-m-d', strtotime($groupedarray[$counter]['PICKDATE']));
-        $PICK_COUNT = intval($groupedarray[$counter]['PICK_COUNT']);
-        $UNITS_SUM = intval($groupedarray[$counter]['UNITS_SUM']);
-        $INV_OH = intval($groupedarray[$counter]['INV_OH']);
-        $KEYVAL = ($groupedarray[$counter]['KEYVAL']);
-
-        //when item changes, don't calc DSLS
-        if ($counter === 0) {  //first row, no previous sale date
-            $previousdate = '0000-00-00';
-            $DSLS = 0;
-        } else if ($KEYVAL !== $groupedarray[$counter - 1]['KEYVAL']) {  //if item <> previous item, first row of item, no previous sale date
-            $previousdate = '0000-00-00';
-            $DSLS = 0;
-        } else if ($KEYVAL !== $groupedarray[$counter + 1]['KEYVAL']) {  //if item <> next item, calculated days from last sale to today for DSLS
-            $previousdate = date('Y-m-d');
-            $DSLS = intval(getWorkingDays($PICKDATE,$previousdate, $holidays));
-        }else {  //default to days between last pick date and current pick date
-            $previousdate = date('Y-m-d', strtotime($groupedarray[$counter - 1]['PICKDATE']));
-            $DSLS = intval(getWorkingDays($previousdate, $PICKDATE,  $holidays));
+    // Fetch and process data for items in the current segment
+    $rawsql = $conn1->prepare("
+        SELECT 
+            A.ITEM,
+            1,
+            A.PKTYPE,
+            A.PICKDATE,
+            COUNT(*) AS PICK_COUNT,
+            SUM(A.UNITS) AS UNITS_SUM,
+            CONCAT(A.ITEM, 1, A.PKTYPE) AS KEYVAL,
+            CEIL(AVG(V.AVG_OH)) AS INV_OH
+        FROM
+            gillingham.gill_raw A
+            JOIN gillingham.item_master B ON B.ITEM = A.ITEM
+            LEFT JOIN gillingham.avg_inv V ON V.ITEM = A.ITEM
+        WHERE
+            A.ITEM IN (" . implode(',', array_map('intval', $items)) . ")
+        GROUP BY A.ITEM, 1, A.PKTYPE, A.PICKDATE
+        ORDER BY A.ITEM ASC, A.PICKDATE ASC
+    ");
+    $rawsql->execute();
+    $groupedarray = $rawsql->fetchAll(PDO::FETCH_ASSOC);
+    $columns = 'GROUPED_ITEM, GROUPED_PKGU, GROUPED_PKTYPE, GROUPED_DATE, GROUPED_PICKS, GROUPED_UNITS, GROUPED_PREVSALE, GROUPED_DSLS, GROUPED_INVOH';
+    $maxrange = 20000;
+    $counter = 0;
+    $rowcount = count($groupedarray);
+    do {
+        if ($maxrange > $rowcount) {  //prevent undefined offset
+            $maxrange = $rowcount;
         }
-        $data[] = "($ITEM, $PKGU, '$PKTYPE', '$PICKDATE', $PICK_COUNT, $UNITS_SUM, '$previousdate', $DSLS, $INV_OH)";
-        $counter += 1;
-    }
-    $values = implode(',', $data);
 
-    if (empty($values)) {
-        break;
-    }
-    $sql = "INSERT IGNORE INTO gillingham.gill_grouped ($columns) VALUES $values";
-    $query = $conn1->prepare($sql);
-    $query->execute();
-    $maxrange += 20000;
-} while ($counter <= $rowcount); //end of item by whse loop
+        $data = array();
+        $values = array();
+        while ($counter < $maxrange) {
+            $ITEM = intval($groupedarray[$counter]['ITEM']);
+            $PKGU = intval(1);
+            $PKTYPE = $groupedarray[$counter]['PKTYPE'];
+            $PICKDATE = date('Y-m-d', strtotime($groupedarray[$counter]['PICKDATE']));
+            $PICK_COUNT = intval($groupedarray[$counter]['PICK_COUNT']);
+            $UNITS_SUM = intval($groupedarray[$counter]['UNITS_SUM']);
+            $INV_OH = intval($groupedarray[$counter]['INV_OH']);
+            $KEYVAL = ($groupedarray[$counter]['KEYVAL']);
+
+            //when item changes, don't calc DSLS
+            if ($counter === 0) {  //first row, no previous sale date
+                $previousdate = '0000-00-00';
+                $DSLS = 0;
+            } else if ($KEYVAL !== $groupedarray[$counter - 1]['KEYVAL']) {  //if item <> previous item, first row of item, no previous sale date
+                $previousdate = '0000-00-00';
+                $DSLS = 0;
+            } else if ($counter + 1 < $rowcount && $KEYVAL !== $groupedarray[$counter + 1]['KEYVAL']) {  //if item <> next item, calculated days from last sale to today for DSLS
+                $previousdate = date('Y-m-d');
+                $DSLS = intval(getWorkingDays($PICKDATE,$previousdate, $holidays));
+            } else {  //default to days between last pick date and current pick date
+                $previousdate = date('Y-m-d', strtotime($groupedarray[$counter - 1]['PICKDATE']));
+                $DSLS = intval(getWorkingDays($previousdate, $PICKDATE,  $holidays));
+            }
+            $data[] = "($ITEM, $PKGU, '$PKTYPE', '$PICKDATE', $PICK_COUNT, $UNITS_SUM, '$previousdate', $DSLS, $INV_OH)";
+            $counter += 1;
+        }
+
+        if (!empty($data)) {
+            $values = implode(',', $data);
+            $sql = "INSERT IGNORE INTO gillingham.gill_grouped ($columns) VALUES $values";
+            $query = $conn1->prepare($sql);
+            $query->execute();
+            $data = array(); // Clear the data array after insertion
+        }
+
+        $maxrange += 20000;
+    } while ($counter < $rowcount);
+}
+
 //Truncate NPTLSD file
 $sqldelete = "TRUNCATE gillingham.nptsld";
 $querydelete = $conn1->prepare($sqldelete);
@@ -255,5 +250,6 @@ GROUP BY slotmaster_tier , PICKDATE
 ON DUPLICATE KEY UPDATE linesgrouped_lines=values(linesgrouped_lines)";
 $query3 = $conn1->prepare($sql3);
 $query3->execute();
+
 
 

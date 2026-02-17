@@ -81,7 +81,9 @@ do {
 
 
 foreach ($fileglob as $deletefile) {
-    unlink(realpath($deletefile));
+    $filename_only = basename($deletefile);
+    $destination = '../../ftproot/ftpuk/old_files/' . $filename_only;
+    rename(realpath($deletefile), $destination);
 }
 
 
